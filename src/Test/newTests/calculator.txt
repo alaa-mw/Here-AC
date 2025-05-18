@@ -1,0 +1,71 @@
+import { Component, Injectable } from '@angular/core';
+
+interface OperationInterface {
+  sum: (x: number, y?: number) => number;
+  minus: (x: number, y?: number) => number;
+  mult: (x: number, y: number) => number;
+  divide: (x: number, y: number) => number;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="container">
+
+    </div>
+  `,
+  styles: `
+    .container {
+      padding: 20px;
+    }
+  `,
+})
+export class AppComponent {
+
+  num1: number = 0;
+  num2: number = 0;
+  result: number | null = null;
+
+// past have error
+
+  num1: number | unknown = 0;
+num = [3,"d",4];
+num = ind[3];
+x = ind[6];
+x= this.d.f().x.n();
+
+//2+4 //must make error
+
+  op: OperationInterface = {
+    sum: (x, y) => y ? x + y : x,
+    minus: (x, y) => y ? x - y : x,
+    mult: (x, y) => x * y ,
+    divide: (x, y) =>  x / y
+  };
+
+  calculate(operation: keyof OperationInterface): void {
+    switch(operation) {
+      case 'sum':
+        if(true) {
+          console.log("sum");
+        }
+        this.result = this.op.sum(this.num1, this.num2);
+        break;
+      case 'minus':
+        this.result = this.op.minus(this.num1, this.num2);
+        break;
+      case 'mult':
+        this.result = this.op.mult(this.num1, this.num2);
+        break;
+      case 'divide':
+        this.result = this.num2 !== 0 ? this.op.divide(this.num1, this.num2) : null;
+        break;
+    }
+  }
+}

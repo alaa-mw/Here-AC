@@ -1,0 +1,156 @@
+import { Component, Injectable } from '@angular/core';
+
+// تعريف الواجهة (Interface)
+interface Product {
+  name: string;
+  image: string;
+  desc: string;
+
+  method(arg: number): void;
+  handler: (event: string) => boolean;
+}
+
+// الخدمة (Service)
+@Injectable({
+  providedIn: 'root',
+})
+export class ProductService {
+  private selectedProduct: Product | null = null;
+
+  private products: Product[] = [
+    {
+      name: 'Product 1 Camera',
+      desc: 'Capture moments with this amazing camera.',
+      image: 'assets/images/camera.png',
+    },
+    {
+      name: 'Product 2 Laptop',
+      desc: 'High performance laptop for all your needs.',
+      image: 'assets/images/laptop.png',
+    },
+    {
+      name: 'Product 3 Wireless Headphones',
+      desc: 'Experience premium sound quality wirelessly.',
+      image: 'assets/images/Wireless_Headphones.png',
+    },
+  ];
+
+  getProducts(): Product[] {
+    return this.products;
+  }
+
+  getSelectedProduct(): Product | null {
+    return this.selectedProduct;
+  }
+
+  selectProduct(product: Product): void {
+    this.selectedProduct = product;
+  }
+}
+
+// المكون (Component)
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="container">
+      <div class="products-container">
+        <div class="product-list">
+          <h1>Product List</h1>
+          <div
+            class="product-item"
+            *ngFor="let product of products"
+            (click)="selectProduct(product)"
+          >
+            <h3>{{ product.name }}</h3>
+            <img [src]="product.image" alt="Product Image" />
+          </div>
+        </div>
+        <div calss="detailsSide">
+          <h1>Product Details</h1>
+          <div class="product-details">
+            <div *ngIf="selectedProduct">
+              <h2>{{ selectedProduct.name }}</h2>
+              <p>{{ selectedProduct.desc }}</p>
+              <img [src]="selectedProduct.image" alt="Product Image" />
+            </div>
+            <div *ngIf="!selectedProduct">
+              <h2>Select a product to view its details</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: `
+      .container {
+        padding: 20px;
+      }
+      .products-container {
+        display: flex;
+        flex-direction: row-reverse; /* القائمة على اليمين والتفاصيل على اليسار */
+        gap: 200px;
+      }
+      .product-list {
+        flex: 1;
+        max-width: 40%;
+      }
+      .detailsSide {
+        padding: 20px;
+      }
+      .product-details {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #000;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px #f9f9f9;
+        background-color: #f9f9f9;
+        text-align: center;
+      }
+      .product-item {
+        width: 350px;
+        height: 170px;
+        border: 1px solid #000;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 10px;
+        background-color: #f9f9f9;
+        text-align: center;
+        cursor: pointer;
+      }
+      .product-item img {
+        width: 100px;
+        height: 300px;
+        object-fit: cover;
+        margin-bottom: 5px;
+      }
+      .product-details img {
+        width: 220px;
+        height: 250px;
+        object-fit: cover;
+        margin-bottom: 5px;
+        overflow: hidden;
+      }
+    `,
+})
+export class AppComponent {
+
+  products: Product[] = [];
+  selectedProduct: Product | null = null;
+
+  constructor(private productService: ProductService) {
+    this.products = this.productService.getProducts();
+  }
+
+  selectProduct(product: Product): void {
+    this.productService.selectProduct(product);
+    this.selectedProduct = this.productService.getSelectedProduct();
+  }
+
+
+}

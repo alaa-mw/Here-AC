@@ -1,0 +1,25 @@
+//interface
+
+export interface HousingLocation {
+  id: number;
+  name: string;
+  city: string;
+  state: string;
+  photo: string;
+  availableUnits: number;
+  wifi?: boolean;
+  laundry?: boolean;
+}
+--------------------------------------------
+interface User {
+    name: string;
+    age?: number;
+    email: string;
+}
+--------------------------------------------
+interface InterfaceName {
+    property1: number;
+    property2: number;
+    method1(param: number): number;
+    method2(a? : string , en : boolean ) => string ; // Function type definition
+}

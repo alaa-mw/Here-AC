@@ -1,0 +1,6 @@
+// list expression
+[1, 2, 3]
+["hello", "world"]
+[{ id: 1 }, { id: 2 }]
+[true, false, true]
+مصفوفات متداخلة ؟؟ [ [1, 2], [3, 4] ]

@@ -1,0 +1,42 @@
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  template: `<div class="counter-container">
+    <h1>{{ title }}</h1>
+    <h1>{{ count }}</h1>
+    <h1>{{ mssg }}</h1>
+    <button (click)="increment()">+</button>
+    <button (click)="decrement()">-</button>
+    <button (click)="reset()">Reset</button>
+  </div>`,
+  styles: `  .counter-container {
+    text-align: center;
+  }
+
+  button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+`,
+})
+export class AppComponent {
+  title : string = 'Compiler Test Counter';
+  mssg = '';
+  count : number = 0;
+
+  increment() {
+    this.count += 1;
+  }
+
+  decrement() {
+    this.count -= 1;
+  }
+
+  reset() {
+    this.count = 0;
+  }
+}
