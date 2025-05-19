@@ -5,7 +5,7 @@ import AST.CustomStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Styles extends StyleArg{
+public class Styles implements StyleArg{
     private List<InlineStyle> inlineStyles=new ArrayList<>();
 
     public List<InlineStyle> getInlineStyles() {

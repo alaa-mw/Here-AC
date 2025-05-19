@@ -4,7 +4,7 @@ import AST.DataType.DataType;
 import AST.CustomStringBuilder;
 import AST.ParameterList.ParameterList;
 
-public class ArrowFunctionInterface extends InterfaceBody {
+public class ArrowFunctionInterface implements InterfaceBody {
     private String readonly ;
     private String question;
     private String identifier ;

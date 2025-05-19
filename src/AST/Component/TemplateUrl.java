@@ -2,7 +2,7 @@ package AST.Component;
 
 import AST.CustomStringBuilder;
 
-public class TemplateUrl extends TemplateArg{
+public class TemplateUrl implements TemplateArg{
     private String templateUrl;
     private String stringLiteral;
 

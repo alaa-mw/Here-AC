@@ -1,12 +1,13 @@
 package AST.SwitchStmt;
 
+import AST.CommonStatement;
 import AST.CustomStringBuilder;
 import AST.Expression.Expression;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SwitchStatement {
+public class SwitchStatement implements CommonStatement,CaseStatement {
     private String Switch_KeyWord ;
     private Expression expression ;
     private List<CaseBlock> caseBlocks = new ArrayList<>() ;

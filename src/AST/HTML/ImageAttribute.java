@@ -4,7 +4,7 @@ import AST.CustomStringBuilder;
 
 import java.util.ArrayList;
 
-public class ImageAttribute {
+public class ImageAttribute implements HtmlAttribute {
      private String imageSrc;
      private String stringLiteral;
      private ArrayList<BasicAttribute> basicAttribute = new ArrayList<BasicAttribute>();//optional

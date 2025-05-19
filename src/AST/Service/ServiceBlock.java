@@ -3,8 +3,10 @@ package AST.Service;
 import AST.Class.ClassDeclaration;
 import AST.CustomStringBuilder;
 import AST.Service.ServiceDeclaration;
+import AST.Statement;
 
-public class ServiceBlock {
+public class ServiceBlock implements Statement
+{
     private ServiceDeclaration serviceDeclaration;
     private ClassDeclaration classDeclaration;
 

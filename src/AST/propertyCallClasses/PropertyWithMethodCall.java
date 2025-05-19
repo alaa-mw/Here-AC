@@ -6,7 +6,7 @@ import AST.MethodCall;
 import java.util.*;
 
 
-public class PropertyWithMethodCall extends PropertyCall{
+public class PropertyWithMethodCall implements PropertyCall{
 
     private String this_;
     private List<String> identifiers = new ArrayList<>();

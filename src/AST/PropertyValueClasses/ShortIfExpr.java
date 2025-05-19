@@ -2,7 +2,7 @@ package AST.PropertyValueClasses;
 
 import AST.CustomStringBuilder;
 
-public class ShortIfExpr extends PropertyValue {
+public class ShortIfExpr implements PropertyValue {
     private PropertyValue condition;
     private PropertyValue trueBranch;
     private PropertyValue falseBranch;

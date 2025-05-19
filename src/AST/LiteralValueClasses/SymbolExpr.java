@@ -2,7 +2,7 @@ package AST.LiteralValueClasses;
 
 import AST.CustomStringBuilder;
 
-public class SymbolExpr extends LiteralValue{
+public class SymbolExpr implements LiteralValue{
 
     private String value;
 

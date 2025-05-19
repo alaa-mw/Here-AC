@@ -2,7 +2,7 @@ package AST.Component;
 
 import AST.CustomStringBuilder;
 
-public class StyleUrl extends StyleArg {
+public class StyleUrl implements StyleArg {
     private String stylesUrl;
     private String stringLiteral;
 

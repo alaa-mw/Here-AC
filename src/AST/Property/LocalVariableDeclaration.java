@@ -1,8 +1,9 @@
 package AST.Property;
 
 import AST.CustomStringBuilder;
+import AST.Method.MethodBodyProperty;
 
-public class LocalVariableDeclaration {
+public class LocalVariableDeclaration implements MethodBodyProperty,BlockProperty {
 
     private String let;
     private String const_;

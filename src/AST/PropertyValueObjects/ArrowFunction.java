@@ -4,7 +4,7 @@ import AST.CustomStringBuilder;
 import AST.Expression.Expression;
 import AST.ParameterList.ParameterList;
 
-public class ArrowFunction {
+public class ArrowFunction implements PropertyValueObjects {
     private ParameterList parameterList;
     private Expression expression;
 

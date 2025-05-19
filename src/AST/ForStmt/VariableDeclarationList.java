@@ -4,7 +4,7 @@ import AST.CustomStringBuilder;
 
 import java.util.List;
 
-public class VariableDeclarationList {
+public class VariableDeclarationList implements ForInitializer {
     List<VariableDeclaration> variableDeclaration ;
 
     public List<VariableDeclaration> getVariableDeclaration() {

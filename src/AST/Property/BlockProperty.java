@@ -1,7 +1,10 @@
 package AST.Property;
 
 import AST.CustomStringBuilder;
+import AST.ForStmt.ForInitializer;
+import AST.SwitchStmt.CaseStatement;
 
+/*
 public class BlockProperty {
     private LocalVariableDeclaration localVariableDeclaration;
     private PropertyAssignment propertyAssignment;
@@ -35,4 +38,8 @@ public class BlockProperty {
         sb.appendTabCloseScope("}").append("\n");
         return sb.toString();
     }
+}
+*/
+
+public interface BlockProperty extends CaseStatement, ForInitializer {
 }

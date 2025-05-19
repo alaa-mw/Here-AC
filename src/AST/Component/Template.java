@@ -3,7 +3,7 @@ package AST.Component;
 import AST.CustomStringBuilder;
 import AST.HTML.HtmlDocument;
 
-public class Template extends TemplateArg{
+public class Template implements TemplateArg{
     private  String template;
     private HtmlDocument htmlDocument;
 

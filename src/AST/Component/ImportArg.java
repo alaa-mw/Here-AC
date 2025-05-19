@@ -5,7 +5,7 @@ import AST.CustomStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImportArg {
+public class ImportArg implements ComponentArguments {
     private String imports;
     List<String> identifier = new ArrayList<>();
 

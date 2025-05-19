@@ -3,7 +3,7 @@ package AST.PropertyValueClasses;
 import AST.CustomStringBuilder;
 import AST.Operation;
 
-public class BinaryOperationPropertyValueExpr extends PropertyValue {
+public class BinaryOperationPropertyValueExpr implements PropertyValue {
     private PropertyValue left;
     private Operation operation;
     private PropertyValue right;

@@ -1,5 +1,5 @@
 package AST.PropertyValueClasses;
 
-public abstract class PropertyValue {
+public interface PropertyValue {
 
 }

@@ -2,7 +2,7 @@ package AST.DataType;
 
 import AST.CustomStringBuilder;
 
-public class PrimitiveType extends Type{
+public class PrimitiveType implements Type{
     private String type;
 
     public String getType() {

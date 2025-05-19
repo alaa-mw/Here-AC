@@ -2,7 +2,7 @@ package AST.HTML;
 
 import AST.CustomStringBuilder;
 
-public class BasicAttribute {
+public class BasicAttribute implements HtmlAttribute {
     private String identifier;
     private String c_lass;
     private String stringLiteral;

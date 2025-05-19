@@ -1,4 +1,6 @@
 package AST.ForStmt;
 
-abstract public class ForStatement {
+import AST.CommonStatement;
+
+public interface ForStatement extends CommonStatement {
 }

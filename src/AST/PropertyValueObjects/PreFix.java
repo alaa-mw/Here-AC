@@ -2,7 +2,7 @@ package AST.PropertyValueObjects;
 
 import AST.CustomStringBuilder;
 
-public class PreFix {
+public class PreFix implements PropertyValueObjects {
     private String identifier;
     private String operator;
 

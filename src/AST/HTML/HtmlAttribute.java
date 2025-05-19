@@ -1,7 +1,7 @@
 package AST.HTML;
 
 import AST.CustomStringBuilder;
-
+/*
 public  class HtmlAttribute{
     private BasicAttribute basicAttribute;
     private NgFor ngFor;
@@ -72,4 +72,6 @@ public  class HtmlAttribute{
     }
 
 
-}
+}*/
+
+public interface HtmlAttribute{}

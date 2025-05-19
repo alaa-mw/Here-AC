@@ -1,8 +1,9 @@
 package AST.Import;
 
 import AST.CustomStringBuilder;
+import AST.Statement;
 
-public class ImportStatement {
+public class ImportStatement implements Statement {
     private String import_;
     private ImportItems importItems;
     private String from;

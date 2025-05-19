@@ -46,7 +46,7 @@ import AST.propertyCallClasses.PropertyCall;
 import AST.propertyCallClasses.PropertyWithMethodCall;
 import AST.propertyCallClasses.SimplePropertyCall;
 import Grammer.AngularParser;
-import gen.Grammer.AngularParserBaseVisitor;
+import Grammer.AngularParserBaseVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
@@ -57,62 +57,62 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public Program visitProgram(AngularParser.ProgramContext ctx) {
         Program program =new Program();
 
-        program.setStatement(visitStatement(ctx.statement()));
+        program.setStatement( (Statement)visit(ctx.statement()));/*  */
 
         return program;
     }
 
-    @Override
-    public Statement visitStatement(AngularParser.StatementContext ctx) {
-        Statement statement = new Statement();
-
-        // Handle importStatement+
-        for (AngularParser.ImportStatementContext importCtx : ctx.importStatement()) {
-            statement.getImportStatements().add(visitImportStatement(importCtx));
-        }
-
-        // Handle serviceBlock*
-        if (ctx.serviceBlock()!=null){
-            for (AngularParser.ServiceBlockContext serviceCtx : ctx.serviceBlock()) {
-                statement.getServiceBlocks().add(visitServiceBlock(serviceCtx));
-            }
-        }
-
-
-        // Handle interfaceDeclaration*
-        if (ctx.interfaceDeclaration()!=null){
-            for (AngularParser.InterfaceDeclarationContext interfaceCtx : ctx.interfaceDeclaration()) {
-                statement.getInterfaceDeclarations().add(visitInterfaceDeclaration(interfaceCtx));
-            }
-        }
-
-
-        // Handle classDeclaration*
-        if (ctx.classDeclaration()!=null){
-            for (AngularParser.ClassDeclarationContext classCtx : ctx.classDeclaration()) {
-                statement.getClassDeclarations().add(visitClassDeclaration(classCtx));
-            }
-        }
-
-
-        // Handle printStatement*
-        if (ctx.printStatement()!=null){
-            for (AngularParser.PrintStatementContext printCtx : ctx.printStatement()) {
-                statement.getPrintStatements().add(visitPrintStatement(printCtx));
-            }
-        }
-
-
-        // Handle componentBlock*
-        if (ctx.componentBlock()!=null){
-            for (AngularParser.ComponentBlockContext compCtx : ctx.componentBlock()) {
-
-                statement.getComponentBlocks().add(visitComponentBlock(compCtx));
-            }
-        }
-
-        return statement;
-    }
+//    @Override
+//    public Statement visitStatement(AngularParser.StatementContext ctx) {
+//        Statement statement = new Statement();
+//
+//        // Handle importStatement+
+//        for (AngularParser.ImportStatementContext importCtx : ctx.importStatement()) {
+//            statement.getImportStatements().add(visitImportStatement(importCtx));
+//        }
+//
+//        // Handle serviceBlock*
+//        if (ctx.serviceBlock()!=null){
+//            for (AngularParser.ServiceBlockContext serviceCtx : ctx.serviceBlock()) {
+//                statement.getServiceBlocks().add(visitServiceBlock(serviceCtx));
+//            }
+//        }
+//
+//
+//        // Handle interfaceDeclaration*
+//        if (ctx.interfaceDeclaration()!=null){
+//            for (AngularParser.InterfaceDeclarationContext interfaceCtx : ctx.interfaceDeclaration()) {
+//                statement.getInterfaceDeclarations().add(visitInterfaceDeclaration(interfaceCtx));
+//            }
+//        }
+//
+//
+//        // Handle classDeclaration*
+//        if (ctx.classDeclaration()!=null){
+//            for (AngularParser.ClassDeclarationContext classCtx : ctx.classDeclaration()) {
+//                statement.getClassDeclarations().add(visitClassDeclaration(classCtx));
+//            }
+//        }
+//
+//
+//        // Handle printStatement*
+//        if (ctx.printStatement()!=null){
+//            for (AngularParser.PrintStatementContext printCtx : ctx.printStatement()) {
+//                statement.getPrintStatements().add(visitPrintStatement(printCtx));
+//            }
+//        }
+//
+//
+//        // Handle componentBlock*
+//        if (ctx.componentBlock()!=null){
+//            for (AngularParser.ComponentBlockContext compCtx : ctx.componentBlock()) {
+//
+//                statement.getComponentBlocks().add(visitComponentBlock(compCtx));
+//            }
+//        }
+//
+//        return statement;
+//    }
 
 
     @Override
@@ -199,7 +199,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
         java.util.List<ClassBody> bodyList = new ArrayList<>();
         for (AngularParser.ClassBodyContext bodyCtx : ctx.classBody()) {
-            ClassBody body=visitClassBody(bodyCtx);
+            ClassBody body= (ClassBody) visit(bodyCtx);
             if(body!=null){
                 bodyList.add(body);
             }
@@ -243,20 +243,20 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return classImplement;
     }
 
-    @Override
-    public ClassBody visitClassBody(AngularParser.ClassBodyContext ctx) {
-        ClassBody body = new ClassBody();
-
-        if (ctx.classPropertyDeclaration() != null) {
-            body.setClassPropertyDeclaration(visitClassPropertyDeclaration(ctx.classPropertyDeclaration()));
-        } else if (ctx.methodDeclaration() != null) {
-            body.setMethodDeclaration(visitMethodDeclaration(ctx.methodDeclaration()));
-        } else if (ctx.constructorDeclaration() != null) {
-            body.setConstructorDeclaration(visitConstructorDeclaration(ctx.constructorDeclaration()));
-        }
-
-        return body;
-    }
+//    @Override
+//    public ClassBody visitClassBody(AngularParser.ClassBodyContext ctx) {
+//        ClassBody body = new ClassBody();
+//
+//        if (ctx.classPropertyDeclaration() != null) {
+//            body.setClassPropertyDeclaration(visitClassPropertyDeclaration(ctx.classPropertyDeclaration()));
+//        } else if (ctx.methodDeclaration() != null) {
+//            body.setMethodDeclaration(visitMethodDeclaration(ctx.methodDeclaration()));
+//        } else if (ctx.constructorDeclaration() != null) {
+//            body.setConstructorDeclaration(visitConstructorDeclaration(ctx.constructorDeclaration()));
+//        }
+//
+//        return body;
+//    }
 
     @Override
     public ClassPropertyDeclaration visitClassPropertyDeclaration(AngularParser.ClassPropertyDeclarationContext ctx) {
@@ -480,7 +480,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public PropertyValueObjectExpr visitPropertyValueObjectExpr(AngularParser.PropertyValueObjectExprContext ctx) {
         PropertyValueObjectExpr propertyValueObjectExpr=new PropertyValueObjectExpr();
 
-        propertyValueObjectExpr.setPropertyValueObjects(visitPropertyValueObjects(ctx.propertyValueObjects()));
+        propertyValueObjectExpr.setPropertyValueObjects( (PropertyValueObjects) visit(ctx.propertyValueObjects())); /* */
 
         return propertyValueObjectExpr;
     }
@@ -520,38 +520,38 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     }
 
 
-    @Override
-    public PropertyValueObjects visitPropertyValueObjects(AngularParser.PropertyValueObjectsContext ctx) {
-        PropertyValueObjects propertyValueObjects=new PropertyValueObjects();
-
-
-        if (ctx.literalValue() != null) {
-            propertyValueObjects.setLiteralValue((LiteralValue) visit(ctx.literalValue())); /*****/
-        }
-        else if (ctx.objectValue() != null) {
-            propertyValueObjects.setObjectValue(visitObjectValue(ctx.objectValue()));
-        }
-        else if (ctx.list() != null) {
-            propertyValueObjects.setList(visitList(ctx.list()));
-        }
-        else if (ctx.indexAccessValue() != null) {
-            propertyValueObjects.setIndexAccessValue(visitIndexAccessValue(ctx.indexAccessValue()));
-        }
-        else if (ctx.propertyCall() != null) { /* Label  **/
-            propertyValueObjects.setPropertyCall((PropertyCall) visit(ctx.propertyCall()));
-        }
-        else if (ctx.methodCall() != null) {
-            propertyValueObjects.setMethodCall(visitMethodCall(ctx.methodCall()));
-        } else if (ctx.arrowFunction() != null) {
-            propertyValueObjects.setArrowFunction(visitArrowFunction(ctx.arrowFunction()));
-        } else if (ctx.postFix() != null) {
-            propertyValueObjects.setPostFix(visitPostFix(ctx.postFix()));
-        } else if (ctx.preFix() != null) {
-            propertyValueObjects.setPreFix(visitPreFix(ctx.preFix()));
-        }
-
-        return propertyValueObjects;
-    }
+//    @Override
+//    public PropertyValueObjects visitPropertyValueObjects(AngularParser.PropertyValueObjectsContext ctx) {
+//        PropertyValueObjects propertyValueObjects=new PropertyValueObjects();
+//
+//
+//        if (ctx.literalValue() != null) {
+//            propertyValueObjects.setLiteralValue((LiteralValue) visit(ctx.literalValue())); /*****/
+//        }
+//        else if (ctx.objectValue() != null) {
+//            propertyValueObjects.setObjectValue(visitObjectValue(ctx.objectValue()));
+//        }
+//        else if (ctx.list() != null) {
+//            propertyValueObjects.setList(visitList(ctx.list()));
+//        }
+//        else if (ctx.indexAccessValue() != null) {
+//            propertyValueObjects.setIndexAccessValue(visitIndexAccessValue(ctx.indexAccessValue()));
+//        }
+//        else if (ctx.propertyCall() != null) { /* Label  **/
+//            propertyValueObjects.setPropertyCall((PropertyCall) visit(ctx.propertyCall()));
+//        }
+//        else if (ctx.methodCall() != null) {
+//            propertyValueObjects.setMethodCall(visitMethodCall(ctx.methodCall()));
+//        } else if (ctx.arrowFunction() != null) {
+//            propertyValueObjects.setArrowFunction(visitArrowFunction(ctx.arrowFunction()));
+//        } else if (ctx.postFix() != null) {
+//            propertyValueObjects.setPostFix(visitPostFix(ctx.postFix()));
+//        } else if (ctx.preFix() != null) {
+//            propertyValueObjects.setPreFix(visitPreFix(ctx.preFix()));
+//        }
+//
+//        return propertyValueObjects;
+//    }
 
     /***********           PropertyValue END ************************************/
     /***********           PropertyValue END ************************************/
@@ -921,15 +921,15 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return listSuffix;
     }
 
-    @Override
-    public BlockProperty visitBlockProperty(AngularParser.BlockPropertyContext ctx) {
-        BlockProperty blockProperty = new BlockProperty();
-        if (ctx.localVariableDeclaration() != null)
-            blockProperty.setLocalVariableDeclaration(visitLocalVariableDeclaration(ctx.localVariableDeclaration()));
-        if (ctx.propertyAssignment() != null)
-            blockProperty.setPropertyAssignment(visitPropertyAssignment(ctx.propertyAssignment()));
-        return blockProperty;
-    }
+//    @Override
+//    public BlockProperty visitBlockProperty(AngularParser.BlockPropertyContext ctx) {
+//        BlockProperty blockProperty = new BlockProperty();
+//        if (ctx.localVariableDeclaration() != null)
+//            blockProperty.setLocalVariableDeclaration(visitLocalVariableDeclaration(ctx.localVariableDeclaration()));
+//        if (ctx.propertyAssignment() != null)
+//            blockProperty.setPropertyAssignment(visitPropertyAssignment(ctx.propertyAssignment()));
+//        return blockProperty;
+//    }
 
     @Override
     public ParameterPropertyAssignment visitParameterPropertyAssignment(AngularParser.ParameterPropertyAssignmentContext ctx) {
@@ -1006,7 +1006,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         if (ctx.componentArguments() != null && !ctx.componentArguments().isEmpty()) {
             for (int i = 0; i < ctx.componentArguments().size(); i++) {
                 if (ctx.componentArguments(i) != null) {
-                    componentDeclaration.getComponentArguments().add(visitComponentArguments(ctx.componentArguments(i)));
+                    componentDeclaration.getComponentArguments().add( (ComponentArguments) visit(ctx.componentArguments(i))); /* */
                 }
             }
         }
@@ -1015,22 +1015,22 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     }
 
     //ComponentArguments
-    @Override
-    public ComponentArguments visitComponentArguments(AngularParser.ComponentArgumentsContext ctx) {
-        ComponentArguments componentArguments = new ComponentArguments();
-        if (ctx.importArg() != null) {
-            componentArguments.setImportArg(visitImportArg(ctx.importArg()));
-        }if (ctx.templateArg() != null) {
-            componentArguments.setTemplateArg((TemplateArg) visit(ctx.templateArg()));
-        }if (ctx.styleArg() != null) {
-            componentArguments.setStyleArg((StyleArg) visit(ctx.styleArg()));
-        }if (ctx.selectorArg() != null) {
-            componentArguments.setSelectorArg(visitSelectorArg(ctx.selectorArg()));
-        }if (ctx.standAloneArg() != null) {
-            componentArguments.setStandAloneArg(visitStandAloneArg(ctx.standAloneArg()));
-        }
-        return componentArguments;
-    }
+//    @Override
+//    public ComponentArguments visitComponentArguments(AngularParser.ComponentArgumentsContext ctx) {
+//        ComponentArguments componentArguments = new ComponentArguments();
+//        if (ctx.importArg() != null) {
+//            componentArguments.setImportArg(visitImportArg(ctx.importArg()));
+//        }if (ctx.templateArg() != null) {
+//            componentArguments.setTemplateArg((TemplateArg) visit(ctx.templateArg()));
+//        }if (ctx.styleArg() != null) {
+//            componentArguments.setStyleArg((StyleArg) visit(ctx.styleArg()));
+//        }if (ctx.selectorArg() != null) {
+//            componentArguments.setSelectorArg(visitSelectorArg(ctx.selectorArg()));
+//        }if (ctx.standAloneArg() != null) {
+//            componentArguments.setStandAloneArg(visitStandAloneArg(ctx.standAloneArg()));
+//        }
+//        return componentArguments;
+//    }
     // SelectorArg
     @Override
     public SelectorArg visitSelectorArg(AngularParser.SelectorArgContext ctx) {
@@ -1205,7 +1205,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         if (ctx.methodBody() != null && !ctx.methodBody().isEmpty()) {
             for (int i = 0; i < ctx.methodBody().size(); i++) {
                 if (ctx.methodBody(i) != null) {
-                    methodDeclaration.getMethodBody().add(visitMethodBody(ctx.methodBody(i)));
+                    methodDeclaration.getMethodBody().add( (MethodBody) visit(ctx.methodBody(i))); /* */
                 }
             }
         }
@@ -1234,25 +1234,25 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
     }
 
-    @Override
-    public MethodBody visitMethodBody(AngularParser.MethodBodyContext ctx) {
-        MethodBody methodBody = new MethodBody();
-        if (ctx.returnStatement() != null) {
-            methodBody.setReturnStatement(visitReturnStatement(ctx.returnStatement()));
-        }
-        if (ctx.commonStatement() != null) {
-            methodBody.setCommonStatement(visitCommonStatement(ctx.commonStatement()));
-        }
-        if (ctx.methodBodyProperty() != null) {
-            methodBody.setMethodBodyProperty(visitMethodBodyProperty(ctx.methodBodyProperty()));
-        }
-        if (ctx.propertyCall() != null) {
-            methodBody.setPropertyCall((PropertyCall) visit(ctx.propertyCall()));
-        }
-
-        return methodBody;
-
-    }
+//    @Override
+//    public MethodBody visitMethodBody(AngularParser.MethodBodyContext ctx) {
+//        MethodBody methodBody = new MethodBody();
+//        if (ctx.returnStatement() != null) {
+//            methodBody.setReturnStatement(visitReturnStatement(ctx.returnStatement()));
+//        }
+//        if (ctx.commonStatement() != null) {
+//            methodBody.setCommonStatement(visitCommonStatement(ctx.commonStatement()));
+//        }
+//        if (ctx.methodBodyProperty() != null) {
+//            methodBody.setMethodBodyProperty(visitMethodBodyProperty(ctx.methodBodyProperty()));
+//        }
+//        if (ctx.propertyCall() != null) {
+//            methodBody.setPropertyCall((PropertyCall) visit(ctx.propertyCall()));
+//        }
+//
+//        return methodBody;
+//
+//    }
     @Override
     public ReturnStatement visitReturnStatement(AngularParser.ReturnStatementContext ctx) {
         ReturnStatement returnStatement = new ReturnStatement();
@@ -1264,17 +1264,17 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return returnStatement;
     }
 
-    @Override
-    public MethodBodyProperty visitMethodBodyProperty(AngularParser.MethodBodyPropertyContext ctx) {
-        MethodBodyProperty methodBodyProperty = new MethodBodyProperty();
-        if (ctx.localVariableDeclaration() != null) {
-            methodBodyProperty.setLocalVariableDeclaration(visitLocalVariableDeclaration(ctx.localVariableDeclaration()));
-        }
-        if (ctx.propertyAssignment() != null) {
-            methodBodyProperty.setPropertyAssignment(visitPropertyAssignment(ctx.propertyAssignment()));
-        }
-        return methodBodyProperty;
-    }
+//    @Override
+//    public MethodBodyProperty visitMethodBodyProperty(AngularParser.MethodBodyPropertyContext ctx) {
+//        MethodBodyProperty methodBodyProperty = new MethodBodyProperty();
+//        if (ctx.localVariableDeclaration() != null) {
+//            methodBodyProperty.setLocalVariableDeclaration(visitLocalVariableDeclaration(ctx.localVariableDeclaration()));
+//        }
+//        if (ctx.propertyAssignment() != null) {
+//            methodBodyProperty.setPropertyAssignment(visitPropertyAssignment(ctx.propertyAssignment()));
+//        }
+//        return methodBodyProperty;
+//    }
 
     @Override
     public AssigmentToNull visitAssigmentToNull(AngularParser.AssigmentToNullContext ctx) {
@@ -1341,7 +1341,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         for (int i=0 ; i< ctx.htmlAttribute().size(); i++) {
             if (ctx.htmlAttribute(i) != null){
-                openTag.getHtmlAttributeArray().add(visitHtmlAttribute(ctx.htmlAttribute(i)));
+                openTag.getHtmlAttributeArray().add( (HtmlAttribute) visit(ctx.htmlAttribute(i))); /* */
             }
         }
         return openTag;
@@ -1364,31 +1364,31 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         for (int i=0 ; i< ctx.htmlAttribute().size(); i++) {
             if (ctx.htmlAttribute(i) != null){
-                selfClosingTag.getHtmlAttributes().add(visitHtmlAttribute(ctx.htmlAttribute(i)));
+                selfClosingTag.getHtmlAttributes().add( (HtmlAttribute) visit(ctx.htmlAttribute(i))); /* */
             }
         }
         return selfClosingTag ;
     }
 
-    @Override
-    public HtmlAttribute visitHtmlAttribute(AngularParser.HtmlAttributeContext ctx) {
-        HtmlAttribute htmlAttribute = new HtmlAttribute();
-        if(ctx.basicAttribute() != null)
-            htmlAttribute.setBasicAttribute(visitBasicAttribute(ctx.basicAttribute()));
-        if (ctx.ngFor() != null)
-            htmlAttribute.setNgFor(visitNgFor(ctx.ngFor()));
-
-        if (ctx.ngIF() != null)
-            htmlAttribute.setNgIf(visitNgIF(ctx.ngIF()));
-
-        if (ctx.imageAttribute() != null)
-            htmlAttribute.setImageAttribute( visitImageAttribute(ctx.imageAttribute()));
-
-        if (ctx.actionAttribute() != null)
-            htmlAttribute.setActionAttribute( visitActionAttribute(ctx.actionAttribute()));
-
-        return htmlAttribute;
-    }
+//    @Override
+//    public HtmlAttribute visitHtmlAttribute(AngularParser.HtmlAttributeContext ctx) {
+//        HtmlAttribute htmlAttribute = new HtmlAttribute();
+//        if(ctx.basicAttribute() != null)
+//            htmlAttribute.setBasicAttribute(visitBasicAttribute(ctx.basicAttribute()));
+//        if (ctx.ngFor() != null)
+//            htmlAttribute.setNgFor(visitNgFor(ctx.ngFor()));
+//
+//        if (ctx.ngIF() != null)
+//            htmlAttribute.setNgIf(visitNgIF(ctx.ngIF()));
+//
+//        if (ctx.imageAttribute() != null)
+//            htmlAttribute.setImageAttribute( visitImageAttribute(ctx.imageAttribute()));
+//
+//        if (ctx.actionAttribute() != null)
+//            htmlAttribute.setActionAttribute( visitActionAttribute(ctx.actionAttribute()));
+//
+//        return htmlAttribute;
+//    }
 
     @Override
     public BasicAttribute visitBasicAttribute(AngularParser.BasicAttributeContext ctx) {
@@ -1569,7 +1569,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         for (int i=0 ; i< ctx.constructorBody().size() ; i++){
             if(ctx.constructorBody(i) != null){
-                constructorDeclaration.getConstructorBody().add(visitConstructorBody(ctx.constructorBody(i)));
+                constructorDeclaration.getConstructorBody().add( (ConstructorBody) visit(ctx.constructorBody(i)));/* */
             }
         }
         return  constructorDeclaration ;
@@ -1586,18 +1586,18 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return constructorParams ;
     }
 
-    @Override
-    public ConstructorBody visitConstructorBody(AngularParser.ConstructorBodyContext ctx) {
-        ConstructorBody constructorBody = new ConstructorBody();
-        if(ctx.constructorBodyProperty() != null){
-            constructorBody.setConstructorBodyProperty(visitConstructorBodyProperty(ctx.constructorBodyProperty()));
-        }
-        if(ctx.commonStatement() != null){
-            constructorBody.setCommonStatement(visitCommonStatement(ctx.commonStatement()));
-        }
-        return constructorBody ;
-
-    }
+//    @Override
+//    public ConstructorBody visitConstructorBody(AngularParser.ConstructorBodyContext ctx) {
+//        ConstructorBody constructorBody = new ConstructorBody();
+//        if(ctx.constructorBodyProperty() != null){
+//            constructorBody.setConstructorBodyProperty(visitConstructorBodyProperty(ctx.constructorBodyProperty()));
+//        }
+//        if(ctx.commonStatement() != null){
+//            constructorBody.setCommonStatement(visitCommonStatement(ctx.commonStatement()));
+//        }
+//        return constructorBody ;
+//
+//    }
 
     @Override
     public ConstructorParam visitConstructorParam(AngularParser.ConstructorParamContext ctx) {
@@ -1614,42 +1614,42 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return constructorParam ;
     }
 
-    @Override
-    public ConstructorBodyProperty visitConstructorBodyProperty(AngularParser.ConstructorBodyPropertyContext ctx) {
-        ConstructorBodyProperty constructorBodyProperty = new ConstructorBodyProperty();
-        if(ctx.parameterPropertyAssignment() != null){
-            constructorBodyProperty.setParameterPropertyAssignment(visitParameterPropertyAssignment(ctx.parameterPropertyAssignment()));
-        }
-        if(ctx.methodBodyProperty() != null){
-            constructorBodyProperty.setMethodBodyProperty(visitMethodBodyProperty(ctx.methodBodyProperty()));
-        }
-        return constructorBodyProperty ;
-    }
+//    @Override
+//    public ConstructorBodyProperty visitConstructorBodyProperty(AngularParser.ConstructorBodyPropertyContext ctx) {
+//        ConstructorBodyProperty constructorBodyProperty = new ConstructorBodyProperty();
+//        if(ctx.parameterPropertyAssignment() != null){
+//            constructorBodyProperty.setParameterPropertyAssignment(visitParameterPropertyAssignment(ctx.parameterPropertyAssignment()));
+//        }
+//        if(ctx.methodBodyProperty() != null){
+//            constructorBodyProperty.setMethodBodyProperty( (MethodBodyProperty) visit(ctx.methodBodyProperty()));/**/
+//        }
+//        return constructorBodyProperty ;
+//    }
 
-    @Override
-    public CommonStatement visitCommonStatement(AngularParser.CommonStatementContext ctx) {
-        CommonStatement commonStatement = new CommonStatement();
-        if(ctx.printStatement() != null){
-            commonStatement.setPrintStatement(visitPrintStatement(ctx.printStatement()));
-        }
-        if(ctx.conditionalStatement() != null){
-            commonStatement.setConditionStatement(visitConditionalStatement(ctx.conditionalStatement()));
-        }
-        if(ctx.switchStatement() != null){
-            commonStatement.setSwitchStatement(visitSwitchStatement(ctx.switchStatement()));
-        }
-        if(ctx.forStatement() != null){
-            commonStatement.setForStatement((ForStatement) visit(ctx.forStatement()));
-        }
-        if(ctx.whileStatement() != null){
-            commonStatement.setWhileStatement(visitWhileStatement(ctx.whileStatement()));
-        }
-        if(ctx.doWhileStatement() != null){
-            commonStatement.setDoWhileStatement(visitDoWhileStatement(ctx.doWhileStatement()));
-        }
-
-        return commonStatement ;
-    }
+//    @Override
+//    public CommonStatement visitCommonStatement(AngularParser.CommonStatementContext ctx) {
+//        CommonStatement commonStatement = new CommonStatement();
+//        if(ctx.printStatement() != null){
+//            commonStatement.setPrintStatement(visitPrintStatement(ctx.printStatement()));
+//        }
+//        if(ctx.conditionalStatement() != null){
+//            commonStatement.setConditionStatement(visitConditionalStatement(ctx.conditionalStatement()));
+//        }
+//        if(ctx.switchStatement() != null){
+//            commonStatement.setSwitchStatement(visitSwitchStatement(ctx.switchStatement()));
+//        }
+//        if(ctx.forStatement() != null){
+//            commonStatement.setForStatement((ForStatement) visit(ctx.forStatement()));
+//        }
+//        if(ctx.whileStatement() != null){
+//            commonStatement.setWhileStatement(visitWhileStatement(ctx.whileStatement()));
+//        }
+//        if(ctx.doWhileStatement() != null){
+//            commonStatement.setDoWhileStatement(visitDoWhileStatement(ctx.doWhileStatement()));
+//        }
+//
+//        return commonStatement ;
+//    }
 
     //========== SwitchStatement ========
     @Override
@@ -1687,35 +1687,35 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         for (int i = 0; i < ctx.caseStatement().size(); i++) {
             if (ctx.caseStatement(i) != null){
-                caseBlock.getCaseStatementList().add(visitCaseStatement(ctx.caseStatement(i)));
+                caseBlock.getCaseStatementList().add( (CaseStatement) visit(ctx.caseStatement(i))); /* */
             }
         }
         return caseBlock ;
     }
 
-    @Override
-    public CaseStatement visitCaseStatement(AngularParser.CaseStatementContext ctx) {
-        CaseStatement cs = new CaseStatement();
-        if(ctx.blockProperty() != null) {
-            cs.setBlockProperty(visitBlockProperty(ctx.blockProperty()));
-        }
-        if(ctx.methodCall() != null) {
-            cs.setMethodCall(visitMethodCall(ctx.methodCall()));
-        }
-        if(ctx.returnStatement() != null) {
-            cs.setReturnStatement(visitReturnStatement(ctx.returnStatement()));
-        }
-        if(ctx.conditionalStatement() != null) {
-            cs.setConditionStatement(visitConditionalStatement(ctx.conditionalStatement()));
-        }
-        if(ctx.propertyCall() != null) {
-            cs.setPropertyCall((PropertyCall)visit(ctx.propertyCall()));
-        }
-        if(ctx.switchStatement() != null) {
-            cs.setSwitchStatement(visitSwitchStatement(ctx.switchStatement()));
-        }
-        return cs ;
-    }
+//    @Override
+//    public CaseStatement visitCaseStatement(AngularParser.CaseStatementContext ctx) {
+//        CaseStatement cs = new CaseStatement();
+//        if(ctx.blockProperty() != null) {
+//            cs.setBlockProperty( (BlockProperty) visit(ctx.blockProperty()));/* */
+//        }
+//        if(ctx.methodCall() != null) {
+//            cs.setMethodCall(visitMethodCall(ctx.methodCall()));
+//        }
+//        if(ctx.returnStatement() != null) {
+//            cs.setReturnStatement(visitReturnStatement(ctx.returnStatement()));
+//        }
+//        if(ctx.conditionalStatement() != null) {
+//            cs.setConditionStatement(visitConditionalStatement(ctx.conditionalStatement()));
+//        }
+//        if(ctx.propertyCall() != null) {
+//            cs.setPropertyCall((PropertyCall)visit(ctx.propertyCall()));
+//        }
+//        if(ctx.switchStatement() != null) {
+//            cs.setSwitchStatement(visitSwitchStatement(ctx.switchStatement()));
+//        }
+//        return cs ;
+//    }
 
     @Override
     public CaseValue visitCaseValue(AngularParser.CaseValueContext ctx) {
@@ -1744,7 +1744,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         for (int i = 0; i < ctx.caseStatement().size(); i++) {
             if (ctx.caseStatement(i) != null){
-                db.getCaseStatementList().add(visitCaseStatement(ctx.caseStatement(i)));
+                db.getCaseStatementList().add( (CaseStatement) visit(ctx.caseStatement(i))); /*  */
             }
         }
         return db ;
@@ -1817,7 +1817,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             traditionalFor.setDeclareVarsKeyWord(visitDeclareVarsKeyword(ctx.declareVarsKeyword()));
         }
         if(ctx.forInitializer() != null){
-            traditionalFor.setForInitializer(visitForInitializer(ctx.forInitializer()));
+            traditionalFor.setForInitializer( (ForInitializer) visit(ctx.forInitializer())); /* */
         }
         if (ctx.expression()!=null && !ctx.expression().isEmpty()){
             if (ctx.expression(0) != null) {
@@ -1887,17 +1887,17 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return forOfLoop ;
     }
 
-    @Override
-    public ForInitializer visitForInitializer(AngularParser.ForInitializerContext ctx) {
-        ForInitializer forInitializer = new ForInitializer();
-        if(ctx.variableDeclarationList() != null){
-            forInitializer.setVariableDeclarationList(visitVariableDeclarationList(ctx.variableDeclarationList()));
-        }
-        if(ctx.blockProperty() != null){
-            forInitializer.setBlockProperty(visitBlockProperty(ctx.blockProperty()));
-        }
-        return forInitializer ;
-    }
+//    @Override
+//    public ForInitializer visitForInitializer(AngularParser.ForInitializerContext ctx) {
+//        ForInitializer forInitializer = new ForInitializer();
+//        if(ctx.variableDeclarationList() != null){
+//            forInitializer.setVariableDeclarationList(visitVariableDeclarationList(ctx.variableDeclarationList()));
+//        }
+//        if(ctx.blockProperty() != null){
+//            forInitializer.setBlockProperty( (BlockProperty) visit(ctx.blockProperty())); /* */
+//        }
+//        return forInitializer ;
+//    }
 
     @Override
     public VariableDeclarationList visitVariableDeclarationList(AngularParser.VariableDeclarationListContext ctx) {
@@ -1968,12 +1968,12 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         Block block = new Block();
         for (int i=0 ; i< ctx.blockProperty().size(); i++){
             if(ctx.blockProperty() != null){
-                block.getBlockProperties().add(visitBlockProperty(ctx.blockProperty(i)));
+                block.getBlockProperties().add( (BlockProperty) visit(ctx.blockProperty(i)));/* */
             }
         }
         for (int i=0 ; i< ctx.commonStatement().size(); i++){
             if(ctx.commonStatement() != null){
-                block.getCommonStatements().add(visitCommonStatement(ctx.commonStatement(i)));
+                block.getCommonStatements().add( (CommonStatement) visit(ctx.commonStatement(i))); /* */
             }
         }
         return  block ;

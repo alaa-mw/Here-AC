@@ -1,10 +1,11 @@
 package AST.WhileStmt;
 
 import AST.Block;
+import AST.CommonStatement;
 import AST.CustomStringBuilder;
 import AST.Expression.Expression;
 
-public class DoWhileStatement {
+public class DoWhileStatement implements CommonStatement {
     private String do_KeyWord;
     private String While_KeyWord ;
     private Expression expression ;

@@ -1,4 +1,4 @@
 package AST.Component;
 
 
-public abstract class TemplateArg {}
+public interface TemplateArg extends ComponentArguments {}

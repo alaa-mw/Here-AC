@@ -2,7 +2,7 @@ package AST.Expression;
 import AST.CustomStringBuilder;
 import AST.PropertyValueClasses.PropertyValue;
 
-public class LiteralOrReferenceExpression extends Expression{
+public class LiteralOrReferenceExpression implements Expression{
     private PropertyValue propertyValue  ;
 
     public PropertyValue getPropertyValue() {

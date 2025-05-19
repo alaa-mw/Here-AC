@@ -3,7 +3,7 @@ package AST.PropertyValueObjects;
 import AST.CustomStringBuilder;
 import AST.PropertyValueClasses.PropertyValue;
 
-public class IndexAccessValue {
+public class IndexAccessValue implements PropertyValueObjects {
     private String identifier;
     private PropertyValue propertyValue;
 

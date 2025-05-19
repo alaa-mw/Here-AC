@@ -1,7 +1,7 @@
 package AST.Component;
 
 import AST.CustomStringBuilder;
-
+/*
 public class ComponentArguments {
       private ImportArg importArg;
       private TemplateArg templateArg;
@@ -72,4 +72,7 @@ public class ComponentArguments {
         sb.appendTabCloseScope("}\n");
         return sb.toString();
     }
+}*/
+public interface ComponentArguments{
+
 }

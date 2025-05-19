@@ -2,7 +2,7 @@ package AST.LiteralValueClasses;
 
 import AST.CustomStringBuilder;
 
-public class LiteralExpr extends LiteralValue {
+public class LiteralExpr implements LiteralValue {
     private String value;
 
     public String getValue() {

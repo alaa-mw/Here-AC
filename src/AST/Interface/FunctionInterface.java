@@ -4,7 +4,7 @@ import AST.DataType.DataType;
 import AST.CustomStringBuilder;
 import AST.ParameterList.ParameterList;
 
-public class FunctionInterface extends InterfaceBody {
+public class FunctionInterface implements InterfaceBody {
     private String readonly ;
     private String question;
     private String identifier ;

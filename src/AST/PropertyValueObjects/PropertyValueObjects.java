@@ -4,6 +4,7 @@ import AST.*;
 import AST.LiteralValueClasses.LiteralValue;
 import AST.propertyCallClasses.PropertyCall;
 
+/*
 public class PropertyValueObjects {
 
     private LiteralValue literalValue;
@@ -124,5 +125,10 @@ public class PropertyValueObjects {
         sb.appendTabCloseScope("}\n");
         return sb.toString();
     }
+
+}
+
+*/
+public interface PropertyValueObjects {
 
 }

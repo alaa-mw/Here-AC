@@ -2,7 +2,7 @@ package AST.HTML;
 
 import AST.CustomStringBuilder;
 
-public class NgFor {
+public class NgFor implements HtmlAttribute {
     private String ngFor;
     private String stringLiteral;
 

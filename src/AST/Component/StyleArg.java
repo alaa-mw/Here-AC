@@ -1,3 +1,3 @@
 package AST.Component;
 
-public abstract class StyleArg { }
+public interface StyleArg extends ComponentArguments{ }

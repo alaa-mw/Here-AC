@@ -1,5 +1,7 @@
 package AST.LiteralValueClasses;
 
-public abstract class LiteralValue {
+import AST.PropertyValueObjects.PropertyValueObjects;
+
+public interface LiteralValue extends PropertyValueObjects {
 
 }

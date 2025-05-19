@@ -5,7 +5,7 @@ import AST.ConditionStmt.ConditionalStatement;
 import AST.ReturnStatement;
 import AST.Property.BlockProperty;
 import AST.propertyCallClasses.PropertyCall;
-
+/*
 public class CaseStatement {
     private BlockProperty blockProperty ;
     private MethodCall methodCall ;
@@ -87,4 +87,8 @@ public class CaseStatement {
         sb.appendTabCloseScope("}\n");
         return sb.toString();
     }
+}
+*/
+public interface CaseStatement {
+
 }

@@ -2,7 +2,7 @@ package AST.HTML;
 
 import AST.CustomStringBuilder;
 
-public class ActionAttribute {
+public class ActionAttribute implements HtmlAttribute {
     private String click;
     private String stringLiteral;
 

@@ -1,6 +1,7 @@
 package AST.Method;
 
 import AST.AccessModifiers;
+import AST.Class.ClassBody;
 import AST.Property.AssigmentToNull;
 import AST.CustomStringBuilder;
 import AST.ParameterList.ParameterList;
@@ -8,7 +9,7 @@ import AST.ParameterList.ParameterList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MethodDeclaration {
+public class MethodDeclaration implements ClassBody {
     private List<Decorator> decorator=new ArrayList<>();
     private List<AccessModifiers> accessModifiers=new ArrayList<>();
     private String async;

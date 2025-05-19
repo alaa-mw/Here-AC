@@ -4,7 +4,7 @@ import AST.CustomStringBuilder;
 
 import java.util.*;
 
-public class ObjectValue {
+public class ObjectValue implements PropertyValueObjects {
     private String identifier;
     private List<ObjectProperty> properties = new ArrayList<>();
 

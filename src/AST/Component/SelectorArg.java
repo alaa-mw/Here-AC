@@ -2,7 +2,7 @@ package AST.Component;
 
 import AST.CustomStringBuilder;
 
-public class SelectorArg {
+public class SelectorArg implements ComponentArguments {
     private String selector;
     private String stringLiteral;
 

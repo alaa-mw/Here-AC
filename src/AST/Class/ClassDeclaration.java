@@ -1,11 +1,12 @@
 package AST.Class;
 
 import AST.CustomStringBuilder;
+import AST.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassDeclaration {
+public class ClassDeclaration implements Statement {
     private String export;
     private String abstract_;
     private String class_;

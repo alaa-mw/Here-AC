@@ -5,7 +5,7 @@ import AST.Operation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BinaryExpression extends Expression {
+public class BinaryExpression implements Expression {
     private List<Operation> operations = new ArrayList<>();
     private List<Expression> expressions = new ArrayList<>();
 

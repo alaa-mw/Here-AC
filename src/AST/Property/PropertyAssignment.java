@@ -1,9 +1,10 @@
 package AST.Property;
 
 import AST.CustomStringBuilder;
+import AST.Method.MethodBodyProperty;
 import AST.propertyCallClasses.PropertyCall;
 
-public class PropertyAssignment {
+public class PropertyAssignment implements MethodBodyProperty,BlockProperty {
 
     private PropertyCall propertyCall;
     private CompoundAssignment compoundAssignment;

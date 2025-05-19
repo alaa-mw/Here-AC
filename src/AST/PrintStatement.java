@@ -6,7 +6,7 @@ import AST.Expression.Expression;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PrintStatement {
+public class PrintStatement implements Statement,CommonStatement {
     private String console;
     private String log;
     private List<Expression> expression=  new ArrayList<>();

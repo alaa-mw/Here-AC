@@ -2,11 +2,12 @@ package AST.Interface;
 
 import AST.CustomStringBuilder;
 import AST.Interface.InterfaceBody;
+import AST.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InterfaceDeclaration {
+public class InterfaceDeclaration implements Statement {
     private String export;
     private String interface_;
     private String identifier ;

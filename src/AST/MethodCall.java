@@ -1,10 +1,13 @@
 package AST;
 
 import AST.Expression.Expression;
+import AST.PropertyValueObjects.PropertyValueObjects;
+import AST.SwitchStmt.CaseStatement;
 
 import java.util.*;
 
-public class MethodCall {
+public class MethodCall implements PropertyValueObjects, CaseStatement
+{
     private String methodCalledName ;
     private List<String> identifiers = new ArrayList<>();
     private List<Expression> expressions = new ArrayList<>();

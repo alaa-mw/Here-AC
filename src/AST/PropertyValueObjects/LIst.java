@@ -5,7 +5,7 @@ import AST.PropertyValueClasses.PropertyValue;
 
 import java.util.*;
 
-public class LIst {
+public class LIst implements PropertyValueObjects {
     private java.util.List<PropertyValue> elements = new ArrayList<>();
 
     public java.util.List<PropertyValue> getElements() {

@@ -125,8 +125,9 @@ objectExpressionValue
 // 3.2 ========== CSS
 cssDocument :  ( DOT? IDENTIFIER+ OPEN_CURLY_BRACKET cssRule* CLOSE_CURLY_BRACKET )* ;
 cssRule : IDENTIFIER DOT_DOT (ruleValue)* SEMICOLON;
+
 ruleValue : IDENTIFIER
-          | NUMERIC_LITERAL PX
+          | NUMERIC_LITERAL
           | NUMERIC_LITERAL PERCENTAGE?
           | COLOR
           ;
@@ -165,6 +166,7 @@ methodBodyProperty
     : localVariableDeclaration SEMICOLON?
     | propertyAssignment SEMICOLON?
     ;
+    // here
 
 // ======================= common rules ============================
 
@@ -187,6 +189,8 @@ constructorParams
 constructorParam
     : accessModifiers? IDENTIFIER DOT_DOT dataType
     ;
+
+
 constructorBody
     : constructorBodyProperty
     | commonStatement

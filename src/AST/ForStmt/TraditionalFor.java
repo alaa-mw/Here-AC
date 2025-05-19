@@ -6,7 +6,7 @@ import AST.Expression.Expression;
 
 import java.util.List;
 
-public class TraditionalFor extends ForStatement{
+public class TraditionalFor implements ForStatement{
     private String for_KeyWord ;
     private DeclareVarsKeyWord declareVarsKeyWord ;
     private ForInitializer forInitializer ;

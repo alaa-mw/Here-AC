@@ -5,7 +5,7 @@ import AST.Property.Assigment;
 import AST.Property.AssignDataType;
 import AST.CustomStringBuilder;
 
-public class ClassPropertyDeclaration extends ClassBody {
+public class ClassPropertyDeclaration implements ClassBody {
 
     private AccessModifiers accessModifiers;
     private String static_;

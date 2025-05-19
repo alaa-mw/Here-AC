@@ -2,7 +2,7 @@ package AST.DataType;
 
 import AST.CustomStringBuilder;
 
-public class ClassType extends Type {
+public class ClassType implements Type {
     private String identifier;
 
     public String getIdentifier() {

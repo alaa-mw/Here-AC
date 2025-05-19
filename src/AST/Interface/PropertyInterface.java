@@ -3,7 +3,7 @@ package AST.Interface;
 import AST.DataType.DataType;
 import AST.CustomStringBuilder;
 
-public class PropertyInterface extends InterfaceBody {
+public class PropertyInterface implements InterfaceBody {
     private String readonly;
     private String question;
     private String identifier ;

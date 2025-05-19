@@ -2,7 +2,7 @@ package AST.PropertyValueObjects;
 
 import AST.CustomStringBuilder;
 
-public class PostFix {
+public class PostFix implements PropertyValueObjects{
     private String identifier;
     private String operator;
 

@@ -8,7 +8,7 @@ import AST.Service.ServiceBlock;
 
 import java.util.*;
 
-public class Statement {
+/*public class Statement {
     private List<ImportStatement> importStatements;
     private List<ServiceBlock> serviceBlocks;
     private List<InterfaceDeclaration> interfaceDeclarations;
@@ -106,4 +106,7 @@ public class Statement {
         sb.appendTabCloseScope("}\n");
         return sb.toString();
     }
-}
+}*/
+public interface Statement{}
+
+

@@ -1,10 +1,11 @@
 package AST.Constructor;
 
+import AST.Class.ClassBody;
 import AST.CustomStringBuilder;
 
 import java.util.ArrayList;
 
-public class ConstructorDeclaration {
+public class ConstructorDeclaration implements ClassBody {
     private String constructor ;
     private ConstructorParams constructorParams ;
     private ArrayList<ConstructorBody> constructorBody = new ArrayList<>() ;

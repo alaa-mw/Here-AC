@@ -2,11 +2,12 @@ package AST.ConditionStmt;
 
 import AST.*;
 import AST.Expression.Expression;
+import AST.SwitchStmt.CaseStatement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConditionalStatement {
+public class ConditionalStatement implements CommonStatement, CaseStatement {
     private String if_KeyWord ;
     private Expression expression ;
     private Block block ;

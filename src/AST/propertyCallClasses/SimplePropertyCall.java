@@ -5,7 +5,7 @@ import AST.CustomStringBuilder;
 import java.util.ArrayList;
 import java.util.*;
 
-public class SimplePropertyCall extends PropertyCall{
+public class SimplePropertyCall implements PropertyCall{
 
     private String this_;
     private List<String>identifiers =new ArrayList<>();

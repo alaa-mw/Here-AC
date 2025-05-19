@@ -4,7 +4,7 @@ import AST.Block;
 import AST.CustomStringBuilder;
 import AST.Expression.Expression;
 
-public class ForInLoop extends ForStatement{
+public class ForInLoop implements ForStatement{
     private String for_KeyWord ;
     private DeclareVarsKeyWord declareVarsKeyWord ;
     private String for_Identifier ;

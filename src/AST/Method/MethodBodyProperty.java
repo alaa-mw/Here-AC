@@ -1,10 +1,12 @@
 package AST.Method;
 
+import AST.Constructor.ConstructorBodyProperty;
 import AST.CustomStringBuilder;
 import AST.Property.LocalVariableDeclaration;
 import AST.Property.PropertyAssignment;
 
-public class MethodBodyProperty {
+/*
+public class MethodBodyProperty extends MethodBody {
    private LocalVariableDeclaration localVariableDeclaration ;
    private PropertyAssignment propertyAssignment;
 
@@ -38,3 +40,6 @@ public class MethodBodyProperty {
         return sb.toString();
     }
 }
+
+ */
+public interface MethodBodyProperty extends MethodBody, ConstructorBodyProperty {}

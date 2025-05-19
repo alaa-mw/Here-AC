@@ -3,7 +3,7 @@ package AST.Class;
 import AST.Constructor.ConstructorDeclaration;
 import AST.CustomStringBuilder;
 import AST.Method.MethodDeclaration;
-
+/*
 public class ClassBody {
     private ClassPropertyDeclaration classPropertyDeclaration;
     private MethodDeclaration methodDeclaration;
@@ -57,3 +57,6 @@ public class ClassBody {
 
 
 }
+ */
+
+public interface ClassBody{}

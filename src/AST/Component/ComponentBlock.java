@@ -4,11 +4,12 @@ package AST.Component;
 import AST.Class.ClassDeclaration;
 import AST.Component.ComponentDeclaration;
 import AST.CustomStringBuilder;
+import AST.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComponentBlock {
+public class ComponentBlock implements Statement {
     private ComponentDeclaration componentDeclaration;
     private List<ClassDeclaration> classDeclarations = new ArrayList<>();
 

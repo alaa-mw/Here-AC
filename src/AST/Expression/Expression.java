@@ -1,5 +1,5 @@
 package AST.Expression;
 
-public abstract class Expression {
+public interface Expression {
 
 }

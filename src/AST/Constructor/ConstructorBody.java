@@ -2,7 +2,7 @@ package AST.Constructor;
 
 import AST.CommonStatement;
 import AST.CustomStringBuilder;
-
+/*
 public class ConstructorBody {
     private ConstructorBodyProperty constructorBodyProperty ;
     private CommonStatement commonStatement ;
@@ -37,4 +37,7 @@ public class ConstructorBody {
         sb.appendTabCloseScope("}").append("\n");
         return sb.toString();
     }
+}
+*/
+public interface ConstructorBody {
 }

@@ -5,7 +5,7 @@ import AST.CustomStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StyleUrls extends StyleArg{
+public class StyleUrls implements StyleArg{
     private String stylesUrls;
     private List<String> stringLiteral =new ArrayList<>();
 

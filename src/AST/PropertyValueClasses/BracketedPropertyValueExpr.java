@@ -2,7 +2,7 @@ package AST.PropertyValueClasses;
 
 import AST.CustomStringBuilder;
 
-public class BracketedPropertyValueExpr extends PropertyValue{
+public class BracketedPropertyValueExpr implements PropertyValue{
 
     private PropertyValue propertyValue;
 

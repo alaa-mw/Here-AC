@@ -4,7 +4,8 @@ import AST.CustomStringBuilder;
 import AST.Method.MethodBodyProperty;
 import AST.Property.ParameterPropertyAssignment;
 
-public class ConstructorBodyProperty {
+/*
+public class ConstructorBodyProperty implements ConstructorBody {
     private ParameterPropertyAssignment parameterPropertyAssignment ;
     private MethodBodyProperty methodBodyProperty ;
 
@@ -38,4 +39,7 @@ public class ConstructorBodyProperty {
         return sb.toString();
     }
 }
+*/
+public interface ConstructorBodyProperty {
 
+}

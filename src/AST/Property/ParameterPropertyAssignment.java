@@ -1,9 +1,10 @@
 package AST.Property;
 
 import AST.AccessModifiers;
+import AST.Constructor.ConstructorBodyProperty;
 import AST.CustomStringBuilder;
 
-public class ParameterPropertyAssignment {
+public class ParameterPropertyAssignment implements ConstructorBodyProperty {
     private AccessModifiers accessModifiers ;
     private String readOnly ;
     private String identifier ;

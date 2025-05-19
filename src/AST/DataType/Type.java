@@ -1,4 +1,4 @@
 package AST.DataType;
 
-public abstract class Type {
+public interface Type {
 }

@@ -3,7 +3,7 @@ package AST.PropertyValueClasses;
 import AST.CustomStringBuilder;
 import AST.PropertyValueObjects.PropertyValueObjects;
 
-public class PropertyValueObjectExpr extends PropertyValue{
+public class PropertyValueObjectExpr implements PropertyValue{
     private PropertyValueObjects propertyValueObjects;
 
     public PropertyValueObjects getPropertyValue() {

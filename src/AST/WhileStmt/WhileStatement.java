@@ -3,7 +3,7 @@ package AST.WhileStmt;
 import AST.*;
 import AST.Expression.Expression;
 
-public class WhileStatement {
+public class WhileStatement implements CommonStatement {
     private String While_KeyWord ;
     private Expression expression ;
     private Block block ;

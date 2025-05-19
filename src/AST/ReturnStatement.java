@@ -2,8 +2,10 @@ package AST;
 
 import AST.CustomStringBuilder;
 import AST.Expression.Expression;
+import AST.Method.MethodBody;
+import AST.SwitchStmt.CaseStatement;
 
-public class ReturnStatement {
+public class ReturnStatement implements MethodBody, CaseStatement {
      private String return_;
      private Expression expression;
 

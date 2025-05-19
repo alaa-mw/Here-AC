@@ -2,7 +2,7 @@ package AST.HTML;
 
 import AST.CustomStringBuilder;
 
-public class NgIF {
+public class NgIF implements HtmlAttribute {
     private String ngIf;
     private String stringLiteral;
 

@@ -1,12 +1,15 @@
 package AST;
 
 import AST.ConditionStmt.ConditionalStatement;
+import AST.Constructor.ConstructorBody;
 import AST.ForStmt.ForStatement;
+import AST.Method.MethodBody;
 import AST.SwitchStmt.SwitchStatement;
 import AST.WhileStmt.DoWhileStatement;
 import AST.WhileStmt.WhileStatement;
 
-public class CommonStatement {
+/*
+public class CommonStatement implements MethodBody, ConstructorBody {
     private PrintStatement printStatement ;
     private ConditionalStatement conditionStatement;
     private SwitchStatement switchStatement;
@@ -87,4 +90,7 @@ public class CommonStatement {
         sb.appendTabCloseScope('}').append('\n');
         return sb.toString();
     }
+}
+*/
+public interface CommonStatement {
 }

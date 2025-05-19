@@ -2,7 +2,7 @@ package AST.Component;
 
 import AST.CustomStringBuilder;
 
-public class StandAloneArg {
+public class StandAloneArg implements ComponentArguments {
     private String standAlone;
     private String bool;
 

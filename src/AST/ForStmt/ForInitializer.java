@@ -3,7 +3,7 @@ package AST.ForStmt;
 
 import AST.CustomStringBuilder;
 import AST.Property.BlockProperty;
-
+/*
 public class ForInitializer {
    private VariableDeclarationList variableDeclarationList;
    private BlockProperty blockProperty ;
@@ -37,4 +37,8 @@ public class ForInitializer {
         sb.appendTabCloseScope("}\n");
         return sb.toString();
     }
+}
+
+ */
+public interface ForInitializer {
 }

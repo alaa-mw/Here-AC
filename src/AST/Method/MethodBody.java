@@ -4,7 +4,7 @@ import AST.CommonStatement;
 import AST.CustomStringBuilder;
 import AST.ReturnStatement;
 import AST.propertyCallClasses.PropertyCall;
-
+/*
 public class MethodBody {
    private ReturnStatement returnStatement;
    private CommonStatement commonStatement;
@@ -64,3 +64,6 @@ public class MethodBody {
         return sb.toString();
     }
 }
+*/
+
+public interface MethodBody{}

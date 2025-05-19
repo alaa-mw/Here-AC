@@ -2,7 +2,7 @@ package AST.Expression;
 
 import AST.CustomStringBuilder;
 
-public class ParentExpression extends Expression{
+public class ParentExpression implements Expression{
     private Expression innerExpression;
 
     public Expression getInnerExpression() {
