@@ -127,7 +127,7 @@ cssDocument :  ( DOT? IDENTIFIER+ OPEN_CURLY_BRACKET cssRule* CLOSE_CURLY_BRACKE
 cssRule : IDENTIFIER DOT_DOT (ruleValue)* SEMICOLON;
 
 ruleValue : IDENTIFIER
-          | NUMERIC_LITERAL
+          | NUMERIC_LITERAL PX
           | NUMERIC_LITERAL PERCENTAGE?
           | COLOR
           ;

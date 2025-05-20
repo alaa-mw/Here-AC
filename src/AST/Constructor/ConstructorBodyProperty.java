@@ -40,6 +40,6 @@ public class ConstructorBodyProperty implements ConstructorBody {
     }
 }
 */
-public interface ConstructorBodyProperty {
+public interface ConstructorBodyProperty extends ConstructorBody {
 
 }

@@ -1971,9 +1971,19 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 block.getBlockProperties().add( (BlockProperty) visit(ctx.blockProperty(i)));/* */
             }
         }
+
+
         for (int i=0 ; i< ctx.commonStatement().size(); i++){
             if(ctx.commonStatement() != null){
                 block.getCommonStatements().add( (CommonStatement) visit(ctx.commonStatement(i))); /* */
+            }
+        }
+
+        if (ctx.returnStatement()!=null){
+            for (int i=0 ; i< ctx.commonStatement().size(); i++){
+
+                    block.getReturnStatements().add(visitReturnStatement(ctx.returnStatement(i))); /* */
+
             }
         }
         return  block ;

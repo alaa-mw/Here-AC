@@ -9,6 +9,8 @@ public class Block {
     public List<BlockProperty> blockProperties = new ArrayList<>();
     public List<CommonStatement> commonStatements = new ArrayList<>();
 
+    public List<ReturnStatement> returnStatements = new ArrayList<>();
+
     public List<BlockProperty> getBlockProperties() {
         return blockProperties;
     }
@@ -25,6 +27,14 @@ public class Block {
         this.commonStatements = commonStatements;
     }
 
+    public List<ReturnStatement> getReturnStatements() {
+        return returnStatements;
+    }
+
+    public void setReturnStatements(List<ReturnStatement> returnStatements) {
+        this.returnStatements = returnStatements;
+    }
+
     @Override
     public String toString() {
         CustomStringBuilder sb = new CustomStringBuilder();
@@ -36,6 +46,10 @@ public class Block {
 
         if (commonStatements != null && !commonStatements.isEmpty()) {
             sb.append(commonStatements);
+        }
+
+        if (returnStatements != null && !returnStatements.isEmpty()) {
+            sb.append(returnStatements);
         }
 
         sb.appendTabCloseScope("}\n");
