@@ -5,6 +5,10 @@ import AST.CustomStringBuilder;
 public class TemplateUrl implements TemplateArg{
     private String templateUrl;
     private String stringLiteral;
+    @Override
+    public String getNameAttribute(){
+        return "templateUrl";
+    };
 
     public String getTemplateUrl() {
         return templateUrl;

@@ -1,4 +1,4 @@
-package Visitor;
+package Duplicate_attribute;
 
 import AST.*;
 import AST.CSS.CssDocument;
@@ -50,68 +50,23 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 
-public class BaseVisitor extends AngularParserBaseVisitor {
+public class BaseVisitor2 extends AngularParserBaseVisitor {
+    private SymbolTable symbolTable = new SymbolTable();
+
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
 
     @Override
     public Program visitProgram(AngularParser.ProgramContext ctx) {
+
         Program program =new Program();
 
         program.setStatement( (Statement)visit(ctx.statement()));/*  */
 
         return program;
     }
-
-//    @Override
-//    public Statement visitStatement(AngularParser.StatementContext ctx) {
-//        Statement statement = new Statement();
-//
-//        // Handle importStatement+
-//        for (AngularParser.ImportStatementContext importCtx : ctx.importStatement()) {
-//            statement.getImportStatements().add(visitImportStatement(importCtx));
-//        }
-//
-//        // Handle serviceBlock*
-//        if (ctx.serviceBlock()!=null){
-//            for (AngularParser.ServiceBlockContext serviceCtx : ctx.serviceBlock()) {
-//                statement.getServiceBlocks().add(visitServiceBlock(serviceCtx));
-//            }
-//        }
-//
-//
-//        // Handle interfaceDeclaration*
-//        if (ctx.interfaceDeclaration()!=null){
-//            for (AngularParser.InterfaceDeclarationContext interfaceCtx : ctx.interfaceDeclaration()) {
-//                statement.getInterfaceDeclarations().add(visitInterfaceDeclaration(interfaceCtx));
-//            }
-//        }
-//
-//
-//        // Handle classDeclaration*
-//        if (ctx.classDeclaration()!=null){
-//            for (AngularParser.ClassDeclarationContext classCtx : ctx.classDeclaration()) {
-//                statement.getClassDeclarations().add(visitClassDeclaration(classCtx));
-//            }
-//        }
-//
-//
-//        // Handle printStatement*
-//        if (ctx.printStatement()!=null){
-//            for (AngularParser.PrintStatementContext printCtx : ctx.printStatement()) {
-//                statement.getPrintStatements().add(visitPrintStatement(printCtx));
-//            }
-//        }
-//
-//
-//        // Handle componentBlock*
-//        if (ctx.componentBlock()!=null){
-//            for (AngularParser.ComponentBlockContext compCtx : ctx.componentBlock()) {
-//
-//                statement.getComponentBlocks().add(visitComponentBlock(compCtx));
-//            }
-//        }
-//
-//        return statement;
-//    }
 
 
     @Override
@@ -172,6 +127,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public ClassDeclaration visitClassDeclaration(AngularParser.ClassDeclarationContext ctx) {
         ClassDeclaration classDeclaration = new ClassDeclaration();
 
+        String className = ctx.IDENTIFIER().getText();
+
         if (ctx.EXPORT() != null) {
             classDeclaration.setExport(ctx.EXPORT().getText());
         }
@@ -202,8 +159,36 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             if(body!=null){
                 bodyList.add(body);
             }
+
+            if (body instanceof ClassPropertyDeclaration){
+               // String name = bodyCtx.getText();
+                String name =((ClassPropertyDeclaration) body).getIdentifier();
+                int line = bodyCtx.getStart().getLine();
+                Symbol symbol = new Symbol(name, "property", "", className, line);
+                boolean ok = symbolTable.declare(className, name, symbol);
+                if (!ok) {
+                    SemanticLogger.log("Duplicate property '" + name + "' in class " + className + " at line " + line);
+                }
+            } else if (body instanceof MethodDeclaration) {
+                MethodDeclaration method = visitMethodDeclaration(bodyCtx.methodDeclaration());
+                String name = method.getIdentifier();
+                int line = bodyCtx.getStart().getLine();
+                Symbol symbol = new Symbol(name, "method", "", className, line);
+                boolean ok = symbolTable.declare(className, name, symbol);
+                if (!ok) {
+                    SemanticLogger.log("Duplicate method '" + name + "' in class " + className + " at line " + line);
+                }
+            } else if (body instanceof ConstructorDeclaration) {
+                int line = bodyCtx.getStart().getLine();
+                Symbol symbol = new Symbol("constructor", "constructor", "", className, line);
+                boolean ok = symbolTable.declare(className, "constructor", symbol);
+                if (!ok) {
+                    SemanticLogger.log("Duplicate constructor in class " + className + " at line " + line);
+                }
+            }
         }
         classDeclaration.setClassBodies(bodyList);
+
 
         return classDeclaration;
     }
@@ -763,12 +748,14 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public InterfaceDeclaration visitInterfaceDeclaration(AngularParser.InterfaceDeclarationContext ctx) {
         InterfaceDeclaration interfaceDeclaration = new InterfaceDeclaration();
+        String interfaceName =  "Interface@ "+ctx.IDENTIFIER().getText(); // You can improve this later
 
         if (ctx.EXPORT() != null) {
             interfaceDeclaration.setExport(ctx.EXPORT().getText());
         }
         if (ctx.INTERFACE() != null) {
             interfaceDeclaration.setInterface_(ctx.INTERFACE().getText());
+
         }
         if (ctx.IDENTIFIER() != null) {
             interfaceDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
@@ -778,6 +765,32 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 if (!bodyContext.isEmpty())
                     interfaceDeclaration.getInterfaceBody().add((InterfaceBody) visit(bodyContext));
         }
+        //Set<String> declaredAttributes = new HashSet<>();
+        for (AngularParser.InterfaceBodyContext bodyCtx : ctx.interfaceBody()) {
+            String attrName = null;
+            String Type=null;
+            int line = bodyCtx.start.getLine();
+
+            if (bodyCtx instanceof AngularParser.PropertyInterfaceContext propCtx) {
+                attrName = propCtx.IDENTIFIER().getText();
+                Type="Property";
+            } else if (bodyCtx instanceof AngularParser.FunctionInterfaceContext funcCtx) {
+                attrName = funcCtx.IDENTIFIER().getText();
+                Type="Method";
+            } else if (bodyCtx instanceof AngularParser.ArrowFunctionInterfaceContext arrowCtx) {
+                attrName = arrowCtx.IDENTIFIER().getText();
+                Type="ArrowFunction";
+            }
+
+            if (attrName != null) {
+                Symbol symbol = new Symbol(attrName, "interface attribute", "", "interfaceBody", line);
+                boolean success = symbolTable.declare(interfaceName, attrName, symbol);
+                if (!success) {
+                    SemanticLogger.log("Duplicate "+Type+ " " + attrName + "' in " + interfaceName + " at line " + line);
+                }
+            }
+        }
+
         return interfaceDeclaration;
     }
 
@@ -999,6 +1012,9 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public ComponentDeclaration visitComponentDeclaration(AngularParser.ComponentDeclarationContext ctx) {
         ComponentDeclaration componentDeclaration = new ComponentDeclaration();
+        //String componentName = "Component@" + ctx.getStart().getLine(); // You can improve this later
+        String componentName = "@Component" ;
+
 
         if (ctx.COMPONENT() != null) {
             componentDeclaration.setComponent(ctx.COMPONENT().getText());
@@ -1007,11 +1023,20 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             for (int i = 0; i < ctx.componentArguments().size(); i++) {
                 if (ctx.componentArguments(i) != null) {
                     componentDeclaration.getComponentArguments().add( (ComponentArguments) visit(ctx.componentArguments(i))); /* */
+                    String attrName =componentDeclaration.getComponentArguments().get(componentDeclaration.getComponentArguments().size()-1).getNameAttribute() ;
+                    int line = ctx.componentArguments(i).getStart().getLine();
+
+                    Symbol symbol = new Symbol(attrName, "attribute", "", "ComponentAttribute", line);
+                    boolean success = symbolTable.declare(componentName, attrName, symbol);
+
+                    if (!success) {
+                        SemanticLogger.log("Duplicate attribute '" + attrName + "' in " + componentName + " at line " + line);
+                    }
+
+
                 }
             }
         }
-
-
         return componentDeclaration;
 
     }

@@ -1,9 +1,8 @@
-import AST.Program;
 //import Grammer.AngularLexer;
-import Grammer.AngularLexer;
+import gen.Grammer.AngularLexer;
 import Grammer.AngularParser;
-import Visitor.BaseVisitor;
-import org.antlr.v4.runtime.CharStream;
+import Duplicate_attribute.BaseVisitor2;
+        import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -22,7 +21,10 @@ public class Main {
             CommonTokenStream token = new CommonTokenStream(lexer);
             AngularParser parser = new AngularParser(token);
             ParseTree tree = parser.program();
-            Program doc = (Program) new BaseVisitor().visit(tree);
-            System.out.println(doc);
+            BaseVisitor2 visitor2= new BaseVisitor2();
+            visitor2.visit(tree);
+            visitor2.getSymbolTable().printTable();
+           // Program doc = (Program) new BaseVisitor2().visit(tree);
+           // System.out.println(doc);
         }
 }

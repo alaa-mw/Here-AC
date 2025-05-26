@@ -92,5 +92,5 @@ public class CommonStatement implements MethodBody, ConstructorBody {
     }
 }
 */
-public interface CommonStatement extends ConstructorBody {
+public interface CommonStatement extends ConstructorBody,MethodBody {
 }

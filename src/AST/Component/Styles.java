@@ -8,6 +8,11 @@ import java.util.List;
 public class Styles implements StyleArg{
     private List<InlineStyle> inlineStyles=new ArrayList<>();
 
+    @Override
+    public String getNameAttribute(){
+        return "styles";
+    };
+
     public List<InlineStyle> getInlineStyles() {
         return inlineStyles;
     }

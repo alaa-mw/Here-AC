@@ -23,7 +23,7 @@ importItems : IDENTIFIER (COMMA IDENTIFIER)*;
 
 // 2 ========================= Interface Statements =========================
 interfaceDeclaration : EXPORT? INTERFACE IDENTIFIER OPEN_CURLY_BRACKET interfaceBody* CLOSE_CURLY_BRACKET;
-interfaceBody
+    interfaceBody
     : READONLY? IDENTIFIER QUESTION? DOT_DOT dataType SEMICOLON                                                       #PropertyInterface
     | READONLY? IDENTIFIER QUESTION? OPEN_BRACKET parameterList? CLOSE_BRACKET (DOT_DOT | ARROW ) dataType SEMICOLON  #FunctionInterface
     | READONLY? IDENTIFIER QUESTION? DOT_DOT OPEN_BRACKET parameterList CLOSE_BRACKET ARROW dataType  SEMICOLON       #ArrowFunctionInterface

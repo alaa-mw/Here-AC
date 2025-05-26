@@ -6,6 +6,11 @@ public class StyleUrl implements StyleArg {
     private String stylesUrl;
     private String stringLiteral;
 
+    @Override
+    public String getNameAttribute(){
+        return "styleUrl";
+    };
+
     public String getStylesUrl() {
         return stylesUrl;
     }

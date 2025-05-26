@@ -6,6 +6,11 @@ public class SelectorArg implements ComponentArguments {
     private String selector;
     private String stringLiteral;
 
+    @Override
+    public String getNameAttribute(){
+        return "selector";
+    };
+
     public String getSelector() {
         return selector;
     }
