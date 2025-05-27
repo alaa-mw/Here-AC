@@ -48,4 +48,8 @@ public class BinaryOperationPropertyValueExpr implements PropertyValue {
         return sb.toString();
     }
 
+    @Override
+    public String getValue() {
+        return null;
+    }
 }

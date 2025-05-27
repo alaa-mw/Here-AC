@@ -6,6 +6,7 @@ public class SymbolExpr implements LiteralValue{
 
     private String value;
 
+    @Override
     public String getValue() {
         return value;
     }

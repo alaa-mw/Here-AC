@@ -4,7 +4,7 @@ import AST.CustomStringBuilder;
 
 public class PrimitiveType implements Type{
     private String type;
-
+    @Override
     public String getType() {
         return type;
     }
@@ -20,4 +20,6 @@ public class PrimitiveType implements Type{
 
         return sb.toString();
     }
+
+
 }

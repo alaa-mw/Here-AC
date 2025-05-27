@@ -40,4 +40,8 @@ public class IndexAccessValue implements PropertyValueObjects {
         return sb.toString();
     }
 
+    @Override
+    public String getValue() {
+        return null;
+    }
 }

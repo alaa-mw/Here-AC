@@ -2,6 +2,7 @@ import AST.Program;
 //import Grammer.AngularLexer;
 import Grammer.AngularLexer;
 import Grammer.AngularParser;
+import SemanticCheck.SemanticError;
 import Visitor.BaseVisitor;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -24,5 +25,9 @@ public class Main {
             ParseTree tree = parser.program();
             Program doc = (Program) new BaseVisitor().visit(tree);
             System.out.println(doc);
-        }
+        SemanticError semanticError = new SemanticError();
+        System.out.println(semanticError.getPropertyDecSTHashMap());
+        semanticError.errorResult();
+
+    }
 }

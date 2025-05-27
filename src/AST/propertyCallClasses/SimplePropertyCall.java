@@ -50,4 +50,8 @@ public class SimplePropertyCall implements PropertyCall{
         return sb.toString();
     }
 
+    @Override
+    public String getValue() {
+        return null;
+    }
 }

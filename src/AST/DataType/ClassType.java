@@ -5,6 +5,10 @@ import AST.CustomStringBuilder;
 public class ClassType implements Type {
     private String identifier;
 
+    @Override
+    public String getType() {
+        return identifier;
+    }
     public String getIdentifier() {
         return identifier;
     }
@@ -19,4 +23,6 @@ public class ClassType implements Type {
         sb.append("ClassType {").append("identifier=").append(identifier).append("}").append("\n");
         return sb.toString();
     }
+
+
 }

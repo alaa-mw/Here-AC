@@ -60,4 +60,9 @@ public class PropertyWithMethodCall implements PropertyCall{
         sb.appendTabCloseScope("}").append("\n");
         return sb.toString();
     }
+
+    @Override
+    public String getValue() {
+        return null;
+    }
 }

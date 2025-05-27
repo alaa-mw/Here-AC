@@ -1,4 +1,4 @@
-// Generated from D:/compiler projects/Compiler_Project/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
+// Generated from D:/compiler projects/Here-AC/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
 package gen.Grammer;
 import Grammer.AngularParser;
 import Grammer.AngularParserVisitor;
