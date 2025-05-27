@@ -145,7 +145,7 @@ classBody
     ;
 
 classPropertyDeclaration
-    : accessModifiers? STATIC? READONLY? IDENTIFIER (DOT_DOT assignDataType)?  assigment SEMICOLON?
+    : accessModifiers? STATIC? READONLY? IDENTIFIER (DOT_DOT assignDataType)?  assigment? SEMICOLON?
     ;
 
 // 5.1 ------------- MethodsDeclaration

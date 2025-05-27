@@ -27,4 +27,9 @@ public class LIst implements PropertyValueObjects {
         sb.appendTabCloseScope("}").append("\n");
         return sb.toString();
     }
+
+    @Override
+    public String getValue() {
+        return null;
+    }
 }

@@ -35,4 +35,8 @@ public class PreFix implements PropertyValueObjects {
         return sb.toString();
     }
 
+    @Override
+    public String getValue() {
+        return null;
+    }
 }

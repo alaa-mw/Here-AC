@@ -5,6 +5,7 @@ import AST.CustomStringBuilder;
 public class ValueExpr implements LiteralValue {
     private String value;
 
+    @Override
     public String getValue() {
         return value;
     }

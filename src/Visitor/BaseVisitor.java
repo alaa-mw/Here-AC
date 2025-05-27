@@ -46,12 +46,16 @@ import AST.propertyCallClasses.PropertyCall;
 import AST.propertyCallClasses.PropertyWithMethodCall;
 import AST.propertyCallClasses.SimplePropertyCall;
 import Grammer.AngularParser;
-import Grammer.AngularParserBaseVisitor;
+import SemanticCheck.SemanticError;
+import SymbolTable.PropertyDecST;
+import gen.Grammer.AngularParserBaseVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 
 public class BaseVisitor extends AngularParserBaseVisitor {
+
+    SemanticError semanticError = new SemanticError();
 
     @Override
     public Program visitProgram(AngularParser.ProgramContext ctx) {
@@ -258,9 +262,10 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 //        return body;
 //    }
 
-    @Override
+    @Override // alaa
     public ClassPropertyDeclaration visitClassPropertyDeclaration(AngularParser.ClassPropertyDeclarationContext ctx) {
         ClassPropertyDeclaration property = new ClassPropertyDeclaration();
+        PropertyDecST propertyDecST = new PropertyDecST();
         // Access modifier
         if (ctx.accessModifiers() != null) {
             property.setAccessModifiers((visitAccessModifiers(ctx.accessModifiers())));
@@ -284,13 +289,22 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         // assignDataType
         if (ctx.assignDataType() != null) {
             property.setAssignDataType(visitAssignDataType(ctx.assignDataType()));
+            Type type = (Type) visit(ctx.assignDataType().dataType(0).type());
+            propertyDecST.setType(type.getType()) ; //alaa-check
         }
 
         // assignment
+
         if (ctx.assigment() != null) {
+
             property.setAssigment(visitAssigment(ctx.assigment()));
+
+            PropertyValue propertyValue=( (PropertyValue) visit(ctx.assigment().propertyValue()));
+            propertyDecST.setValue(propertyValue.getValue()); // alaa- check
+
         }
 
+        semanticError.getPropertyDecSTHashMap().put(ctx.IDENTIFIER().getText(),propertyDecST);
         return property;
     }
 
@@ -476,14 +490,14 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     /***********           PropertyValue Start ************************************/
     /***********           PropertyValue Start ************************************/
 
-    @Override
-    public PropertyValueObjectExpr visitPropertyValueObjectExpr(AngularParser.PropertyValueObjectExprContext ctx) {
-        PropertyValueObjectExpr propertyValueObjectExpr=new PropertyValueObjectExpr();
-
-        propertyValueObjectExpr.setPropertyValueObjects( (PropertyValueObjects) visit(ctx.propertyValueObjects())); /* */
-
-        return propertyValueObjectExpr;
-    }
+//    @Override
+//    public PropertyValueObjectExpr visitPropertyValueObjectExpr(AngularParser.PropertyValueObjectExprContext ctx) {
+//        PropertyValueObjectExpr propertyValueObjectExpr=new PropertyValueObjectExpr();
+//
+//        propertyValueObjectExpr.setPropertyValueObjects( (PropertyValueObjects) visit(ctx.propertyValueObjects())); /* */
+//
+//        return propertyValueObjectExpr;
+//    }
 
     @Override
     public BracketedPropertyValueExpr visitBracketedPropertyValueExpr(AngularParser.BracketedPropertyValueExprContext ctx) {
@@ -651,7 +665,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     }
 
     /***********           PropertyCall Start ************************************/
-    @Override
+    @Override //alaa
     public SimplePropertyCall visitSimplePropertyCall(AngularParser.SimplePropertyCallContext ctx) {//****wait Bilal
         SimplePropertyCall simplePropertyCall=new SimplePropertyCall();
 
@@ -661,7 +675,10 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         if (ctx.IDENTIFIER()!=null && !ctx.IDENTIFIER().isEmpty()) {
             for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
                 simplePropertyCall.addToIdentifiers(ctx.IDENTIFIER(i).getText());
-            }
+                if(i< ctx.IDENTIFIER().size() -1 )
+                    semanticError.ReadProperties(ctx.IDENTIFIER(i).getText(),ctx.start.getLine());// alaa-check
+               }
+
         }
         return simplePropertyCall;
     }
@@ -1989,6 +2006,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return  block ;
 
     }
+
 
     //*****************************END //SARA//**************************************//
 

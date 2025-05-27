@@ -53,4 +53,8 @@ public class ArrowFunction implements PropertyValueObjects {
         return sb.toString();
     }
 
+    @Override
+    public String getValue() {
+        return null;
+    }
 }

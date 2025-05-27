@@ -18,5 +18,10 @@ import { Component } from '@angular/core';
   `],
 })
 export class AppComponent {
-  message: string = 'Hello Test 3';
+  userData: any =null ; // just any
+
+  load(){
+       this.userName= this.userData.r; // run time error : Cannot read properties of undefined (reading 'name'),
+
+    }
 }
