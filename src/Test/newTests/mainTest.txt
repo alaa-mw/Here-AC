@@ -2,12 +2,18 @@ import { Component, Injectable } from '@angular/core';
 
 // تعريف الواجهة (Interface)
 interface Product {
-  name: string;
-  image: string;
+  name?: string;
+  image?: string;
   desc: string;
 
   method(arg: number): void;
   handler: (event: string) => boolean;
+}
+interface Test {
+  age?: string;
+  desc: string;
+
+
 }
 
 // الخدمة (Service)
@@ -138,7 +144,7 @@ export class ProductService {
       }
     `,
 })
-export class AppComponent {
+export class AppComponent implements Product,Test{
 
   products: Product[] = [];
   selectedProduct: Product | null = null;
@@ -151,6 +157,12 @@ export class AppComponent {
     this.productService.selectProduct(product);
     this.selectedProduct = this.productService.getSelectedProduct();
   }
+
+
+}
+export class Oula implements Test{
+
+
 
 
 }

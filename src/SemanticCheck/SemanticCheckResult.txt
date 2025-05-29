@@ -1,2 +1,0 @@
-Semantic Check : 
-Cannot read properties of null (reading 'userData') at line 24. 
