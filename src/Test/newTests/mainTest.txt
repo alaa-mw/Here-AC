@@ -1,4 +1,4 @@
-import { Component, Injectable } from '@angular/core';
+import { test} from '@angular/core'; // missing component , service
 
 // تعريف الواجهة (Interface)
 interface Product {
@@ -162,7 +162,7 @@ export class AppComponent implements Product,Test{
 }
 export class Oula implements Test{
 
-
+x = 10 ;
 
 
 }

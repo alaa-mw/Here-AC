@@ -13,6 +13,9 @@ public class Symbol {
         this.isOptional=isOptional;
     }
 
+    public Symbol() {
+    }
+
     public boolean isOptional() {
         return isOptional;
     }

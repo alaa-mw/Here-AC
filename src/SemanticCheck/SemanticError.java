@@ -93,7 +93,32 @@ public class SemanticError {
         }
         return null;
     }
-    //==============================================
+
+    //============================================== MissingImport
+
+    MissingImportST importST = MissingImportST.getInstance();
+
+    public  void missingComponentImports(int line){
+        if (!(importST.containsSymbol("Component"))) {
+            Errors.add("Error at line " + line + " : " + "Missed Component Import ");
+        }
+    }
+
+    public  void missingServiceImports(int line){
+        if (!(importST.containsSymbol("Injectable"))) {
+            Errors.add("Error at line " + line + " : " + "Missed Service Import ");
+        }
+    }
+
+
+//    public void classImportNotFound( String name, int line) {
+//
+//        if(!(importST.containsSymbol(name))){
+//            Errors.add("Error at line " + line + " : " + "class ( " + name + " ) " + "Import Not Found");
+//        }
+//    }
+
+
 
     public void errorResult() {
         try {

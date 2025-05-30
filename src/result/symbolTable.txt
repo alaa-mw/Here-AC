@@ -16,6 +16,6 @@ Symbol Table
       method selectProduct symbols: []{
       }
     }
-    class Oula symbols: [{name='__implements__', value='Test', type='implements'}]{
+    class Oula symbols: [{name='__implements__', value='Test', type='implements'}, {name='x', value='10', type='null'}]{
     }
   }

@@ -19,7 +19,7 @@ public class Main {
 
 //         String source = "src/Test/test2.txt" ;
            String source = "src/Test/newTests/mainTest.txt" ;
-//        String source = "src/Test/newTests/calculator.txt" ;
+//         String source = "src/Test/newTests/calculator.txt" ;
 
             CharStream cs = fromFileName(source);
             AngularLexer lexer = new AngularLexer(cs);

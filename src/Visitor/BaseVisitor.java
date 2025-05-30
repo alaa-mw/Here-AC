@@ -172,7 +172,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         ServiceDeclaration serviceDeclaration = new ServiceDeclaration();
 
         serviceDeclaration.setInjectable(ctx.INJECTABLE().getText());
-
+        semanticError.missingServiceImports(ctx.INJECTABLE().getSymbol().getLine());
         serviceDeclaration.setServiceArguments(visitServiceArguments(ctx.serviceArguments()));
 
         return serviceDeclaration;
@@ -1070,6 +1070,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         ComponentDeclaration componentDeclaration = new ComponentDeclaration();
         if (ctx.COMPONENT() != null) {
             componentDeclaration.setComponent(ctx.COMPONENT().getText());
+            semanticError.missingComponentImports(ctx.COMPONENT().getSymbol().getLine());
         }
         if (ctx.componentArguments() != null && !ctx.componentArguments().isEmpty()) {
             for (int i = 0; i < ctx.componentArguments().size(); i++) {
