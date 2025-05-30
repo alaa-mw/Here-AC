@@ -115,11 +115,13 @@ htmlContentBody
         | objectExpression
         ;
 
-objectExpression : OPEN_CURLY_BRACKET OPEN_CURLY_BRACKET objectExpressionValue CLOSE_CURLY_BRACKET CLOSE_CURLY_BRACKET ;
-objectExpressionValue
-    : IDENTIFIER
-    | IDENTIFIER (DOT IDENTIFIER)*
-    ;
+//objectExpression : OPEN_CURLY_BRACKET OPEN_CURLY_BRACKET objectExpressionValue CLOSE_CURLY_BRACKET CLOSE_CURLY_BRACKET ;
+objectExpression : OPEN_CURLY_BRACKET OPEN_CURLY_BRACKET propertyValueObjects CLOSE_CURLY_BRACKET CLOSE_CURLY_BRACKET ;
+
+//objectExpressionValue
+//    : IDENTIFIER
+//    | IDENTIFIER (DOT IDENTIFIER)*
+//    ;
 
 
 // 3.2 ========== CSS

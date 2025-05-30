@@ -9,6 +9,10 @@ public class StyleUrls implements StyleArg{
     private String stylesUrls;
     private List<String> stringLiteral =new ArrayList<>();
 
+    @Override
+    public String getNameAttribute(){
+        return "styleUrls";
+    };
     public String getStylesUrls() {
         return stylesUrls;
     }

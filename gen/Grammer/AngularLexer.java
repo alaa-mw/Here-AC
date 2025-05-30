@@ -1,5 +1,5 @@
-// Generated from C:/Users/G.force/Desktop/compiler/Here-AC/src/Grammer\AngularLexer.g4 by ANTLR 4.10.1
-package gen.Grammer;
+// Generated from C:/Users/Asus-/Desktop/Compiler/LastOne/Here-AC/src/Grammer/AngularLexer.g4 by ANTLR 4.13.1
+package Grammer;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -9,9 +9,9 @@ import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.*;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue", "this-escape"})
 public class AngularLexer extends Lexer {
-	static { RuntimeMetaData.checkVersion("4.10.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -176,6 +176,7 @@ public class AngularLexer extends Lexer {
 	private void COLOR_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 0:
+
 			break;
 		}
 	}

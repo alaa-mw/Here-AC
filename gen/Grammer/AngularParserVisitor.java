@@ -1,4 +1,4 @@
-// Generated from C:/Users/G.force/Desktop/compiler/Here-AC/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
+// Generated from C:/Users/Asus-/Desktop/Compiler/LastOne/Here-AC/src/Grammer/AngularParser.g4 by ANTLR 4.13.1
 package Grammer;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -252,12 +252,6 @@ public interface AngularParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitObjectExpression(AngularParser.ObjectExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link AngularParser#objectExpressionValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link AngularParser#cssDocument}.
 	 * @param ctx the parse tree

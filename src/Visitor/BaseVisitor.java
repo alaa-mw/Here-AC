@@ -49,11 +49,13 @@ import Grammer.AngularParser;
 import Grammer.AngularParserBaseVisitor;
 import SemanticCheck.SemanticError;
 import SymbolTable.PropertyDecST;
-import SymbolTable.SymbolTable;
+import SymbolTable.*;
 import SymbolTable.MissingImportST ;
+import SymbolTable.DuplicateAttributeSymbolTable ;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class BaseVisitor extends AngularParserBaseVisitor {
 
@@ -67,7 +69,17 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
     SemanticError semanticError = new SemanticError(symbolTable);
 
+    private DuplicateAttributeSymbolTable duplicateAttributeSymbolTable = new DuplicateAttributeSymbolTable();
 
+   public List<List<String>> htmlBindingsToValidate = new ArrayList<>();
+
+    private MissedHTMLSymbolTable symbolTable2=new MissedHTMLSymbolTable();
+
+    MissedHTMLSymbolTable globalMissedHTMLSymbolTable = new MissedHTMLSymbolTable("global");
+
+    public DuplicateAttributeSymbolTable getSymbolTable2() {
+        return duplicateAttributeSymbolTable;
+    }
     @Override
     public Program visitProgram(AngularParser.ProgramContext ctx) {
         Program program =new Program();
@@ -226,14 +238,87 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             if(body!=null){
                 bodyList.add(body);
             }
+            if (body instanceof ClassPropertyDeclaration){
+                // String name = bodyCtx.getText();
+                String name =((ClassPropertyDeclaration) body).getIdentifier();
+                int line = bodyCtx.getStart().getLine();
+                Symbol symbol = new Symbol(name,  "property", "", className, line);
+                boolean ok = duplicateAttributeSymbolTable.declare(className, name, symbol);
+                if (!ok) {
+                    SemanticLogger.log("Duplicate property '" + name + "' in class " + className + " at line " + line);
+                }
+
+                /////////Missed HTML
+
+                String propName = ((ClassPropertyDeclaration) body).getIdentifier();
+                PropertyValue value = ((ClassPropertyDeclaration) body).getAssigment().getPropertyValue();
+
+                if (value instanceof ObjectValue) {
+                    MissedHTMLSymbolTable propMissedHTMLSymbolTable = buildScopeFromObjectValue((ObjectValue) value);
+                    globalMissedHTMLSymbolTable.addChild(propName, propMissedHTMLSymbolTable);
+//                    globalMissedHTMLSymbolTable.print(" ");
+
+                }
+                if (value instanceof LiteralExpr) {
+                    globalMissedHTMLSymbolTable.addChild(propName, new MissedHTMLSymbolTable(propName));
+                }
+
+            }else if (body instanceof MethodDeclaration) {
+                MethodDeclaration method = visitMethodDeclaration(bodyCtx.methodDeclaration());
+                String name = method.getIdentifier();
+                int line = bodyCtx.getStart().getLine();
+                Symbol symbol = new Symbol(name, "method", "", className, line);
+                boolean ok = duplicateAttributeSymbolTable.declare(className, name, symbol);
+                if (!ok) {
+                    SemanticLogger.log("Duplicate method '" + name + "' in class " + className + " at line " + line);
+                }
+            } else if (body instanceof ConstructorDeclaration) {
+                int line = bodyCtx.getStart().getLine();
+                Symbol symbol = new Symbol("constructor", "constructor", "", className, line);
+                boolean ok = duplicateAttributeSymbolTable.declare(className, "constructor", symbol);
+                if (!ok) {
+                    SemanticLogger.log("Duplicate constructor in class " + className + " at line " + line);
+                }
+            }
         }
         classDeclaration.setClassBodies(bodyList);
 
+
         semanticError.checkScope(symbolTable.currentScope(),ctx.start.getLine());
         symbolTable.exitScope();
+
+        System.out.println("htmlBindingsToValidate "+htmlBindingsToValidate);
+
+        for (List<String> identifiers : htmlBindingsToValidate) {
+            String invalidBinding= globalMissedHTMLSymbolTable.isValidPath2(identifiers);
+            if (invalidBinding!= " ") {
+//                SemanticLogger.log(" Invalid HTML binding: " + invalidBinding);
+                System.out.println("🟥 Invalid HTML binding: " + invalidBinding);
+            } else {
+                //System.out.println("✔️ Valid HTML binding: " + String.join(".", identifiers));
+            }
+        }
         return classDeclaration;
     }
 
+    private MissedHTMLSymbolTable buildScopeFromObjectValue(ObjectValue objVal) {
+        MissedHTMLSymbolTable missedHTMLSymbolTable = new MissedHTMLSymbolTable("object");
+
+        for (ObjectProperty property : objVal.getProperties()) {
+            String propName = property.getIdentifier();
+            PropertyValue value = property.getValue();
+
+            if (value instanceof LiteralExpr) {
+                missedHTMLSymbolTable.addChild(propName, new MissedHTMLSymbolTable("string")); // Or "number", etc.
+            } else if (value instanceof ObjectValue) {
+                MissedHTMLSymbolTable childMissedHTMLSymbolTable = buildScopeFromObjectValue((ObjectValue) value);
+                missedHTMLSymbolTable.addChild(propName, childMissedHTMLSymbolTable);
+            }
+
+        }
+
+        return missedHTMLSymbolTable;
+    }
     @Override
     public ClassHeritage visitClassHeritage(AngularParser.ClassHeritageContext ctx) {
         ClassHeritage classHeritage=new ClassHeritage();
@@ -1563,22 +1648,54 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public ObjectExpression visitObjectExpression(AngularParser.ObjectExpressionContext ctx) {
         ObjectExpression objectExpression = new ObjectExpression();
-        if(ctx.objectExpressionValue() != null){
-            objectExpression.setObjectExpressionValue(visitObjectExpressionValue(ctx.objectExpressionValue()));
+
+        objectExpression.setPropertyValueObjects((PropertyValueObjects) visit(ctx.propertyValueObjects()));
+
+        PropertyValueObjects propertyValueObjects=objectExpression.getPropertyValueObjects();
+
+        if (propertyValueObjects instanceof SimplePropertyCall){
+
+            List<String> identifiers= ((SimplePropertyCall) propertyValueObjects).getIdentifiers();
+            htmlBindingsToValidate.add(identifiers);  // 👈 Store for later
+//                System.out.println(identifiers);
+            MissedHTMLSymbolTable missedHTMLSymbolTable =new MissedHTMLSymbolTable();
+//                for (int i = identifiers.size() - 1; i >= 0; i--) {
+//                    MissedHTMLSymbolTable temp = new MissedHTMLSymbolTable(identifiers.get(i));
+//                    temp.addChild(identifiers.get(i), missedHTMLSymbolTable);
+//                    missedHTMLSymbolTable = temp;
+//                }
+//                symbolTable2.addChild(" ",missedHTMLSymbolTable);
+
+//            System.out.println("\n \n-------HTML CODE---------");
+//            symbolTable2.print(" ");
+//            System.out.println("-------END HTML CODE------------");
+
+        } else if (propertyValueObjects instanceof ObjectValue) {
+            ObjectValue objectValue= ((ObjectValue) propertyValueObjects) ;
+            symbolTable2.addChild(" ",new MissedHTMLSymbolTable(objectValue.getIdentifier()));
+            List<String>l=new ArrayList<>();
+            l.add(objectValue.getIdentifier());
+            htmlBindingsToValidate.add(l);
+//            System.out.println("\n \n-------HTML CODE2---------");
+//            symbolTable2.print(" ");
+//            System.out.println("-------END HTML CODE2------------\n \n");
         }
+
+
+
         return objectExpression;
     }
 
-    @Override
-    public ObjectExpressionValue visitObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx) {
-        ObjectExpressionValue objectExpressionValue = new ObjectExpressionValue();
-        for (int i=0 ; i< ctx.IDENTIFIER().size() ; i++){
-            if(ctx.IDENTIFIER(i) != null){
-                objectExpressionValue.getIdentifiers().add(ctx.IDENTIFIER(i).getText());
-            }
-        }
-        return objectExpressionValue;
-    }
+//    @Override
+//    public ObjectExpressionValue visitObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx) {
+//        ObjectExpressionValue objectExpressionValue = new ObjectExpressionValue();
+//        for (int i=0 ; i< ctx.IDENTIFIER().size() ; i++){
+//            if(ctx.IDENTIFIER(i) != null){
+//                objectExpressionValue.getIdentifiers().add(ctx.IDENTIFIER(i).getText());
+//            }
+//        }
+//        return objectExpressionValue;
+//    }
 
     //=================================
     //=========css====================

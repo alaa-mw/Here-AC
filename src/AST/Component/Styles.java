@@ -12,6 +12,10 @@ public class Styles implements StyleArg{
         return inlineStyles;
     }
 
+    @Override
+    public String getNameAttribute(){
+        return "styles";
+    };
     public void setInlineStyles(List<InlineStyle> inlineStyles) {
         this.inlineStyles = inlineStyles;
     }

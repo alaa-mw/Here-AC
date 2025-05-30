@@ -6,6 +6,10 @@ public class StandAloneArg implements ComponentArguments {
     private String standAlone;
     private String bool;
 
+    @Override
+    public String getNameAttribute(){
+        return "standalone";
+    };
     public String getStandAlone() {
         return standAlone;
     }

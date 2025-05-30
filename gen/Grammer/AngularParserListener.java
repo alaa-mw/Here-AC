@@ -1,4 +1,4 @@
-// Generated from C:/Users/G.force/Desktop/compiler/Here-AC/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
+// Generated from C:/Users/Asus-/Desktop/Compiler/LastOne/Here-AC/src/Grammer/AngularParser.g4 by ANTLR 4.13.1
 package Grammer;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -413,16 +413,6 @@ public interface AngularParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitObjectExpression(AngularParser.ObjectExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link AngularParser#objectExpressionValue}.
-	 * @param ctx the parse tree
-	 */
-	void enterObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AngularParser#objectExpressionValue}.
-	 * @param ctx the parse tree
-	 */
-	void exitObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AngularParser#cssDocument}.
 	 * @param ctx the parse tree

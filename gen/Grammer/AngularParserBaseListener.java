@@ -1,4 +1,4 @@
-// Generated from C:/Users/G.force/Desktop/compiler/Here-AC/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
+// Generated from C:/Users/Asus-/Desktop/Compiler/LastOne/Here-AC/src/Grammer/AngularParser.g4 by ANTLR 4.13.1
 package Grammer;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
+@SuppressWarnings("CheckReturnValue")
 public class AngularParserBaseListener implements AngularParserListener {
 	/**
 	 * {@inheritDoc}
@@ -479,18 +480,6 @@ public class AngularParserBaseListener implements AngularParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitObjectExpression(AngularParser.ObjectExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

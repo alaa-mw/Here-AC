@@ -74,5 +74,5 @@ public class ComponentArguments {
     }
 }*/
 public interface ComponentArguments{
-
+    public String getNameAttribute();
 }
