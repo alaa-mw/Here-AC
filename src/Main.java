@@ -21,7 +21,7 @@ public class Main {
 //           String source = "src/Test/newTests/mainTest.txt" ;
 //         String source = "src/Test/newTests/calculator.txt" ;
 
-        String source = "src/Test/test10.txt" ;
+        String source = "src/Test/test4.txt" ;
             CharStream cs = fromFileName(source);
             AngularLexer lexer = new AngularLexer(cs);
             CommonTokenStream token = new CommonTokenStream(lexer);

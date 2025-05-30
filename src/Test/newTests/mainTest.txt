@@ -1,4 +1,4 @@
-import {Component, test} from '@angular/core'; // missing component , service
+import {Component,Injectable ,test} from '@angular/core';
 
 // تعريف الواجهة (Interface)
 interface Product {

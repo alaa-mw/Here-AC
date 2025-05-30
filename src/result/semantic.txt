@@ -1,2 +1,4 @@
 Semantic Check :
-No Error Added
+Error at line 9 : Missed Service Import 
+Error at line 13 : Missed Component Import 
+Error at line 15 : Missing Class (sth) in imports Component Args

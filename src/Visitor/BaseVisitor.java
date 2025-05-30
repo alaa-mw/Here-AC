@@ -84,7 +84,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public Program visitProgram(AngularParser.ProgramContext ctx) {
         Program program =new Program();
 
-        program.setStatement( (Statement)visit(ctx.statement()));/*  */
+        program.setStatement( (Statement)visit(ctx.statement()));
+        semanticError.classImportNotFound();
 
         return program;
     }
@@ -166,7 +167,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
             if (ctx.IDENTIFIER(i) != null) {
                 importItems.getIdentifier().add(ctx.IDENTIFIER(i).getText());
-                missingImportST.addSymbol(ctx.IDENTIFIER(i).getText(),"ImportClassName",null);
+                missingImportST.addSymbol(ctx.IDENTIFIER(i).getText(),"ImportClassName",null,ctx.IDENTIFIER(i).getSymbol().getLine());
             }
         }
         return importItems;
@@ -219,7 +220,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
         if (ctx.IDENTIFIER() != null) {
             classDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
-            missingImportST.addSymbol(ctx.IDENTIFIER().getText(),"Class",null);
+            missingImportST.addSymbol(ctx.IDENTIFIER().getText(),"Class",null,ctx.IDENTIFIER().getSymbol().getLine());
         }
 
         if (ctx.classHeritage() != null) {
@@ -1226,6 +1227,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
             if(ctx.IDENTIFIER() != null){
                 importArg.getIdentifier().add((String) ctx.IDENTIFIER().toString());
+                missingImportST.addSymbol(ctx.IDENTIFIER(i).getText(),"importArgClass",null,ctx.IDENTIFIER(i).getSymbol().getLine());
             }
         }
         return importArg;

@@ -1,14 +1,20 @@
 package SymbolTable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MissingImportST {
 
-    Map<String,Symbol>  SymbolTable = new HashMap<>();
+    List<Symbol> SymbolTable = new ArrayList<>();
     private static MissingImportST instance; // النسخة الوحيدة
 
-    public Map<String, Symbol> getTable() {
+    public List<Symbol> getSymbolTable() {
         return SymbolTable;
+    }
+
+    public void setSymbolTable(List<Symbol> symbolTable) {
+        SymbolTable = symbolTable;
     }
 
     public static MissingImportST getInstance() {
@@ -18,31 +24,41 @@ public class MissingImportST {
         return instance;
     }
 
-    public void addSymbol(String name, String type, String value) {
-     Symbol symbol = new Symbol();
-     symbol.setType(type);
-     symbol.setValue(value);
-     SymbolTable.put(name, symbol);
+    public void addSymbol(String name, String type, String value,int line) {
+        Symbol symbol = new Symbol();
+        symbol.setName(name);
+        symbol.setType(type);
+        symbol.setValue(value);
+        symbol.setLine(line);
+        SymbolTable.add(symbol);
     }
 
     public boolean containsSymbol(String name) {
-     return SymbolTable.containsKey(name);
+        for (Symbol symbol : SymbolTable) {
+            if (symbol.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean checkType(String name, String expectedType) {
-     Symbol symbol = SymbolTable.get(name);
-     if (symbol == null) {
-      return false;
-     }
-     return symbol.getType().equals(expectedType);
+        for (Symbol symbol : SymbolTable) {
+            if (symbol.getName().equals(name)) {
+                return expectedType.equals(symbol.getType());
+            }
+        }
+        return false;
     }
 
     public Symbol getSymbol(String name) {
-     if (!SymbolTable.containsKey(name)) {
-      System.out.println("Warning: Key " + name + "' not found in symbol table.");
-      return null;
-     }
-     return SymbolTable.get(name);
+        for (Symbol symbol : SymbolTable) {
+            if (symbol.getName().equals(name)) {
+                return symbol;
+            }
+        }
+        System.out.println("Symbol '" + name + "' not found in symbol table.");
+        return null;
     }
 
 }

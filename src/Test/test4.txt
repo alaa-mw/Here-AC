@@ -1,7 +1,25 @@
-import { Component } from '@angular/core';
-export class AppComponent {
-x = this.p ;
-for(int i=0;i<10;i++){
+import { Test } from "@angular/core"; // missing component , service
+import { NewClass } from "./new";
+
+
+export class Product {
 
 }
+
+@Injectable({
+  providedIn: 'root',
+})
+
+@Component({
+  selector: 'app-root',
+  imports : [NewClass, sth , Product ], // missing sth
+  template : `<div>{{title}}</div>` ,
+})
+
+export class AppComponent {
+  title = 'appComponent';
 }
+
+
+
+
