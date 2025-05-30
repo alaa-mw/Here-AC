@@ -1,7 +1,8 @@
-// Generated from C:/Users/Asus-/Desktop/Compiler/LastOne/Here-AC/src/Grammer/AngularParser.g4 by ANTLR 4.13.1
-package Grammer;
+// Generated from D:/compiler projects/Here-AC/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
+package gen.Grammer;
+import Grammer.AngularParser;
+import Grammer.AngularParserVisitor;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-
 /**
  * This class provides an empty implementation of {@link AngularParserVisitor},
  * which can be extended to create a visitor which only needs to handle a subset
@@ -10,7 +11,6 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-@SuppressWarnings("CheckReturnValue")
 public class AngularParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements AngularParserVisitor<T> {
 	/**
 	 * {@inheritDoc}

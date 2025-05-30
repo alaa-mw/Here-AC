@@ -110,8 +110,8 @@ actionAttribute : OPEN_BRACKET CLICK CLOSE_BRACKET EQ STRING_LITERAL ;
 //--- HTML content body
 htmlContentBody
         : IDENTIFIER
-        | operation
         | htmlElement
+//        | operation
         | objectExpression
         ;
 
