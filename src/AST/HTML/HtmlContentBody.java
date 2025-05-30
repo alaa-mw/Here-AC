@@ -7,7 +7,7 @@ public  class HtmlContentBody {
 
     private String htmlIdentifier;
     private HtmlElement htmlElement;
-    private Operation htmlContentOperation ;
+//    private Operation htmlContentOperation ;
     private ObjectExpression objectExpression;
 
 
@@ -35,13 +35,7 @@ public  class HtmlContentBody {
         this.htmlIdentifier = htmlIdentifier;
     }
 
-    public Operation getHtmlContentOperation() {
-        return htmlContentOperation;
-    }
 
-    public void setHtmlContentOperation(Operation htmlContentOperation) {
-        this.htmlContentOperation = htmlContentOperation;
-    }
 
     @Override
     public String toString() {
@@ -50,9 +44,9 @@ public  class HtmlContentBody {
         if (htmlIdentifier != null) {
             sb.appendTab("htmlIdentifier=").append(htmlIdentifier).append("\n");
         }
-        if (htmlContentOperation != null) {
-            sb.append(htmlContentOperation);
-        }
+//        if (htmlContentOperation != null) {
+//            sb.append(htmlContentOperation);
+//        }
         if (htmlElement != null) {
             sb.append(htmlElement);
         }

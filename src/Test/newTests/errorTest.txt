@@ -1,4 +1,4 @@
-import {Component,Injectable ,test} from '@angular/core';
+import {Component, test} from '@angular/core'; // missing component , service
 
 // تعريف الواجهة (Interface)
 interface Product {
@@ -53,10 +53,6 @@ export class ProductService {
     this.selectedProduct = product;
   }
 }
-interface User {
-  id: number;
-  age: any; // قد يكون غير موجود
-}
 
 // المكون (Component)
 @Component({
@@ -93,69 +89,15 @@ interface User {
       </div>
     </div>
   `,
-  styles: `
-      .container {
-        padding: 20px;
-      }
-      .products-container {
-        display: flex;
-        flex-direction: row-reverse; /* القائمة على اليمين والتفاصيل على اليسار */
-        gap: 200px;
-      }
-      .product-list {
-        flex: 1;
-        max-width: 40%;
-      }
-      .detailsSide {
-        padding: 20px;
-      }
-      .product-details {
-        max-width: 400px;
-        margin: 20px auto;
-        padding: 20px;
-        border: 1px solid #000;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px #f9f9f9;
-        background-color: #f9f9f9;
-        text-align: center;
-      }
-      .product-item {
-        width: 350px;
-        height: 170px;
-        border: 1px solid #000;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin: 10px;
-        background-color: #f9f9f9;
-        text-align: center;
-        cursor: pointer;
-      }
-      .product-item img {
-        width: 100px;
-        height: 300px;
-        object-fit: cover;
-        margin-bottom: 5px;
-      }
-      .product-details img {
-        width: 220px;
-        height: 250px;
-        object-fit: cover;
-        margin-bottom: 5px;
-        overflow: hidden;
-      }
-    `,
 })
 export class AppComponent implements Product,Test{
 
   products: Product[] = [];
   selectedProduct: Product | null = null;
+  userData: any =null ; // just any
 
   constructor(private productService: ProductService) {
     this.products = this.productService.getProducts();
-
   }
 
   selectProduct(product: Product): void {
@@ -163,6 +105,11 @@ export class AppComponent implements Product,Test{
     this.selectedProduct = this.productService.getSelectedProduct();
   }
 
+
+
+  load(){
+       this.userName= this.userData.r; // run time error : Cannot read properties of undefined (reading 'name'),
+    }
 
 }
 export class Oula implements Test{
