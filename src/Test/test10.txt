@@ -6,16 +6,26 @@ interface Product {
   name: string;
   image: string;
   desc: string;
+  desc: number;
 }
 @Component({
       selector: 'app-root',
       standalone: true,
+      standalone: true,
    template: `
     <div>
       <h1>{{ product.pro1.pro10.name3 }}</h1>
+      <h1>{{ product.pro1.pro2.name30 }}</h1>
       <h1>{{ message4 }}</h1>
     </div>
   `,
+  template: `
+      <div>
+        <h1>{{ product.pro1.pro10.name3 }}</h1>
+        <h1>{{ product.pro1.pro2.name30 }}</h1>
+        <h1>{{ message4 }}</h1>
+      </div>
+    `,
 })
 
 export class AppComponent {
@@ -27,10 +37,21 @@ export class AppComponent {
         name3:"sami",
       }
     },
+
+};
+product={
+    name1:"sami1",
+    pro1:{
+      name2:"sami",
+      pro2:{
+        name3:"sami",
+      }
+    },
+
 };
 message: string = 'Hello Test 3';
 
 }
-class s{
-
+class second{
+message4: string = 'Hello Test 3';
 }

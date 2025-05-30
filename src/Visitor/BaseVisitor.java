@@ -914,7 +914,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         if (ctx.IDENTIFIER() != null) {
             interfaceDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
-           interfaceName= "Interface@ "+ctx.IDENTIFIER().getText();
+            interfaceName= "Interface@ "+ctx.IDENTIFIER().getText();
         }
         if (ctx.interfaceBody() != null) {
             for (AngularParser.InterfaceBodyContext bodyContext : ctx.interfaceBody()){
@@ -924,33 +924,36 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
         }
         symbolTable.exitScope();
-        for (AngularParser.InterfaceBodyContext bodyCtx : ctx.interfaceBody()) {
-            String attrName = null;
-            String Type=null;
-            int line = bodyCtx.start.getLine();
+        if (ctx.interfaceBody()!=null){
+            for (AngularParser.InterfaceBodyContext bodyCtx : ctx.interfaceBody()) {
+                String attrName = null;
+                String Type=null;
+                int line = bodyCtx.start.getLine();
 
-            if (bodyCtx instanceof AngularParser.PropertyInterfaceContext propCtx) {
-                attrName = propCtx.IDENTIFIER().getText();
-                Type="Property";
-            } else if (bodyCtx instanceof AngularParser.FunctionInterfaceContext funcCtx) {
-                attrName = funcCtx.IDENTIFIER().getText();
-                Type="Method";
-            } else if (bodyCtx instanceof AngularParser.ArrowFunctionInterfaceContext arrowCtx) {
-                attrName = arrowCtx.IDENTIFIER().getText();
-                Type="ArrowFunction";
-            }
+                if (bodyCtx instanceof AngularParser.PropertyInterfaceContext propCtx) {
+                    attrName = propCtx.IDENTIFIER().getText();
+                    Type="Property";
+                } else if (bodyCtx instanceof AngularParser.FunctionInterfaceContext funcCtx) {
+                    attrName = funcCtx.IDENTIFIER().getText();
+                    Type="Method";
+                } else if (bodyCtx instanceof AngularParser.ArrowFunctionInterfaceContext arrowCtx) {
+                    attrName = arrowCtx.IDENTIFIER().getText();
+                    Type="ArrowFunction";
+                }
 
-            if (attrName != null) {
-                Symbol symbol = new Symbol(attrName, "interface attribute", "", "interfaceBody", line);
-                boolean success = duplicateAttributeSymbolTable.declare(interfaceName, attrName, symbol);
-                if (!success) {
-                    semanticError.checkClassBodyAttributes("Duplicate "+Type+ " '" + attrName + "' in " + interfaceName + " at line " + line);
-//                    SemanticLogger.log("Duplicate "+Type+ " " + attrName + "' in " + interfaceName + " at line " + line);
+                if (attrName != null) {
+                    Symbol symbol = new Symbol(attrName, "interface attribute", "", "interfaceBody", line);
+                    boolean success = duplicateAttributeSymbolTable.declare(interfaceName, attrName, symbol);
+                    if (!success) {
+                        semanticError.checkClassBodyAttributes("Duplicate "+Type+ " '" + attrName + "' in " + interfaceName + " at line " + line);
+                    }
                 }
             }
         }
+
         return interfaceDeclaration;
     }
+
 
     @Override
     public PropertyInterface visitPropertyInterface(AngularParser.PropertyInterfaceContext ctx) {

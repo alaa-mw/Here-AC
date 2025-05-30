@@ -1,4 +1,7 @@
 Semantic Check :
 Duplicate Property 'name' in Interface@ Product at line 6
+Duplicate Property 'desc' in Interface@ Product at line 9
+Duplicate property 'product' in class AppComponent at line 42
 Invalid HTML binding: pro10
+Invalid HTML binding: name30
 Invalid HTML binding: message4
