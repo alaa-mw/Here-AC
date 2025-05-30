@@ -1,5 +1,5 @@
-// Generated from C:/Users/G.force/Desktop/compiler/Here-AC/src/Grammer\AngularLexer.g4 by ANTLR 4.10.1
-package gen.Grammer;
+// Generated from D:/compiler projects/Here-AC/src/Grammer\AngularLexer.g4 by ANTLR 4.10.1
+package Grammer;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -176,6 +176,7 @@ public class AngularLexer extends Lexer {
 	private void COLOR_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 0:
+
 			break;
 		}
 	}

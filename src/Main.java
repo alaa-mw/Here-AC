@@ -1,10 +1,10 @@
 import AST.Program;
 //import Grammer.AngularLexer;
+import Grammer.AngularLexer;
 import Grammer.AngularParser;
 import SemanticCheck.SemanticError;
 import SymbolTable.SymbolTable;
 import Visitor.BaseVisitor;
-import gen.Grammer.AngularLexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -18,8 +18,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
 //         String source = "src/Test/test2.txt" ;
-           String source = "src/Test/newTests/mainTest.txt" ;
-//         String source = "src/Test/newTests/calculator.txt" ;
+//           String source = "src/Test/newTests/mainTest.txt" ;
+//        String source = "src/Test/newTests/errorTest.txt" ;
+         String source = "src/Test/newTests/calculator.txt" ;
 
             CharStream cs = fromFileName(source);
             AngularLexer lexer = new AngularLexer(cs);

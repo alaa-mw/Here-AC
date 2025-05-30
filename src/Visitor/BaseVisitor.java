@@ -46,11 +46,11 @@ import AST.propertyCallClasses.PropertyCall;
 import AST.propertyCallClasses.PropertyWithMethodCall;
 import AST.propertyCallClasses.SimplePropertyCall;
 import Grammer.AngularParser;
-import Grammer.AngularParserBaseVisitor;
 import SemanticCheck.SemanticError;
 import SymbolTable.PropertyDecST;
 import SymbolTable.SymbolTable;
 import SymbolTable.MissingImportST ;
+import gen.Grammer.AngularParserBaseVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
@@ -1547,9 +1547,9 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         if (ctx.IDENTIFIER() != null){
             htmlContentBody.setHtmlIdentifier(ctx.IDENTIFIER().getText());
         }
-        if(ctx.operation() != null){
-            htmlContentBody.setHtmlContentOperation(visitOperation(ctx.operation()));
-        }
+//        if(ctx.operation() != null){
+//            htmlContentBody.setHtmlContentOperation(visitOperation(ctx.operation()));
+//        }
         if (ctx.htmlElement() != null ){
             htmlContentBody.setHtmlElement(visitHtmlElement(ctx.htmlElement()));
         }
