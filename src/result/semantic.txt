@@ -1,2 +1,4 @@
 Semantic Check :
-No Error Added
+Duplicate Property 'name' in Interface@ Product at line 6
+Invalid HTML binding: pro10
+Invalid HTML binding: message4

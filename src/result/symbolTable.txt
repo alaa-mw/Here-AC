@@ -1,5 +1,9 @@
 Symbol Table
   nullglobal-program symbols: []{
-    class AppComponent symbols: [{name='product', value='null', type='null'}, {name='message4', value=''Hello Test 3'', type='string'}]{
+    interface Product symbols: [{name='name', value='null', type='string'}, {name='image', value='null', type='string'}, {name='desc', value='null', type='string'}]{
+    }
+    class AppComponent symbols: [{name='product', value='null', type='null'}, {name='message', value=''Hello Test 3'', type='string'}]{
+    }
+    class s symbols: []{
     }
   }

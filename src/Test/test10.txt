@@ -1,7 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 
-
+interface Product {
+  name: string;
+  name: string;
+  image: string;
+  desc: string;
+}
 @Component({
       selector: 'app-root',
       standalone: true,
@@ -12,6 +17,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
     </div>
   `,
 })
+
 export class AppComponent {
   product={
     name1:"sami1",
@@ -22,6 +28,9 @@ export class AppComponent {
       }
     },
 };
-message4: string = 'Hello Test 3';
+message: string = 'Hello Test 3';
+
+}
+class s{
 
 }
