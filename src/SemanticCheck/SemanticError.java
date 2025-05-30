@@ -1,21 +1,29 @@
 package SemanticCheck;
+import SymbolTable.*;
 
 //import SymbolTable.ImportST;
 
 import SymbolTable.PropertyDecST;
+import SymbolTable.SymbolTable;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SemanticError {
 
-    public static List<String> Errors = new ArrayList<>();
+    public static Set<String> Errors = new LinkedHashSet<>();
 
-    //============================================== ReadPropertiesError
+    private SymbolTable symbolTable;
+
+    public SemanticError() {
+    }
+
+    public SemanticError(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
+    }
+
+//============================================== ReadPropertiesError
 
     static Map<String, PropertyDecST> PropertyDecSTHashMap = new HashMap<>();
 
@@ -49,23 +57,65 @@ public class SemanticError {
             }
     }
     //==============================================
+
+    //============================================== interfaceMissing
+    private final Set<String> visitedScopes = new HashSet<>();
+
+    public void checkScope(Scope scope, int line) {
+        if (visitedScopes.contains(scope.getName())) return;
+        visitedScopes.add(scope.getName());
+
+        Symbol implementsSymbol = scope.getSymbols().get("__implements__");
+        if (implementsSymbol != null) {
+            String[] interfaces = implementsSymbol.getValue().split(",");
+            for (String interfaceName : interfaces) {
+                Scope interfaceScope = findScopeByName(symbolTable.getGlobalScope(), interfaceName.trim());
+                if (interfaceScope != null) {
+                    for (Symbol member : interfaceScope.getSymbols().values()) {
+                        if (member.isOptional()) continue;
+                        if (!scope.getSymbols().containsKey(member.getName())) {
+                            String errorMsg = String.format(
+                                    "Class '%s' is missing member '%s' from interface '%s' at line %d",
+                                    scope.getName(), member.getName(), interfaceName.trim(), line
+                            );
+                            Errors.add(errorMsg);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private Scope findScopeByName(Scope scope, String name) {
+        if (scope.getName().equals(name)) return scope;
+        for (Scope child : scope.getChildren()) {
+            Scope found = findScopeByName(child, name);
+            if (found != null) return found;
+        }
+        return null;
+    }
+    //==============================================
+
     public void errorResult() {
         try {
-            FileWriter test = new FileWriter("src/SemanticCheck/SemanticCheckResult.txt");
+            FileWriter test = new FileWriter("src/result/semantic.txt");
 
-            test.append("Semantic Check : \n");
-            if(Errors.isEmpty()){
-                test.append("No Error Added");
+            test.append("Semantic Check :\n");
+
+            if (Errors.isEmpty()) {
+                test.append("No Error Added\n");
+            } else {
+                for (String error : Errors) {
+                    test.append(error).append("\n");
+                }
             }
-            for (int i = 0; i < Errors.size(); i++) {
-                test.append(Errors.get(i)).append("\n");
-            }
+
             test.flush();
             test.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
 
 }

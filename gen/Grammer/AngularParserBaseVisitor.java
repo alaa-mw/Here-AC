@@ -1,8 +1,7 @@
-// Generated from D:/compiler projects/Here-AC/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
-package gen.Grammer;
-import Grammer.AngularParser;
-import Grammer.AngularParserVisitor;
+// Generated from C:/Users/G.force/Desktop/compiler/Here-AC/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
+package Grammer;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+
 /**
  * This class provides an empty implementation of {@link AngularParserVisitor},
  * which can be extended to create a visitor which only needs to handle a subset

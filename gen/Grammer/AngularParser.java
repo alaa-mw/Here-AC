@@ -1,4 +1,4 @@
-// Generated from D:/compiler projects/Here-AC/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
+// Generated from C:/Users/G.force/Desktop/compiler/Here-AC/src/Grammer\AngularParser.g4 by ANTLR 4.10.1
 package Grammer;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;

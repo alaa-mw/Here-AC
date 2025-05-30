@@ -1,0 +1,6 @@
+Semantic Check :
+Class 'AppComponent' is missing member 'desc' from interface 'Product' at line 147
+Class 'AppComponent' is missing member 'method' from interface 'Product' at line 147
+Class 'AppComponent' is missing member 'handler' from interface 'Product' at line 147
+Class 'AppComponent' is missing member 'desc' from interface 'Test' at line 147
+Class 'Oula' is missing member 'desc' from interface 'Test' at line 163

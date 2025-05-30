@@ -46,16 +46,21 @@ import AST.propertyCallClasses.PropertyCall;
 import AST.propertyCallClasses.PropertyWithMethodCall;
 import AST.propertyCallClasses.SimplePropertyCall;
 import Grammer.AngularParser;
+import Grammer.AngularParserBaseVisitor;
 import SemanticCheck.SemanticError;
 import SymbolTable.PropertyDecST;
-import gen.Grammer.AngularParserBaseVisitor;
+import SymbolTable.SymbolTable;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 
 public class BaseVisitor extends AngularParserBaseVisitor {
 
-    SemanticError semanticError = new SemanticError();
+    private SymbolTable symbolTable = new SymbolTable();
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+    SemanticError semanticError = new SemanticError(symbolTable);
 
     @Override
     public Program visitProgram(AngularParser.ProgramContext ctx) {
@@ -177,6 +182,10 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public ClassDeclaration visitClassDeclaration(AngularParser.ClassDeclarationContext ctx) {
         ClassDeclaration classDeclaration = new ClassDeclaration();
 
+        String className = ctx.IDENTIFIER().getText();
+        symbolTable.enterScope(className);
+        symbolTable.currentScope().setType("class ");
+
         if (ctx.EXPORT() != null) {
             classDeclaration.setExport(ctx.EXPORT().getText());
         }
@@ -199,6 +208,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
         if (ctx.classImplement() != null) {
             classDeclaration.setClassImplement(visitClassImplement(ctx.classImplement()));
+            String implementsText = ctx.classImplement().getText();
+            symbolTable.define("__implements__", implementsText.replace("implements", "").trim(), "implements",false);
         }
 
         java.util.List<ClassBody> bodyList = new ArrayList<>();
@@ -210,6 +221,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         classDeclaration.setClassBodies(bodyList);
 
+        semanticError.checkScope(symbolTable.currentScope(),ctx.start.getLine());
+        symbolTable.exitScope();
         return classDeclaration;
     }
 
@@ -266,6 +279,10 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public ClassPropertyDeclaration visitClassPropertyDeclaration(AngularParser.ClassPropertyDeclarationContext ctx) {
         ClassPropertyDeclaration property = new ClassPropertyDeclaration();
         PropertyDecST propertyDecST = new PropertyDecST();
+
+        String typeStr = null;
+        String valueStr=null;
+
         // Access modifier
         if (ctx.accessModifiers() != null) {
             property.setAccessModifiers((visitAccessModifiers(ctx.accessModifiers())));
@@ -289,8 +306,10 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         // assignDataType
         if (ctx.assignDataType() != null) {
             property.setAssignDataType(visitAssignDataType(ctx.assignDataType()));
-            Type type = (Type) visit(ctx.assignDataType().dataType(0).type());
+             Type type = (Type) visit(ctx.assignDataType().dataType(0).type());
             propertyDecST.setType(type.getType()) ; //alaa-check
+
+            typeStr= type.getType();
         }
 
         // assignment
@@ -302,9 +321,13 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             PropertyValue propertyValue=( (PropertyValue) visit(ctx.assigment().propertyValue()));
             propertyDecST.setValue(propertyValue.getValue()); // alaa- check
 
+            valueStr = propertyValue.getValue();
+
         }
 
         semanticError.getPropertyDecSTHashMap().put(ctx.IDENTIFIER().getText(),propertyDecST);
+        symbolTable.define(ctx.IDENTIFIER().getText(), valueStr, typeStr,false);
+
         return property;
     }
 
@@ -782,6 +805,9 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public InterfaceDeclaration visitInterfaceDeclaration(AngularParser.InterfaceDeclarationContext ctx) {
         InterfaceDeclaration interfaceDeclaration = new InterfaceDeclaration();
 
+        symbolTable.enterScope( ctx.IDENTIFIER().getText());
+        symbolTable.currentScope().setType("interface ");
+
         if (ctx.EXPORT() != null) {
             interfaceDeclaration.setExport(ctx.EXPORT().getText());
         }
@@ -796,12 +822,15 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 if (!bodyContext.isEmpty())
                     interfaceDeclaration.getInterfaceBody().add((InterfaceBody) visit(bodyContext));
         }
+        symbolTable.exitScope();
         return interfaceDeclaration;
     }
 
     @Override
     public PropertyInterface visitPropertyInterface(AngularParser.PropertyInterfaceContext ctx) {
         PropertyInterface propertyInterface = new PropertyInterface();
+        boolean isOptional=false;
+
         if (ctx.READONLY() != null) {
             propertyInterface.setReadonly(ctx.READONLY().getText());
         }
@@ -810,16 +839,21 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         if (ctx.QUESTION() != null) {
             propertyInterface.setQuestion(ctx.QUESTION().getText());
+            isOptional=true;
         }
         if (ctx.dataType() != null) {
             propertyInterface.setDataType((DataType) visitDataType(ctx.dataType()));
+
         }
+        symbolTable.define(ctx.IDENTIFIER().getText(), "null",ctx.dataType().getText(),isOptional);
+
         return propertyInterface;
     }
 
     @Override
     public FunctionInterface visitFunctionInterface(AngularParser.FunctionInterfaceContext ctx) {
         FunctionInterface functionInterface = new FunctionInterface();
+       boolean isOptional=false;
         if (ctx.READONLY() != null) {
             functionInterface.setReadonly(ctx.READONLY().getText());
         }
@@ -828,6 +862,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         if (ctx.QUESTION() != null) {
             functionInterface.setQuestion(ctx.QUESTION().getText());
+            isOptional=true;
         }
         if (ctx.parameterList() != null) {
             functionInterface.setParameterList(visitParameterList(ctx.parameterList()));
@@ -835,12 +870,15 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         if (ctx.dataType() != null) {
             functionInterface.setDataType(visitDataType(ctx.dataType()));
         }
+        symbolTable.define(ctx.IDENTIFIER().getText(), "null","method :"+ctx.dataType().getText(),isOptional);
+
         return functionInterface;
     }
 
     @Override
     public ArrowFunctionInterface visitArrowFunctionInterface(AngularParser.ArrowFunctionInterfaceContext ctx) {
         ArrowFunctionInterface arrowFunctionInterface = new ArrowFunctionInterface();
+        boolean isOptional=false;
         if (ctx.READONLY() != null) {
             arrowFunctionInterface.setReadonly(ctx.READONLY().getText());
         }
@@ -849,6 +887,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         if (ctx.QUESTION() != null) {
             arrowFunctionInterface.setQuestion(ctx.QUESTION().getText());
+            isOptional=true;
         }
         if (ctx.parameterList() != null) {
             arrowFunctionInterface.setParameterList(visitParameterList(ctx.parameterList()));
@@ -856,6 +895,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         if (ctx.dataType() != null) {
             arrowFunctionInterface.setDataType(visitDataType(ctx.dataType()));
         }
+        symbolTable.define(ctx.IDENTIFIER().getText(), "null","method :"+ctx.dataType().getText(),isOptional);
         return arrowFunctionInterface;
     }
 
@@ -965,16 +1005,27 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public LocalVariableDeclaration visitLocalVariableDeclaration(AngularParser.LocalVariableDeclarationContext ctx) {
         LocalVariableDeclaration localVariableDeclaration = new LocalVariableDeclaration();
+        String nameLocalVar="";
+        String value="";
+        String type="";
+
         if(ctx.LET() != null)
             localVariableDeclaration.setLet(ctx.LET().getText());
         if(ctx.CONST() != null)
             localVariableDeclaration.setConst_(ctx.CONST().getText());
         if(ctx.IDENTIFIER() != null)
-            localVariableDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
+        {localVariableDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
+        nameLocalVar=ctx.IDENTIFIER().getText();
+        }
         if(ctx.assignDataType() != null)
-            localVariableDeclaration.setAssignDataType(visitAssignDataType(ctx.assignDataType()));
+        {localVariableDeclaration.setAssignDataType(visitAssignDataType(ctx.assignDataType()));
+        type=ctx.assignDataType().getText();}
         if(ctx.assigment() != null)
-            localVariableDeclaration.setAssigment(visitAssigment(ctx.assigment()));
+        {localVariableDeclaration.setAssigment(visitAssigment(ctx.assigment()));
+        value=ctx.assigment().getText();
+        }
+        symbolTable.define(nameLocalVar, value, type,false);
+
         return localVariableDeclaration;
     }
 
@@ -1183,6 +1234,9 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public MethodDeclaration visitMethodDeclaration(AngularParser.MethodDeclarationContext ctx) {
         MethodDeclaration methodDeclaration = new MethodDeclaration();
 
+        symbolTable.enterScope( ctx.IDENTIFIER().getText());
+        symbolTable.currentScope().setType("method ");
+
         if (ctx.decorator() != null && !ctx.decorator().isEmpty()) {
             for (int i = 0; i < ctx.decorator().size(); i++) {
                 if (ctx.decorator(i) != null) {
@@ -1226,7 +1280,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 }
             }
         }
-
+        symbolTable.exitScope();
         return methodDeclaration;
 
     }
