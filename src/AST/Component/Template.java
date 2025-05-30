@@ -6,7 +6,10 @@ import AST.HTML.HtmlDocument;
 public class Template implements TemplateArg{
     private  String template;
     private HtmlDocument htmlDocument;
-
+    @Override
+    public String getNameAttribute(){
+        return "template";
+    };
     public String getTemplate() {
         return template;
     }

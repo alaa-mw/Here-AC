@@ -414,16 +414,6 @@ public interface AngularParserListener extends ParseTreeListener {
 	 */
 	void exitObjectExpression(AngularParser.ObjectExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AngularParser#objectExpressionValue}.
-	 * @param ctx the parse tree
-	 */
-	void enterObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AngularParser#objectExpressionValue}.
-	 * @param ctx the parse tree
-	 */
-	void exitObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link AngularParser#cssDocument}.
 	 * @param ctx the parse tree
 	 */

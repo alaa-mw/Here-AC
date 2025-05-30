@@ -253,12 +253,6 @@ public interface AngularParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitObjectExpression(AngularParser.ObjectExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link AngularParser#objectExpressionValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link AngularParser#cssDocument}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

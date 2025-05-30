@@ -1,8 +1,9 @@
 package AST.LiteralValueClasses;
 
 import AST.CustomStringBuilder;
+import AST.PropertyValueObjects.ObjectValue;
 
-public class LiteralExpr implements LiteralValue {
+public class LiteralExpr extends ObjectValue implements LiteralValue {
     private String value;
 
     @Override

@@ -484,18 +484,6 @@ public class AngularParserBaseListener implements AngularParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitObjectExpressionValue(AngularParser.ObjectExpressionValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterCssDocument(AngularParser.CssDocumentContext ctx) { }
 	/**
 	 * {@inheritDoc}

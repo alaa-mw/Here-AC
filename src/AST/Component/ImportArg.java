@@ -9,6 +9,10 @@ public class ImportArg implements ComponentArguments {
     private String imports;
     List<String> identifier = new ArrayList<>();
 
+    @Override
+    public String getNameAttribute(){
+        return "imports";
+    };
     public String getImports() {
         return imports;
     }
