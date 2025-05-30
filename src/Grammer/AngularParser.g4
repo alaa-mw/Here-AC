@@ -377,10 +377,10 @@ caseValue
 caseStatement
     : blockProperty
     | methodCall SEMICOLON
-    | returnStatement
     | conditionalStatement
     | propertyCall SEMICOLON
     | switchStatement
+    | returnStatement
     ;
 
 //  ---  for statement

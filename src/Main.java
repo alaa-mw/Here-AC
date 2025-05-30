@@ -16,9 +16,11 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-//            String source = "src/Test/test2.txt" ;
+
+//         String source = "src/Test/test2.txt" ;
            String source = "src/Test/newTests/mainTest.txt" ;
 //        String source = "src/Test/newTests/calculator.txt" ;
+
             CharStream cs = fromFileName(source);
             AngularLexer lexer = new AngularLexer(cs);
             CommonTokenStream token = new CommonTokenStream(lexer);
@@ -29,6 +31,7 @@ public class Main {
 
         BaseVisitor visitor = new BaseVisitor();
         visitor.visit(tree);
+        System.out.println("================================");
         SymbolTable symbolTable = visitor.getSymbolTable();
         symbolTable.printToFile("src/result/symbolTable.txt");
 

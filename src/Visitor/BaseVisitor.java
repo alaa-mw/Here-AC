@@ -280,8 +280,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         ClassPropertyDeclaration property = new ClassPropertyDeclaration();
         PropertyDecST propertyDecST = new PropertyDecST();
 
-        Type type = null;
-        PropertyValue propertyValue=null;
+        String typeStr = null;
+        String valueStr=null;
 
         // Access modifier
         if (ctx.accessModifiers() != null) {
@@ -306,8 +306,10 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         // assignDataType
         if (ctx.assignDataType() != null) {
             property.setAssignDataType(visitAssignDataType(ctx.assignDataType()));
-             type = (Type) visit(ctx.assignDataType().dataType(0).type());
+             Type type = (Type) visit(ctx.assignDataType().dataType(0).type());
             propertyDecST.setType(type.getType()) ; //alaa-check
+
+            typeStr= type.getType();
         }
 
         // assignment
@@ -316,13 +318,15 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
             property.setAssigment(visitAssigment(ctx.assigment()));
 
-             propertyValue=( (PropertyValue) visit(ctx.assigment().propertyValue()));
+            PropertyValue propertyValue=( (PropertyValue) visit(ctx.assigment().propertyValue()));
             propertyDecST.setValue(propertyValue.getValue()); // alaa- check
+
+            valueStr = propertyValue.getValue();
 
         }
 
         semanticError.getPropertyDecSTHashMap().put(ctx.IDENTIFIER().getText(),propertyDecST);
-        symbolTable.define(ctx.IDENTIFIER().getText(), propertyValue.getValue(), type.getType(),false);
+        symbolTable.define(ctx.IDENTIFIER().getText(), valueStr, typeStr,false);
 
         return property;
     }
@@ -2034,23 +2038,20 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public Block visitBlock(AngularParser.BlockContext ctx) {
         Block block = new Block();
         for (int i=0 ; i< ctx.blockProperty().size(); i++){
-            if(ctx.blockProperty() != null){
+            if(ctx.blockProperty(i) != null){
                 block.getBlockProperties().add( (BlockProperty) visit(ctx.blockProperty(i)));/* */
             }
         }
 
-
         for (int i=0 ; i< ctx.commonStatement().size(); i++){
-            if(ctx.commonStatement() != null){
+            if(ctx.commonStatement(i) != null){
                 block.getCommonStatements().add( (CommonStatement) visit(ctx.commonStatement(i))); /* */
             }
         }
 
-        if (ctx.returnStatement()!=null){
-            for (int i=0 ; i< ctx.commonStatement().size(); i++){
-
+        for (int i=0 ; i< ctx.returnStatement().size(); i++){
+            if (ctx.returnStatement(i)!=null){
                     block.getReturnStatements().add(visitReturnStatement(ctx.returnStatement(i))); /* */
-
             }
         }
         return  block ;
