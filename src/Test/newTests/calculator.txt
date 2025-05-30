@@ -30,15 +30,15 @@ export class AppComponent {
 
   num1: number = 0;
   num2: number = 0;
-  result: number | null = null;
+  result: number | null ;
 
 // past have error
 
-  num1: number | unknown = 0;
-num = [3,"d",4];
-num = ind[3];
-x = ind[6];
-x= this.d.f().x.n();
+  //num1: number | unknown = 0;
+//num = [3,"d",4];
+//num = ind[3];
+//x = ind[6];
+//x= this.d.f().x.n();
 
 //2+4 //must make error
 

@@ -7574,9 +7574,6 @@ public class AngularParser extends Parser {
 			return getRuleContext(MethodCallContext.class,0);
 		}
 		public TerminalNode SEMICOLON() { return getToken(AngularParser.SEMICOLON, 0); }
-		public ReturnStatementContext returnStatement() {
-			return getRuleContext(ReturnStatementContext.class,0);
-		}
 		public ConditionalStatementContext conditionalStatement() {
 			return getRuleContext(ConditionalStatementContext.class,0);
 		}
@@ -7585,6 +7582,9 @@ public class AngularParser extends Parser {
 		}
 		public SwitchStatementContext switchStatement() {
 			return getRuleContext(SwitchStatementContext.class,0);
+		}
+		public ReturnStatementContext returnStatement() {
+			return getRuleContext(ReturnStatementContext.class,0);
 		}
 		public CaseStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -7632,30 +7632,30 @@ public class AngularParser extends Parser {
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(1111);
-				returnStatement();
+				conditionalStatement();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(1112);
-				conditionalStatement();
+				propertyCall();
+				setState(1113);
+				match(SEMICOLON);
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(1113);
-				propertyCall();
-				setState(1114);
-				match(SEMICOLON);
+				setState(1115);
+				switchStatement();
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(1116);
-				switchStatement();
+				returnStatement();
 				}
 				break;
 			}
@@ -9384,11 +9384,11 @@ public class AngularParser extends Parser {
 		"\u00b1\u0001\u0000\u0000\u0000\u0451\u0452\u0007\u0007\u0000\u0000\u0452"+
 		"\u00b3\u0001\u0000\u0000\u0000\u0453\u045e\u0003t:\u0000\u0454\u0455\u0003"+
 		"\u009aM\u0000\u0455\u0456\u0005R\u0000\u0000\u0456\u045e\u0001\u0000\u0000"+
-		"\u0000\u0457\u045e\u0003`0\u0000\u0458\u045e\u0003\u00a6S\u0000\u0459"+
-		"\u045a\u0003\u0098L\u0000\u045a\u045b\u0005R\u0000\u0000\u045b\u045e\u0001"+
-		"\u0000\u0000\u0000\u045c\u045e\u0003\u00acV\u0000\u045d\u0453\u0001\u0000"+
+		"\u0000\u0457\u045e\u0003\u00a6S\u0000\u0458\u0459\u0003\u0098L\u0000\u0459"+
+		"\u045a\u0005R\u0000\u0000\u045a\u045e\u0001\u0000\u0000\u0000\u045b\u045e"+
+		"\u0003\u00acV\u0000\u045c\u045e\u0003`0\u0000\u045d\u0453\u0001\u0000"+
 		"\u0000\u0000\u045d\u0454\u0001\u0000\u0000\u0000\u045d\u0457\u0001\u0000"+
-		"\u0000\u0000\u045d\u0458\u0001\u0000\u0000\u0000\u045d\u0459\u0001\u0000"+
+		"\u0000\u0000\u045d\u0458\u0001\u0000\u0000\u0000\u045d\u045b\u0001\u0000"+
 		"\u0000\u0000\u045d\u045c\u0001\u0000\u0000\u0000\u045e\u00b5\u0001\u0000"+
 		"\u0000\u0000\u045f\u0460\u0005\u0018\u0000\u0000\u0460\u0462\u0005N\u0000"+
 		"\u0000\u0461\u0463\u0003\u00c8d\u0000\u0462\u0461\u0001\u0000\u0000\u0000"+

@@ -15,9 +15,9 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-            String source = "src/Test/test2.txt" ;
+           // String source = "src/Test/test2.txt" ;
 //            String source = "src/Test/newTests/mainTest.txt" ;
-//        String source = "src/Test/newTests/calculator.txt" ;
+        String source = "src/Test/newTests/calculator.txt" ;
             CharStream cs = fromFileName(source);
             AngularLexer lexer = new AngularLexer(cs);
             CommonTokenStream token = new CommonTokenStream(lexer);
