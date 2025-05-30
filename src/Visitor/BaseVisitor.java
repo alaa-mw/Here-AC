@@ -50,17 +50,23 @@ import Grammer.AngularParserBaseVisitor;
 import SemanticCheck.SemanticError;
 import SymbolTable.PropertyDecST;
 import SymbolTable.SymbolTable;
+import SymbolTable.MissingImportST ;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 
 public class BaseVisitor extends AngularParserBaseVisitor {
 
+
     private SymbolTable symbolTable = new SymbolTable();
     public SymbolTable getSymbolTable() {
         return symbolTable;
     }
+    PropertyDecST propertyDecST = new PropertyDecST();
+    MissingImportST missingImportST = MissingImportST.getInstance();
+
     SemanticError semanticError = new SemanticError(symbolTable);
+
 
     @Override
     public Program visitProgram(AngularParser.ProgramContext ctx) {
@@ -148,6 +154,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
             if (ctx.IDENTIFIER(i) != null) {
                 importItems.getIdentifier().add(ctx.IDENTIFIER(i).getText());
+                missingImportST.addSymbol(ctx.IDENTIFIER(i).getText(),"ImportClassName",null);
             }
         }
         return importItems;
@@ -200,6 +207,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
         if (ctx.IDENTIFIER() != null) {
             classDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
+            missingImportST.addSymbol(ctx.IDENTIFIER().getText(),"Class",null);
         }
 
         if (ctx.classHeritage() != null) {
@@ -278,7 +286,6 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override // alaa
     public ClassPropertyDeclaration visitClassPropertyDeclaration(AngularParser.ClassPropertyDeclarationContext ctx) {
         ClassPropertyDeclaration property = new ClassPropertyDeclaration();
-        PropertyDecST propertyDecST = new PropertyDecST();
 
         String typeStr = null;
         String valueStr=null;
