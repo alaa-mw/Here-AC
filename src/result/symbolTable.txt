@@ -1,7 +1,5 @@
 Symbol Table
   nullglobal-program symbols: []{
-    class Product symbols: []{
-    }
-    class AppComponent symbols: [{name='title', value=''appComponent'', type='null'}]{
+    class AppComponent symbols: [{name='product', value='null', type='null'}, {name='message4', value=''Hello Test 3'', type='string'}]{
     }
   }

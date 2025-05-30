@@ -137,7 +137,19 @@ public class SemanticError {
         }
     }
 
+    public void checkHtmlBindingErrors(List<List<String>> htmlBindingsToValidate, MissedHTMLSymbolTable globalMissedHTMLSymbolTable) {
+        for (List<String> identifiers : htmlBindingsToValidate) {
+            String invalidBinding = globalMissedHTMLSymbolTable.isValidPath2(identifiers);
+            if (!" ".equals(invalidBinding)) {
+                Errors.add("Invalid HTML binding: " + invalidBinding);
+//                System.out.println("🟥 Invalid HTML binding: " + invalidBinding);
+            }
+        }
+    }
 
+    public void checkClassBodyAttributes(String message){
+        Errors.add(message);
+    }
 
     public void errorResult() {
         try {

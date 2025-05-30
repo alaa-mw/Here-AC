@@ -246,7 +246,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 Symbol symbol = new Symbol(name,  "property", "", className, line);
                 boolean ok = duplicateAttributeSymbolTable.declare(className, name, symbol);
                 if (!ok) {
-                    SemanticLogger.log("Duplicate property '" + name + "' in class " + className + " at line " + line);
+//                    SemanticLogger.log("Duplicate property '" + name + "' in class " + className + " at line " + line);
+                    semanticError.checkClassBodyAttributes("Duplicate property '" + name + "' in class " + className + " at line " + line);
                 }
 
                 /////////Missed HTML
@@ -271,14 +272,17 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 Symbol symbol = new Symbol(name, "method", "", className, line);
                 boolean ok = duplicateAttributeSymbolTable.declare(className, name, symbol);
                 if (!ok) {
-                    SemanticLogger.log("Duplicate method '" + name + "' in class " + className + " at line " + line);
+                    semanticError.checkClassBodyAttributes("Duplicate method '" + name + "' in class " + className + " at line " + line);
+//                    SemanticLogger.log("Duplicate method '" + name + "' in class " + className + " at line " + line);
                 }
             } else if (body instanceof ConstructorDeclaration) {
                 int line = bodyCtx.getStart().getLine();
                 Symbol symbol = new Symbol("constructor", "constructor", "", className, line);
                 boolean ok = duplicateAttributeSymbolTable.declare(className, "constructor", symbol);
+
                 if (!ok) {
-                    SemanticLogger.log("Duplicate constructor in class " + className + " at line " + line);
+                    semanticError.checkClassBodyAttributes("Duplicate constructor in class " + className + " at line " + line);
+//                    SemanticLogger.log("Duplicate constructor in class " + className + " at line " + line);
                 }
             }
         }
@@ -286,19 +290,21 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
 
         semanticError.checkScope(symbolTable.currentScope(),ctx.start.getLine());
+        semanticError.checkHtmlBindingErrors(htmlBindingsToValidate, globalMissedHTMLSymbolTable);
+
         symbolTable.exitScope();
 
-        System.out.println("htmlBindingsToValidate "+htmlBindingsToValidate);
+//        System.out.println("htmlBindingsToValidate "+htmlBindingsToValidate);
 
-        for (List<String> identifiers : htmlBindingsToValidate) {
-            String invalidBinding= globalMissedHTMLSymbolTable.isValidPath2(identifiers);
-            if (invalidBinding!= " ") {
-//                SemanticLogger.log(" Invalid HTML binding: " + invalidBinding);
-                System.out.println("🟥 Invalid HTML binding: " + invalidBinding);
-            } else {
-                //System.out.println("✔️ Valid HTML binding: " + String.join(".", identifiers));
-            }
-        }
+//        for (List<String> identifiers : htmlBindingsToValidate) {
+//            String invalidBinding= globalMissedHTMLSymbolTable.isValidPath2(identifiers);
+//            if (invalidBinding!= " ") {
+////                SemanticLogger.log(" Invalid HTML binding: " + invalidBinding);
+//                System.out.println("🟥 Invalid HTML binding: " + invalidBinding);
+//            } else {
+//                //System.out.println("✔️ Valid HTML binding: " + String.join(".", identifiers));
+//            }
+//        }
         return classDeclaration;
     }
 
@@ -897,7 +903,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public InterfaceDeclaration visitInterfaceDeclaration(AngularParser.InterfaceDeclarationContext ctx) {
         InterfaceDeclaration interfaceDeclaration = new InterfaceDeclaration();
-
+        String interfaceName =  null;
         symbolTable.enterScope( ctx.IDENTIFIER().getText());
         symbolTable.currentScope().setType("interface ");
 
@@ -909,15 +915,46 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         if (ctx.IDENTIFIER() != null) {
             interfaceDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
+            interfaceName= "Interface@ "+ctx.IDENTIFIER().getText();
         }
         if (ctx.interfaceBody() != null) {
-            for (AngularParser.InterfaceBodyContext bodyContext : ctx.interfaceBody())
+            for (AngularParser.InterfaceBodyContext bodyContext : ctx.interfaceBody()){
                 if (!bodyContext.isEmpty())
                     interfaceDeclaration.getInterfaceBody().add((InterfaceBody) visit(bodyContext));
+            }
+
         }
         symbolTable.exitScope();
+        if (ctx.interfaceBody()!=null){
+            for (AngularParser.InterfaceBodyContext bodyCtx : ctx.interfaceBody()) {
+                String attrName = null;
+                String Type=null;
+                int line = bodyCtx.start.getLine();
+
+                if (bodyCtx instanceof AngularParser.PropertyInterfaceContext propCtx) {
+                    attrName = propCtx.IDENTIFIER().getText();
+                    Type="Property";
+                } else if (bodyCtx instanceof AngularParser.FunctionInterfaceContext funcCtx) {
+                    attrName = funcCtx.IDENTIFIER().getText();
+                    Type="Method";
+                } else if (bodyCtx instanceof AngularParser.ArrowFunctionInterfaceContext arrowCtx) {
+                    attrName = arrowCtx.IDENTIFIER().getText();
+                    Type="ArrowFunction";
+                }
+
+                if (attrName != null) {
+                    Symbol symbol = new Symbol(attrName, "interface attribute", "", "interfaceBody", line);
+                    boolean success = duplicateAttributeSymbolTable.declare(interfaceName, attrName, symbol);
+                    if (!success) {
+                        semanticError.checkClassBodyAttributes("Duplicate "+Type+ " '" + attrName + "' in " + interfaceName + " at line " + line);
+                    }
+                }
+            }
+        }
+
         return interfaceDeclaration;
     }
+
 
     @Override
     public PropertyInterface visitPropertyInterface(AngularParser.PropertyInterfaceContext ctx) {
