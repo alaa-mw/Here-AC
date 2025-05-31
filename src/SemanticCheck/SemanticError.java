@@ -1,10 +1,10 @@
 package SemanticCheck;
 import SymbolTable.*;
+import SymbolTable.InterfaceMissing.Scope;
+import SymbolTable.InterfaceMissing.Symbol;
+import SymbolTable.InterfaceMissing.SymbolTable;
 
 //import SymbolTable.ImportST;
-
-import SymbolTable.PropertyDecST;
-import SymbolTable.SymbolTable;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,37 +25,6 @@ public class SemanticError {
 
 //============================================== ReadPropertiesError
 
-    static Map<String, PropertyDecST> PropertyDecSTHashMap = new HashMap<>();
-
-    public Map<String, PropertyDecST> getPropertyDecSTHashMap() {
-        return PropertyDecSTHashMap;
-    }
-
-    public void setPropertyDecSTHashMap(Map<String, PropertyDecST> propertyDecSTHashMap) {
-        PropertyDecSTHashMap = propertyDecSTHashMap;
-    }
-
-    public void ReadProperties(String identifierCalled, int line) {
-
-        // البحث عن المعرف الحالي في PropertyDecSTHashMap
-        PropertyDecST propertyDec = PropertyDecSTHashMap.get(identifierCalled);
-
-        // إذا وجدنا تعريف للخاصية وكان نوعها any
-            if (propertyDec != null && propertyDec.getType().contains("any")) {
-                // التحقق من قيمة null أو undefined
-                String value = propertyDec.getValue() == null ? "undefined" :
-                        ("null".equals(propertyDec.getValue()) ? "null" : propertyDec.getValue());
-
-                if (value.contains("null") || value.contains("undefined")) {
-                    String errorMsg = String.format(
-                            "Cannot read properties of %s (reading '%s') at line %s. " ,
-                            value ,identifierCalled, line
-                    );
-                    Errors.add(errorMsg);
-
-                }
-            }
-    }
     //==============================================
 
     //============================================== interfaceMissing

@@ -3,15 +3,15 @@ import AST.Program;
 import Grammer.AngularLexer;
 import Grammer.AngularParser;
 import SemanticCheck.SemanticError;
-import SymbolTable.SymbolTable;
+import SymbolTable.InterfaceMissing.SymbolTable;
 import Visitor.BaseVisitor;
-import Grammer.AngularLexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
 
+import static SymbolTable.ReadProperties.PropertySymbolTable.print;
 import static org.antlr.v4.runtime.CharStreams.fromFileName;
 
 
@@ -41,7 +41,7 @@ public class Main {
         symbolTable.printToFile("src/result/symbolTable.txt");
         System.out.println();
         SemanticError semanticError = new SemanticError();
-        System.out.println(semanticError.getPropertyDecSTHashMap());
+        System.out.println(print());
         semanticError.errorResult();
 
     }

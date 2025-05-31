@@ -1,5 +1,7 @@
 package SymbolTable;
 
+import SymbolTable.InterfaceMissing.Symbol;
+
 import java.util.HashMap;
 import java.util.Map;
 

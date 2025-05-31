@@ -176,7 +176,7 @@ public class AngularLexer extends Lexer {
 	private void COLOR_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 0:
-
+			3,6
 			break;
 		}
 	}

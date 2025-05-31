@@ -1,10 +1,12 @@
 package SymbolTable;
+import SymbolTable.InterfaceMissing.Symbol;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class MissingImportST {
 
-    Map<String,Symbol>  SymbolTable = new HashMap<>();
+    Map<String, Symbol>  SymbolTable = new HashMap<>();
     private static MissingImportST instance; // النسخة الوحيدة
 
     public Map<String, Symbol> getTable() {

@@ -19,7 +19,6 @@ import AST.HTML.*;
 import AST.Import.ImportItems;
 import AST.Import.ImportStatement;
 import AST.LiteralValueClasses.LiteralExpr;
-import AST.LiteralValueClasses.LiteralValue;
 import AST.LiteralValueClasses.SymbolExpr;
 import AST.LiteralValueClasses.ValueExpr;
 import AST.Method.MethodBody;
@@ -47,10 +46,12 @@ import AST.propertyCallClasses.PropertyWithMethodCall;
 import AST.propertyCallClasses.SimplePropertyCall;
 import Grammer.AngularParser;
 import SemanticCheck.SemanticError;
-import SymbolTable.PropertyDecST;
 import SymbolTable.*;
+import SymbolTable.InterfaceMissing.Symbol;
 import SymbolTable.MissingImportST ;
 import SymbolTable.DuplicateAttributeSymbolTable ;
+import SymbolTable.ReadProperties.PropertySymbolTable;
+import SymbolTable.InterfaceMissing.SymbolTable;
 import gen.Grammer.AngularParserBaseVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -64,7 +65,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public SymbolTable getSymbolTable() {
         return symbolTable;
     }
-    PropertyDecST propertyDecST = new PropertyDecST();
+    PropertySymbolTable propertySymbolTable = new PropertySymbolTable();
+
     MissingImportST missingImportST = MissingImportST.getInstance();
 
     SemanticError semanticError = new SemanticError(symbolTable);
@@ -265,7 +267,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 }
 
             }else if (body instanceof MethodDeclaration) {
-                MethodDeclaration method = visitMethodDeclaration(bodyCtx.methodDeclaration());
+                MethodDeclaration method = (MethodDeclaration) visitMethodDeclaration(bodyCtx.methodDeclaration());
                 String name = method.getIdentifier();
                 int line = bodyCtx.getStart().getLine();
                 Symbol symbol = new Symbol(name, "method", "", className, line);
@@ -378,7 +380,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public ClassPropertyDeclaration visitClassPropertyDeclaration(AngularParser.ClassPropertyDeclarationContext ctx) {
         ClassPropertyDeclaration property = new ClassPropertyDeclaration();
 
-        String typeStr = null;
+        ArrayList<String> typeList = new ArrayList<>();
         String valueStr=null;
 
         // Access modifier
@@ -404,27 +406,23 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         // assignDataType
         if (ctx.assignDataType() != null) {
             property.setAssignDataType(visitAssignDataType(ctx.assignDataType()));
-             Type type = (Type) visit(ctx.assignDataType().dataType(0).type());
-            propertyDecST.setType(type.getType()) ; //alaa-check
-
-            typeStr= type.getType();
+            for (AngularParser.DataTypeContext typeCtx: ctx.assignDataType().dataType()) {
+                Type type = (Type) visit(typeCtx.type());
+                typeList.add(type.getType()) ; //alaa-check
+            }
         }
 
         // assignment
 
         if (ctx.assigment() != null) {
-
             property.setAssigment(visitAssigment(ctx.assigment()));
 
             PropertyValue propertyValue=( (PropertyValue) visit(ctx.assigment().propertyValue()));
-            propertyDecST.setValue(propertyValue.getValue()); // alaa- check
-
             valueStr = propertyValue.getValue();
-
         }
 
-        semanticError.getPropertyDecSTHashMap().put(ctx.IDENTIFIER().getText(),propertyDecST);
-        symbolTable.define(ctx.IDENTIFIER().getText(), valueStr, typeStr,false);
+        propertySymbolTable.newProperty(ctx.IDENTIFIER().getText(),typeList,valueStr);
+        symbolTable.define(ctx.IDENTIFIER().getText(), valueStr, !typeList.isEmpty() ? typeList.get(0): null ,false);
 
         return property;
     }
@@ -796,10 +794,12 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         if (ctx.IDENTIFIER()!=null && !ctx.IDENTIFIER().isEmpty()) {
             for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
                 simplePropertyCall.addToIdentifiers(ctx.IDENTIFIER(i).getText());
-                if(i< ctx.IDENTIFIER().size() -1 )
-                    semanticError.ReadProperties(ctx.IDENTIFIER(i).getText(),ctx.start.getLine());// alaa-check
-               }
-
+                if(i< ctx.IDENTIFIER().size() -1 ){
+                    String msg = propertySymbolTable.ReadProperties(ctx.IDENTIFIER(i).getText(),ctx.start.getLine()) ;
+                    if(msg != null ) {
+                        SemanticError.Errors.add(msg);
+                    }
+                };// alaa-check
         }
         return simplePropertyCall;
     }

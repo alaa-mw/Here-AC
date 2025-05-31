@@ -1,18 +1,24 @@
-package SymbolTable;
+package SymbolTable.ReadProperties;
 
 import AST.CustomStringBuilder;
 
-public class PropertyDecST {
+import java.util.ArrayList;
+
+public class Property {
     // accessModifiers? STATIC? READONLY? IDENTIFIER (DOT_DOT assignDataType)?  assigment SEMICOLON?
-    String type;
+    ArrayList<String> type = new ArrayList<>();
     String value;
 
+    public Property(ArrayList<String> type, String value) {
+        this.type = type;
+        this.value = value;
+    }
 
-    public String getType() {
+    public ArrayList<String> getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ArrayList<String> type) {
         this.type = type;
     }
 
