@@ -301,8 +301,8 @@ postFix
     ;
 
 propertyCall
-    : (THIS | IDENTIFIER) (DOT IDENTIFIER)+                         #SimplePropertyCall
-    | (THIS | IDENTIFIER) (DOT IDENTIFIER)* (DOT methodCall)*       #PropertyWithMethodCall
+    : (THIS | IDENTIFIER) (QUESTION? DOT (IDENTIFIER | indexAccessValue))+                #SimplePropertyCall
+    | (THIS | IDENTIFIER) (QUESTION? DOT IDENTIFIER)* (DOT methodCall)*                   #PropertyWithMethodCall
     ;
 
 
