@@ -65,20 +65,16 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public SymbolTable getSymbolTable() {
         return symbolTable;
     }
+
     PropertySymbolTable propertySymbolTable = new PropertySymbolTable();
-
     MissingImportST missingImportST = MissingImportST.getInstance();
-
     SemanticError semanticError = new SemanticError(symbolTable);
 
-    private DuplicateAttributeSymbolTable duplicateAttributeSymbolTable = new DuplicateAttributeSymbolTable();
-
-   public List<List<String>> htmlBindingsToValidate = new ArrayList<>();
-
+    public List<List<String>> htmlBindingsToValidate = new ArrayList<>();
     private MissedHTMLSymbolTable symbolTable2=new MissedHTMLSymbolTable();
-
     MissedHTMLSymbolTable globalMissedHTMLSymbolTable = new MissedHTMLSymbolTable("global");
 
+    private DuplicateAttributeSymbolTable duplicateAttributeSymbolTable = new DuplicateAttributeSymbolTable();
     public DuplicateAttributeSymbolTable getSymbolTable2() {
         return duplicateAttributeSymbolTable;
     }
@@ -86,7 +82,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public Program visitProgram(AngularParser.ProgramContext ctx) {
         Program program =new Program();
 
-        program.setStatement( (Statement)visit(ctx.statement()));/*  */
+        program.setStatement( (Statement)visit(ctx.statement()));
+        semanticError.classImportNotFound();
 
         return program;
     }
@@ -168,7 +165,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
             if (ctx.IDENTIFIER(i) != null) {
                 importItems.getIdentifier().add(ctx.IDENTIFIER(i).getText());
-                missingImportST.addSymbol(ctx.IDENTIFIER(i).getText(),"ImportClassName",null);
+                missingImportST.addSymbol(ctx.IDENTIFIER(i).getText(),"ImportClassName",null,ctx.IDENTIFIER(i).getSymbol().getLine());
             }
         }
         return importItems;
@@ -221,7 +218,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
         if (ctx.IDENTIFIER() != null) {
             classDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
-            missingImportST.addSymbol(ctx.IDENTIFIER().getText(),"Class",null);
+            missingImportST.addSymbol(ctx.IDENTIFIER().getText(),"Class",null,ctx.IDENTIFIER().getSymbol().getLine());
         }
 
         if (ctx.classHeritage() != null) {
@@ -593,6 +590,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     }
 
 
+
+
     @Override
     public LiteralOrReferenceExpression visitLiteralOrReferenceExpression(AngularParser.LiteralOrReferenceExpressionContext ctx) {
         LiteralOrReferenceExpression literalOrReferenceExpression=new LiteralOrReferenceExpression();
@@ -786,23 +785,26 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     /***********           PropertyCall Start ************************************/
     @Override //alaa
     public SimplePropertyCall visitSimplePropertyCall(AngularParser.SimplePropertyCallContext ctx) {//****wait Bilal
-        SimplePropertyCall simplePropertyCall=new SimplePropertyCall();
+        SimplePropertyCall simplePropertyCall = new SimplePropertyCall();
 
         if (ctx.THIS() != null) {
             simplePropertyCall.setThis_(ctx.THIS().getText());
         }
-        if (ctx.IDENTIFIER()!=null && !ctx.IDENTIFIER().isEmpty()) {
+        if (ctx.IDENTIFIER() != null && !ctx.IDENTIFIER().isEmpty()) {
             for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
                 simplePropertyCall.addToIdentifiers(ctx.IDENTIFIER(i).getText());
-                if(i< ctx.IDENTIFIER().size() -1 ){
-                    String msg = propertySymbolTable.ReadProperties(ctx.IDENTIFIER(i).getText(),ctx.start.getLine()) ;
-                    if(msg != null ) {
+                if (i < ctx.IDENTIFIER().size() - 1) {
+                    String msg = propertySymbolTable.ReadProperties(ctx.IDENTIFIER(i).getText(), ctx.start.getLine());
+                    if (msg != null) {
                         SemanticError.Errors.add(msg);
                     }
-                };// alaa-check
+                }
+                ;// alaa-check
+            }
         }
-        return simplePropertyCall;
+            return simplePropertyCall;
     }
+
 
     @Override
     public PropertyWithMethodCall visitPropertyWithMethodCall(AngularParser.PropertyWithMethodCallContext ctx) {
@@ -988,10 +990,6 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         if (ctx.IDENTIFIER() != null) {
             functionInterface.setIdentifier(ctx.IDENTIFIER().getText());
-        }
-        if (ctx.QUESTION() != null) {
-            functionInterface.setQuestion(ctx.QUESTION().getText());
-            isOptional=true;
         }
         if (ctx.parameterList() != null) {
             functionInterface.setParameterList(visitParameterList(ctx.parameterList()));
@@ -1263,6 +1261,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
             if(ctx.IDENTIFIER() != null){
                 importArg.getIdentifier().add((String) ctx.IDENTIFIER().toString());
+                missingImportST.addSymbol(ctx.IDENTIFIER(i).getText(),"importArgClass",null,ctx.IDENTIFIER(i).getSymbol().getLine());
             }
         }
         return importArg;
@@ -2144,8 +2143,6 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return  lists ;
     }
 //-----------------------------
-
-
     @Override
     public VariableDeclaration visitVariableDeclaration(AngularParser.VariableDeclarationContext ctx) {
         VariableDeclaration vd = new VariableDeclaration();

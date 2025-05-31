@@ -80,12 +80,31 @@ public class SemanticError {
     }
 
 
-//    public void classImportNotFound( String name, int line) {
-//
-//        if(!(importST.containsSymbol(name))){
-//            Errors.add("Error at line " + line + " : " + "class ( " + name + " ) " + "Import Not Found");
-//        }
-//    }
+    public void classImportNotFound() {
+        List<Symbol> symbolTable = importST.getSymbolTable();
+        Map<String, Integer> importArgClasses = new HashMap<>();
+        Map<String, Integer> firstLineOccurrence = new HashMap<>();
+
+        for (Symbol symbol : symbolTable) {
+            if ("importArgClass".equals(symbol.getType())) {
+                importArgClasses.put(symbol.getName(), 0);
+                firstLineOccurrence.put(symbol.getName(), symbol.getLine());
+            }
+        }
+        for (Symbol symbol : symbolTable) {
+            String name = symbol.getName();
+            if (importArgClasses.containsKey(name)) {
+                importArgClasses.put(name, importArgClasses.get(name) + 1);
+
+            }
+        }
+        for (Map.Entry<String, Integer> entry : importArgClasses.entrySet()) {
+            if (entry.getValue() == 1) {
+                int line = firstLineOccurrence.get(entry.getKey());
+                Errors.add("Error at line " + line + " : " + "Missing Class (" + entry.getKey() + ") in imports Component Args");
+            }
+        }
+    }
 
     public void checkHtmlBindingErrors(List<List<String>> htmlBindingsToValidate, MissedHTMLSymbolTable globalMissedHTMLSymbolTable) {
         for (List<String> identifiers : htmlBindingsToValidate) {

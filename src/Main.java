@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 import static SymbolTable.ReadProperties.PropertySymbolTable.print;
 import static org.antlr.v4.runtime.CharStreams.fromFileName;
@@ -18,20 +19,19 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-//         String source = "src/Test/test2.txt" ;
-           String source = "src/Test/newTests/mainTest.txt" ;
-//        String source = "src/Test/newTests/errorTest.txt" ;
-//         String source = "src/Test/newTests/calculator.txt" ;
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("\nEnter: ");
+        int input = Integer.parseInt(scanner.nextLine().trim());
 
+        String source = getSource(input);
 
-//        String source = "src/Test/test10.txt" ;
-            CharStream cs = fromFileName(source);
-            AngularLexer lexer = new AngularLexer(cs);
-            CommonTokenStream token = new CommonTokenStream(lexer);
-            AngularParser parser = new AngularParser(token);
-            ParseTree tree = parser.program();
-            Program doc = (Program) new BaseVisitor().visit(tree);
-            System.out.println(doc);
+        CharStream cs = fromFileName(source);
+        AngularLexer lexer = new AngularLexer(cs);
+        CommonTokenStream token = new CommonTokenStream(lexer);
+        AngularParser parser = new AngularParser(token);
+        ParseTree tree = parser.program();
+        Program doc = (Program) new BaseVisitor().visit(tree);
+        System.out.println(doc);
 
         BaseVisitor visitor = new BaseVisitor();
         visitor.visit(tree);
@@ -44,5 +44,16 @@ public class Main {
         System.out.println(print());
         semanticError.errorResult();
 
+    }
+    public static String getSource(int fileKey) {
+        return switch (fileKey) {
+            case 1 -> "src/Test/newTests/mainTest.txt";
+            case 2 -> "src/Test/newTests/calculator.txt";
+            case 3 -> "src/Test/newTests/errorTest.txt";
+            case 5 -> "Test/test5.txt";
+            case 4 -> "src/Test/test4.txt";
+            case 10 -> "src/Test/test10.txt";
+            default -> throw new IllegalArgumentException("Unknown test file: " + fileKey);
+        };
     }
 }

@@ -1,0 +1,2 @@
+Duplicate property 'title' in class AppComponent at line 20
+Duplicate property 'title' in class AppComponent at line 20
