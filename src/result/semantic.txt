@@ -1,7 +1,9 @@
 Semantic Check :
-Duplicate Property 'name' in Interface@ Product at line 6
-Duplicate Property 'desc' in Interface@ Product at line 9
-Duplicate property 'product' in class AppComponent at line 42
-Invalid HTML binding: pro10
-Invalid HTML binding: name30
-Invalid HTML binding: message4
+Class 'AppComponent' is missing member 'desc' from interface 'Product' at line 151
+Class 'AppComponent' is missing member 'method' from interface 'Product' at line 151
+Class 'AppComponent' is missing member 'handler' from interface 'Product' at line 151
+Class 'AppComponent' is missing member 'desc' from interface 'Test' at line 151
+Invalid HTML binding: product
+Invalid HTML binding: selectedProduct
+Class 'Oula' is missing member 'desc' from interface 'Test' at line 168
+Error at line 65 : Missing Class (CommonModule) in imports Component Args

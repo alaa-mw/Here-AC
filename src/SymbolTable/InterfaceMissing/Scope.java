@@ -1,4 +1,5 @@
-package SymbolTable;
+package SymbolTable.InterfaceMissing;
+
 import java.util.*;
 
 public class Scope {

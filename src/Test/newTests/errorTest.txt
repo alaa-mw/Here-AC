@@ -1,10 +1,12 @@
 import {Component, test} from '@angular/core'; // missing component , service
+import { Component, EventEmitter, Output } from '@angular/core';
 
 // تعريف الواجهة (Interface)
 interface Product {
   name?: string;
-  image?: string;
   desc: string;
+  desc: number;
+  image?: string;
 
   method(arg: number): void;
   handler: (event: string) => boolean;
@@ -59,39 +61,42 @@ export class ProductService {
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="container">
-      <div class="products-container">
-        <div class="product-list">
-          <h1>Product List</h1>
-          <div
-            class="product-item"
-            *ngFor="let product of products"
-            (click)="selectProduct(product)"
-          >
-            <h3>{{ product.name }}</h3>
-            <img [src]="product.image" alt="Product Image" />
-          </div>
-        </div>
-        <div calss="detailsSide">
-          <h1>Product Details</h1>
-          <div class="product-details">
-            <div *ngIf="selectedProduct">
-              <h2>{{ selectedProduct.name }}</h2>
-              <p>{{ selectedProduct.desc }}</p>
-              <img [src]="selectedProduct.image" alt="Product Image" />
-            </div>
-            <div *ngIf="!selectedProduct">
-              <h2>Select a product to view its details</h2>
-            </div>
-          </div>
-        </div>
+   template: `
+      <div>
+        <h1>{{ product.pro1.pro10.name3 }}</h1>
+        <h1>{{ product.pro1.pro2.name30 }}</h1>
+        <h1>{{ message4 }}</h1>
       </div>
-    </div>
-  `,
+    `,
+    template: `
+        <div>
+          <h1>{{ product.pro1.pro10.name3 }}</h1>
+          <h1>{{ product.pro1.pro2.name30 }}</h1>
+          <h1>{{ message4 }}</h1>
+        </div>
+      `,
 })
 export class AppComponent implements Product,Test{
+  product={
+    name1:"sami1",
+    pro1:{
+      name2:"sami",
+      pro2:{
+        name3:"sami",
+      }
+    },
 
+};
+product={
+    name1:"sami1",
+    pro1:{
+      name2:"sami",
+      pro2:{
+        name3:"sami",
+      }
+    },
+
+};
   products: Product[] = [];
   selectedProduct: Product | null = null;
   userData: any =null ; // just any
@@ -105,8 +110,6 @@ export class AppComponent implements Product,Test{
     this.selectedProduct = this.productService.getSelectedProduct();
   }
 
-
-
   load(){
        this.userName= this.userData.r; // run time error : Cannot read properties of undefined (reading 'name'),
     }
@@ -116,5 +119,7 @@ export class Oula implements Test{
 
 x = 10 ;
 
-
+}
+class second{
+message4: string = 'Hello Test 3';
 }

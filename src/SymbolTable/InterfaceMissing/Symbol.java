@@ -1,4 +1,4 @@
-package SymbolTable;
+package SymbolTable.InterfaceMissing;
 
 public class Symbol {
     private String name;
