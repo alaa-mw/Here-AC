@@ -1,4 +1,4 @@
-import { Test } from "@angular/core"; // missing component , service
+mport { Test } from "@angular/core"; // missing component , service
 import { NewClass } from "./new";
 
 

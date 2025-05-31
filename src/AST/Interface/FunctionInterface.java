@@ -6,7 +6,7 @@ import AST.ParameterList.ParameterList;
 
 public class FunctionInterface implements InterfaceBody {
     private String readonly ;
-    private String question;
+//    private String question;
     private String identifier ;
     private ParameterList parameterList ;
     private DataType dataType ;
@@ -19,13 +19,6 @@ public class FunctionInterface implements InterfaceBody {
         this.readonly = readonly;
     }
 
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
 
     public String getIdentifier() {
         return identifier;
@@ -59,10 +52,6 @@ public class FunctionInterface implements InterfaceBody {
 
         if (readonly != null) {
             sb.appendTab("readonlyKeyword=").append(readonly).append("\n");
-        }
-
-        if (question != null) {
-            sb.appendTab("questionKeyword=").append(question).append("\n");
         }
 
         sb.appendTab("identifierName=").append(identifier).append("\n");

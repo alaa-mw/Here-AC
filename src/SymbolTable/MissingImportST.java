@@ -1,4 +1,6 @@
 package SymbolTable;
+import SymbolTable.InterfaceMissing.Symbol;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
