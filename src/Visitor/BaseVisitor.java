@@ -83,6 +83,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         Program program =new Program();
 
         program.setStatement( (Statement)visit(ctx.statement()));
+
         semanticError.classImportNotFound();
 
         return program;
@@ -243,6 +244,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 int line = bodyCtx.getStart().getLine();
                 Symbol symbol = new Symbol(name,  "property", "", className, line);
                 boolean ok = duplicateAttributeSymbolTable.declare(className, name, symbol);
+                globalMissedHTMLSymbolTable.addChild(name,new MissedHTMLSymbolTable(className));
+
                 if (!ok) {
 //                    SemanticLogger.log("Duplicate property '" + name + "' in class " + className + " at line " + line);
                     semanticError.checkClassBodyAttributes("Duplicate property '" + name + "' in class " + className + " at line " + line);
@@ -251,7 +254,11 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 /////////Missed HTML
 
                 String propName = ((ClassPropertyDeclaration) body).getIdentifier();
-                PropertyValue value = ((ClassPropertyDeclaration) body).getAssigment().getPropertyValue();
+                Assigment assigment=((ClassPropertyDeclaration) body).getAssigment();
+                PropertyValue value =null;
+                if (assigment!=null){
+                    value =assigment.getPropertyValue();
+                }
 
                 if (value instanceof ObjectValue) {
                     MissedHTMLSymbolTable propMissedHTMLSymbolTable = buildScopeFromObjectValue((ObjectValue) value);

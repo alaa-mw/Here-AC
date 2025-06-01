@@ -1,9 +1,0 @@
-Semantic Check :
-Class 'AppComponent' is missing member 'desc' from interface 'Product' at line 151
-Class 'AppComponent' is missing member 'method' from interface 'Product' at line 151
-Class 'AppComponent' is missing member 'handler' from interface 'Product' at line 151
-Class 'AppComponent' is missing member 'desc' from interface 'Test' at line 151
-Invalid HTML binding: product
-Invalid HTML binding: selectedProduct
-Class 'Oula' is missing member 'desc' from interface 'Test' at line 168
-Error at line 65 : Missing Class (CommonModule) in imports Component Args

@@ -23,7 +23,7 @@ public class SemanticError {
         this.symbolTable = symbolTable;
     }
 
-//============================================== ReadPropertiesError
+    //============================================== ReadPropertiesError
 
     //==============================================
 

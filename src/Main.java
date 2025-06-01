@@ -11,8 +11,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
 import java.util.Scanner;
-
-import static SymbolTable.ReadProperties.PropertySymbolTable.print;
 import static org.antlr.v4.runtime.CharStreams.fromFileName;
 
 
@@ -41,7 +39,7 @@ public class Main {
         symbolTable.printToFile("src/result/symbolTable.txt");
         System.out.println();
         SemanticError semanticError = new SemanticError();
-        System.out.println(print());
+//        System.out.println(print());
         semanticError.errorResult();
 
     }

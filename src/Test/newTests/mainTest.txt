@@ -1,19 +1,12 @@
-import {Component,Injectable ,test} from '@angular/core';
+import { Component, Injectable } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { tick } from '@angular/core/testing';
 
 // تعريف الواجهة (Interface)
 interface Product {
-  name?: string;
-  image?: string;
-  desc: string;
-
-  method(arg: number): void;
-  handler: (event: string) => boolean;
-}
-interface Test {
-  age?: string;
-  desc: string;
-
-
+  readonly name: string;
+  image: string ;
+  desc: string ;
 }
 
 // الخدمة (Service)
@@ -148,10 +141,19 @@ interface User {
       }
     `,
 })
-export class AppComponent implements Product,Test{
+
+
+
+export class AppComponent{
 
   products: Product[] = [];
   selectedProduct: Product | null = null;
+
+  userData: number | any |string; // just any
+  data: User = { id: 123, age:null };
+
+  userName : string | null = null;
+  userAge : number  | null = null;
 
   constructor(private productService: ProductService) {
     this.products = this.productService.getProducts();
@@ -162,12 +164,5 @@ export class AppComponent implements Product,Test{
     this.productService.selectProduct(product);
     this.selectedProduct = this.productService.getSelectedProduct();
   }
-
-
-}
-export class Oula implements Test{
-
-x = 10 ;
-
 
 }
