@@ -1,0 +1,27 @@
+Symbol Table
+  nullglobal-program symbols: []{
+    interface Product symbols: [{name='name', value='null', type='string'}, {name='image', value='null', type='string'}, {name='desc', value='null', type='string'}]{
+    }
+    class ProductService symbols: [{name='selectedProduct', value='null', type='Product'}, {name='products', value='null', type='Product'}]{
+      method getProducts symbols: []{
+      }
+      method getProducts symbols: []{
+      }
+      method getSelectedProduct symbols: []{
+      }
+      method getSelectedProduct symbols: []{
+      }
+      method selectProduct symbols: []{
+      }
+      method selectProduct symbols: []{
+      }
+    }
+    interface User symbols: [{name='id', value='null', type='number'}, {name='age', value='null', type='any'}]{
+    }
+    class AppComponent symbols: [{name='products', value='[]', type='Product'}, {name='selectedProduct', value='null', type='Product'}, {name='userData', value='null', type='number'}, {name='data', value='null', type='User'}, {name='userName', value='null', type='string'}, {name='userAge', value='null', type='number'}]{
+      method selectProduct symbols: []{
+      }
+      method selectProduct symbols: []{
+      }
+    }
+  }

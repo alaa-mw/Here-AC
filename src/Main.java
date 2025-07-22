@@ -1,10 +1,10 @@
 import AST.Program;
 //import Grammer.AngularLexer;
-import Grammer.AngularLexer;
 import Grammer.AngularParser;
 import SemanticCheck.SemanticError;
 import SymbolTable.InterfaceMissing.SymbolTable;
 import Visitor.BaseVisitor;
+import gen.Grammer.AngularLexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;

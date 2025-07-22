@@ -4,16 +4,19 @@ options { tokenVocab=AngularLexer;}
 // Main Entry Point
 program: statement EOF;
 
+
 statement
-    : importStatement+
-      ( serviceBlock
+    : importStatement*
+      (
+        routesDeclaration
+       serviceBlock
       | interfaceDeclaration
+      | componentBlock
       | classDeclaration
       | printStatement
       )*
-    componentBlock*
+      |bootstrapCall
     ;
-
 componentBlock : componentDeclaration  classDeclaration+ ;
 serviceBlock : serviceDeclaration classDeclaration?;
 
@@ -134,6 +137,41 @@ ruleValue : IDENTIFIER
           | COLOR
           ;
 
+//============================ routesDeclaration ========================
+routesDeclaration
+    : EXPORT? declareVarsKeyword IDENTIFIER (DOT_DOT ROUTES)? EQ routeArray SEMICOLON
+    ;
+routeArray
+    : OPEN_SQUARE_BRACKET routeObject (COMMA routeObject)* CLOSE_SQUARE_BRACKET
+    ;
+routeObject
+    : OPEN_CURLY_BRACKET routeProperty (COMMA routeProperty)* CLOSE_CURLY_BRACKET
+    ;
+
+routeProperty
+    : PATH DOT_DOT STRING_LITERAL
+    | COMPONENT_KW DOT_DOT IDENTIFIER;
+//    | LOADCOMPONENT DOT_DOT arrowFunctionImport
+//    | CHILDREN DOT_DOT OPEN_BRACKET routeObject (COMMA routeObject)* CLOSE_BRACKET
+//    ;
+//
+//arrowFunctionImport
+//    : OPEN_BRACKET CLOSE_BRACKET ARROW importThenExpression
+//    ;
+//
+//importThenExpression
+//    : IMPORT OPEN_BRACKET STRING_LITERAL CLOSE_BRACKET DOT THEN
+//      OPEN_BRACKET IDENTIFIER ARROW propertyCall CLOSE_BRACKET
+//    ;
+bootstrapCall
+    : BOOTSTRAP_APP OPEN_BRACKET IDENTIFIER COMMA bootstrapOptions CLOSE_BRACKET SEMICOLON
+    ;
+bootstrapOptions
+    : OPEN_CURLY_BRACKET PROVIDERS DOT_DOT OPEN_SQUARE_BRACKET routerProvider CLOSE_SQUARE_BRACKET CLOSE_CURLY_BRACKET
+    ;
+routerProvider
+    : PROVIDE_ROUTER OPEN_BRACKET IDENTIFIER CLOSE_BRACKET
+    ;
 
 // 5 ========================= Class Declaration =========================
 classDeclaration:  EXPORT? ABSTRACT? CLASS IDENTIFIER classHeritage? classImplement? OPEN_CURLY_BRACKET classBody* CLOSE_CURLY_BRACKET;

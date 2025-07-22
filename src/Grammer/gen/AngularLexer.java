@@ -1,5 +1,4 @@
 // Generated from C:/Users/G.force/Desktop/New folder (4)/Here-AC/src/Grammer\AngularLexer.g4 by ANTLR 4.10.1
-package Grammer;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -182,7 +181,7 @@ public class AngularLexer extends Lexer {
 	private void COLOR_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 0:
-			3,6
+
 			break;
 		}
 	}

@@ -42,7 +42,15 @@ ABSTRACT:'abstract';
 LOG : 'log' ;
 CONSOLE : 'console' ;
 READONLY: 'readonly';
-
+ROUTES: 'Routes';
+PATH: 'path';
+CHILDREN: 'children';
+COMPONENT_KW: 'component'; // لتجنب التعارض مع @Component
+LOADCOMPONENT: 'loadComponent';
+THEN: 'then';
+BOOTSTRAP_APP:'bootstrapApplication';
+PROVIDERS:'providers';
+PROVIDE_ROUTER:'provideRouter';
 LET : 'let';
 VAR : 'var';
 CONST: 'const';
