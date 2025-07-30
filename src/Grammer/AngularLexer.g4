@@ -42,7 +42,7 @@ ABSTRACT:'abstract';
 LOG : 'log' ;
 CONSOLE : 'console' ;
 READONLY: 'readonly';
-ROUTES: 'Routes';
+//ROUTES: 'Routes';
 PATH: 'path';
 CHILDREN: 'children';
 COMPONENT_KW: 'component'; // لتجنب التعارض مع @Component
@@ -56,6 +56,8 @@ VAR : 'var';
 CONST: 'const';
 IN: 'in';
 OF: 'of';
+// new added 😎
+NEW:'new';
 
 // Logical Operators
 ANDAND: '&&';
@@ -114,10 +116,15 @@ SEMICOLON: ';';
 COMMA: ',';
 DOT: '.';
 DOT_DOT: ':';
+// new added 😎
+SPREAD:'...';
 EQ: '=';
 ATT:'@';
 QUESTION:'?';
 ARROW:'=>';
+// new added 😎
+HASH: '#';
+TILDE : '~';
 
 QUOTE: '"';
 SCOPE_QUOTE : '`';
@@ -142,8 +149,15 @@ STRING_LITERAL : '"' .*? '"' | '\'' .*? '\'';
 NUMERIC_LITERAL: [0-9]+ ('.' [0-9]+)?;
 BIGINT_LITERAL: [0-9]+ 'n';
 SYMBOL_LITERAL: 'Symbol' '(' STRING_LITERAL? ')';
-IDENTIFIER : [a-zA-Z_-][a-zA-Z0-9_-]*;
-COLOR  : '#' [a-fA-F0-9]{3,6};
+//IDENTIFIER : [a-zA-Z_-][a-zA-Z0-9_-]*;
+// new added 😎
+IDENTIFIER : [a-zA-Z_-][a-zA-Z0-9_$-]*;
+
+// new added 😎
+COLOR : '#' HEX_DIGIT HEX_DIGIT HEX_DIGIT
+         (HEX_DIGIT HEX_DIGIT HEX_DIGIT)? ;
+
+fragment HEX_DIGIT : [a-fA-F0-9] ;
 
 
 // HTML Tokens

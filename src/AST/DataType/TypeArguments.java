@@ -18,7 +18,7 @@ public class TypeArguments {
     @Override
     public String toString() {
         CustomStringBuilder sb = new CustomStringBuilder();
-        sb.append("TypeArguments {\n")
+        sb.appendTabOpenScope("TypeArguments {\n")
                 .append(dataTypes).append("\n");
 
         sb.appendTabCloseScope("}").append("\n");

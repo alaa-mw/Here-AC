@@ -35,7 +35,7 @@ public class ServiceDeclaration {
             sb.append(serviceArguments);
         }
 
-        sb.appendTabCloseScope("}");
+        sb.appendTabCloseScope("}\n");
         return sb.toString();
     }
 

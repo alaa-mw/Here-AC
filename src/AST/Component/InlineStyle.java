@@ -3,16 +3,20 @@ package AST.Component;
 import AST.CSS.CssDocument;
 import AST.CustomStringBuilder;
 
-public class InlineStyle {
-    private CssDocument cssDocument;
+import java.util.ArrayList;
+import java.util.List;
 
-    public CssDocument getCssDocument() {
+public class InlineStyle {
+    private List<CssDocument> cssDocument = new ArrayList<>();
+
+    public List<CssDocument> getCssDocument() {
         return cssDocument;
     }
 
-    public void setCssDocument(CssDocument cssDocument) {
+    public void setCssDocument(List<CssDocument> cssDocument) {
         this.cssDocument = cssDocument;
     }
+
     @Override
     public String toString() {
         CustomStringBuilder sb = new CustomStringBuilder();

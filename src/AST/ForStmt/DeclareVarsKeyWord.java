@@ -34,21 +34,21 @@ public class DeclareVarsKeyWord {
     @Override
     public String toString() {
         CustomStringBuilder sb = new CustomStringBuilder();
-        sb.appendTabOpenScope("DeclareVarsKeyWord {\n");
+        sb.appendTab("");
 
         if (var_KeyWord != null) {
-            sb.appendTab("var_KeyWord = ").append(var_KeyWord).append("\n");
+            sb.append("var_KeyWord = ").append(var_KeyWord);
         }
 
         if (let_KeyWord != null) {
-            sb.appendTab("let_KeyWord = ").append(let_KeyWord).append("\n");
+            sb.append("let_KeyWord = ").append(let_KeyWord);
         }
 
         if (const_KeyWord != null) {
-            sb.appendTab("const_KeyWord = ").append(const_KeyWord).append("\n");
+            sb.append("const_KeyWord = ").append(const_KeyWord);
         }
 
-        sb.appendCloseScope("}\n");
+        sb.append(" \n");
         return sb.toString();
     }
 

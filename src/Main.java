@@ -1,10 +1,9 @@
 import AST.Program;
-//import Grammer.AngularLexer;
+import Grammer.AngularLexer;
 import Grammer.AngularParser;
 import SemanticCheck.SemanticError;
 import SymbolTable.InterfaceMissing.SymbolTable;
 import Visitor.BaseVisitor;
-import gen.Grammer.AngularLexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -45,12 +44,10 @@ public class Main {
     }
     public static String getSource(int fileKey) {
         return switch (fileKey) {
+            case 0 -> "src/Test/newTests/finalCode.txt";
             case 1 -> "src/Test/newTests/mainTest.txt";
             case 2 -> "src/Test/newTests/calculator.txt";
             case 3 -> "src/Test/newTests/errorTest.txt";
-            case 5 -> "Test/test5.txt";
-            case 4 -> "src/Test/test4.txt";
-            case 10 -> "src/Test/test10.txt";
             default -> throw new IllegalArgumentException("Unknown test file: " + fileKey);
         };
     }

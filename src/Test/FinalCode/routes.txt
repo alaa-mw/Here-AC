@@ -1,0 +1,10 @@
+import { Routes } from '@angular/router';
+import {   ProductDetailsComponent, ProductListComponent } from './app_components';
+import { AddProductComponent } from './app_components';
+
+export const routes: Routes = [
+  { path: '', component: ProductListComponent },
+  { path: 'add', component: AddProductComponent },
+  { path: 'edit/:id', component: AddProductComponent },
+  { path: 'product/:id', component: ProductDetailsComponent },
+];

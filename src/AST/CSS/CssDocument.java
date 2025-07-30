@@ -5,15 +5,16 @@ import AST.CustomStringBuilder;
 import java.util.ArrayList;
 
 public class CssDocument {
-    private ArrayList<String> identifier = new ArrayList<>();// +
+    private ArrayList<CssSelector> cssSelector = new ArrayList<>();// +
     private ArrayList<CssRule> cssRules = new ArrayList<>(); // *
 
-    public ArrayList<String> getIdentifier() {
-        return identifier;
+
+    public ArrayList<CssSelector> getCssSelector() {
+        return cssSelector;
     }
 
-    public void setIdentifier(ArrayList<String> identifier) {
-        this.identifier = identifier;
+    public void setCssSelector(ArrayList<CssSelector> cssSelector) {
+        this.cssSelector = cssSelector;
     }
 
     public ArrayList<CssRule> getCssRules() {
@@ -28,10 +29,9 @@ public class CssDocument {
     public String toString() {
         CustomStringBuilder sb = new CustomStringBuilder();
         sb.appendTabOpenScope("CssDocument{\n");
-        if (identifier != null && !identifier.isEmpty()) {
-            sb.appendTab("css selectors=").append(identifier).append("\n");
+        if (cssSelector != null && !cssSelector.isEmpty()) {
+            sb.append(cssSelector);
         }
-
         if (cssRules != null && !cssRules.isEmpty()) {;
             sb.append(cssRules).append("\n");
 

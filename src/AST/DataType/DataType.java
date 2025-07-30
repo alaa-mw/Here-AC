@@ -3,50 +3,32 @@ package AST.DataType;
 import AST.CustomStringBuilder;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DataType {
-    private Type type;
-    private ArrayList<TypeArguments> typeArguments = new ArrayList<>();
-    private ArrayList<ListSuffix> listSuffix = new ArrayList<>();
+    private List<SingleDataType> singleDataTypeList = new ArrayList<>();
 
-    public Type getType() {
-        return type;
+    public List<SingleDataType> getSingleDataTypeList() {
+        return singleDataTypeList;
     }
 
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    public ArrayList<TypeArguments> getTypeArguments() {
-        return typeArguments;
-    }
-
-    public void setTypeArguments(ArrayList<TypeArguments> typeArguments) {
-        this.typeArguments = typeArguments;
-    }
-
-    public ArrayList<ListSuffix> getListSuffix() {
-        return listSuffix;
-    }
-
-    public void setListSuffix(ArrayList<ListSuffix> listSuffix) {
-        this.listSuffix = listSuffix;
+    public void setSingleDataTypeList(List<SingleDataType> singleDataTypeList) {
+        this.singleDataTypeList = singleDataTypeList;
     }
 
     @Override
     public String toString() {
         CustomStringBuilder sb = new CustomStringBuilder();
-        sb.appendTabOpenScope("DataType {")
-         .append(type);
+        sb.appendTabOpenScope("DataType {\n");
 
-        if (typeArguments != null && !typeArguments.isEmpty()) {
-            sb.append(typeArguments);
+        if (singleDataTypeList != null && !singleDataTypeList.isEmpty()) {
+            sb.append(singleDataTypeList);
         }
-        if (listSuffix != null && !listSuffix.isEmpty()) {
-            sb.append(listSuffix);
-        }
+
 
         sb.appendTabCloseScope("}").append("\n");
         return sb.toString();
     }
+
+
 }

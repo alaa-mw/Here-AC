@@ -28,14 +28,14 @@ public class ClassImplement {
     @Override
     public String toString() {
         CustomStringBuilder sb = new CustomStringBuilder();
-        sb.appendTabOpenScope("ClassImplement {");
+        sb.appendTabOpenScope("ClassImplement {\n");
 
         if (implements_ != null) {
             sb.appendTab("implements=").append(implements_).append("'\n");
         }
 
         if (interfaceNames != null && !interfaceNames.isEmpty()) {
-            sb.appendTab(interfaceNames).append("\n");
+            sb.appendTab("interfaceNames=").append(interfaceNames).append("\n");
         }
 
         sb.appendTabCloseScope("}").append("\n");

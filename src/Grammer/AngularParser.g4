@@ -2,21 +2,19 @@ parser grammar AngularParser ;
 options { tokenVocab=AngularLexer;}
 
 // Main Entry Point
-program: statement EOF;
+program: statement* EOF;
 
 
 statement
-    : importStatement*
-      (
-        routesDeclaration
-       serviceBlock
+      : importStatement
+      | routesDeclaration  // new ✅
+      | serviceBlock
       | interfaceDeclaration
       | componentBlock
       | classDeclaration
       | printStatement
-      )*
-      |bootstrapCall
-    ;
+//      |bootstrapCall
+      ;
 componentBlock : componentDeclaration  classDeclaration+ ;
 serviceBlock : serviceDeclaration classDeclaration?;
 
@@ -60,12 +58,10 @@ styleArg
    |STYLES_URLS DOT_DOT (OPEN_SQUARE_BRACKET STRING_LITERAL (COMMA STRING_LITERAL*)* CLOSE_SQUARE_BRACKET )COMMA         #StyleUrls
    |STYLES DOT_DOT (
                    OPEN_SQUARE_BRACKET inlineStyle (COMMA inlineStyle)* CLOSE_SQUARE_BRACKET
-                   | inlineStyle
+                   | inlineStyle // new ✅
                    ) COMMA                                                                                               #Styles
    ;
-inlineStyle: SCOPE_QUOTE cssDocument SCOPE_QUOTE;
 
-// to be process in semantic or resolve it .
 componentArguments
           : importArg
           | templateArg
@@ -74,11 +70,10 @@ componentArguments
           | standAloneArg
           ;
 
-
 openComponent : OPEN_BRACKET OPEN_CURLY_BRACKET ;
 closeComponent : CLOSE_CURLY_BRACKET CLOSE_BRACKET ;
 
-// 3.1 ============= HTML
+// 4.1 ==================== HTML ====================
 htmlDocument
     : htmlElement+
     ;
@@ -100,6 +95,7 @@ htmlAttribute
         | ngIF
         | imageAttribute
         | actionAttribute
+        | htmlBinding // new ✅
         ;
 
 basicAttribute
@@ -107,28 +103,35 @@ basicAttribute
 
 ngFor : STAR NG_FOR EQ STRING_LITERAL;
 ngIF : STAR NG_IF EQ STRING_LITERAL ;
-imageAttribute : OPEN_SQUARE_BRACKET IMAGE_SRC CLOSE_SQUARE_BRACKET EQ STRING_LITERAL basicAttribute* ;
+imageAttribute : OPEN_SQUARE_BRACKET? IMAGE_SRC CLOSE_SQUARE_BRACKET? EQ STRING_LITERAL basicAttribute* ;
 actionAttribute : OPEN_BRACKET CLICK CLOSE_BRACKET EQ STRING_LITERAL ;
+
+htmlBinding : HASH IDENTIFIER                                                         #TemplateRef      // new ✅
+            | OPEN_BRACKET IDENTIFIER CLOSE_BRACKET EQ STRING_LITERAL                 #EventBinding     // new ✅
+            | OPEN_SQUARE_BRACKET IDENTIFIER CLOSE_SQUARE_BRACKET EQ STRING_LITERAL   #PropertyBinding  // new ✅
+            | OPEN_SQUARE_BRACKET OPEN_BRACKET IDENTIFIER
+              CLOSE_BRACKET CLOSE_SQUARE_BRACKET EQ STRING_LITERAL                    #TwoWayBinding    // new ✅
+            | IDENTIFIER                                                              #BooleanAttribute // new ✅
+            ;
 
 //--- HTML content body
 htmlContentBody
         : IDENTIFIER
         | htmlElement
-//        | operation
         | objectExpression
+//        | operation
         ;
 
-//objectExpression : OPEN_CURLY_BRACKET OPEN_CURLY_BRACKET objectExpressionValue CLOSE_CURLY_BRACKET CLOSE_CURLY_BRACKET ;
-objectExpression : OPEN_CURLY_BRACKET OPEN_CURLY_BRACKET propertyValueObjects CLOSE_CURLY_BRACKET CLOSE_CURLY_BRACKET ;
+objectExpression : OPEN_CURLY_BRACKET OPEN_CURLY_BRACKET propertyValue CLOSE_CURLY_BRACKET CLOSE_CURLY_BRACKET ;  // new ✅
 
-//objectExpressionValue
-//    : IDENTIFIER
-//    | IDENTIFIER (DOT IDENTIFIER)*
-//    ;
+// 4.2 ==================== CSS ====================
+inlineStyle: SCOPE_QUOTE cssDocument* SCOPE_QUOTE;                                              // new ✅
+cssDocument : cssSelector(COMMA cssSelector)* OPEN_CURLY_BRACKET cssRule* CLOSE_CURLY_BRACKET ; // new ✅
+cssSelector : (IDENTIFIER)? ((DOT? IDENTIFIER)| (DOT_DOT? IDENTIFIER) | attributeSelector)* ;   // new ✅
+attributeSelector                                                                               // new ✅
+    : OPEN_SQUARE_BRACKET IDENTIFIER (EQ STRING_LITERAL)? CLOSE_SQUARE_BRACKET
+    ;
 
-
-// 3.2 ========== CSS
-cssDocument :  ( DOT? IDENTIFIER+ OPEN_CURLY_BRACKET cssRule* CLOSE_CURLY_BRACKET )* ;
 cssRule : IDENTIFIER DOT_DOT (ruleValue)* SEMICOLON;
 
 ruleValue : IDENTIFIER
@@ -139,7 +142,7 @@ ruleValue : IDENTIFIER
 
 //============================ routesDeclaration ========================
 routesDeclaration
-    : EXPORT? declareVarsKeyword IDENTIFIER (DOT_DOT ROUTES)? EQ routeArray SEMICOLON
+    : EXPORT? declareVarsKeyword IDENTIFIER (DOT_DOT IDENTIFIER)? EQ routeArray SEMICOLON
     ;
 routeArray
     : OPEN_SQUARE_BRACKET routeObject (COMMA routeObject)* CLOSE_SQUARE_BRACKET
@@ -149,8 +152,9 @@ routeObject
     ;
 
 routeProperty
-    : PATH DOT_DOT STRING_LITERAL
-    | COMPONENT_KW DOT_DOT IDENTIFIER;
+    : PATH DOT_DOT STRING_LITERAL COMMA COMPONENT_KW DOT_DOT IDENTIFIER
+    ;
+//============== ✅
 //    | LOADCOMPONENT DOT_DOT arrowFunctionImport
 //    | CHILDREN DOT_DOT OPEN_BRACKET routeObject (COMMA routeObject)* CLOSE_BRACKET
 //    ;
@@ -163,15 +167,17 @@ routeProperty
 //    : IMPORT OPEN_BRACKET STRING_LITERAL CLOSE_BRACKET DOT THEN
 //      OPEN_BRACKET IDENTIFIER ARROW propertyCall CLOSE_BRACKET
 //    ;
-bootstrapCall
-    : BOOTSTRAP_APP OPEN_BRACKET IDENTIFIER COMMA bootstrapOptions CLOSE_BRACKET SEMICOLON
-    ;
-bootstrapOptions
-    : OPEN_CURLY_BRACKET PROVIDERS DOT_DOT OPEN_SQUARE_BRACKET routerProvider CLOSE_SQUARE_BRACKET CLOSE_CURLY_BRACKET
-    ;
-routerProvider
-    : PROVIDE_ROUTER OPEN_BRACKET IDENTIFIER CLOSE_BRACKET
-    ;
+
+//===================================
+//bootstrapCall
+//    : BOOTSTRAP_APP OPEN_BRACKET IDENTIFIER COMMA bootstrapOptions CLOSE_BRACKET SEMICOLON
+//    ;
+//bootstrapOptions
+//    : OPEN_CURLY_BRACKET PROVIDERS DOT_DOT OPEN_SQUARE_BRACKET routerProvider CLOSE_SQUARE_BRACKET CLOSE_CURLY_BRACKET
+//    ;
+//routerProvider
+//    : PROVIDE_ROUTER OPEN_BRACKET IDENTIFIER CLOSE_BRACKET
+//    ;
 
 // 5 ========================= Class Declaration =========================
 classDeclaration:  EXPORT? ABSTRACT? CLASS IDENTIFIER classHeritage? classImplement? OPEN_CURLY_BRACKET classBody* CLOSE_CURLY_BRACKET;
@@ -208,7 +214,7 @@ methodBodyProperty
     ;
     // here
 
-// ======================= common rules ============================
+// ========================== common rules =============================
 
 returnStatement : RETURN expression? SEMICOLON ;
 
@@ -300,6 +306,8 @@ propertyValueObjects
             | arrowFunction
             | postFix
             | preFix
+            | newExpression     // new ✅
+            | spreadElement    // new ✅
             ;
 
 /* Primitive Literals */
@@ -319,18 +327,43 @@ objectValue
     : OPEN_CURLY_BRACKET (objectProperty (COMMA objectProperty)* )? COMMA? CLOSE_CURLY_BRACKET
     | IDENTIFIER
     ;
-objectProperty
-    : IDENTIFIER (DOT_DOT propertyValue)?
+//objectProperty
+//    : IDENTIFIER (DOT_DOT propertyValue)?
+//    ;
+
+objectProperty  // new ✅
+    : spreadElement                         #SpreadObjectProperty
+    | IDENTIFIER (DOT_DOT propertyValue)?   #NormalObjectProperty
     ;
-list
-    :  OPEN_SQUARE_BRACKET (propertyValue (COMMA propertyValue)* COMMA? )? CLOSE_SQUARE_BRACKET
+//list
+//    :  OPEN_SQUARE_BRACKET (propertyValue (COMMA propertyValue)* COMMA? )? CLOSE_SQUARE_BRACKET
+//    ;
+//
+
+list  // new ✅
+    : OPEN_SQUARE_BRACKET (spreadElement | propertyValue) (COMMA (spreadElement | propertyValue))* COMMA? CLOSE_SQUARE_BRACKET
+    ;
+
+spreadElement  // new ✅
+    : SPREAD (  propertyCall |IDENTIFIER)  #SpreadElementExpr
     ;
 indexAccessValue
     : IDENTIFIER OPEN_SQUARE_BRACKET propertyValue CLOSE_SQUARE_BRACKET
     ;
-arrowFunction
-    : OPEN_BRACKET parameterList CLOSE_BRACKET ARROW expression
+
+// new added 😎✅
+//arrowFunction
+//    : IDENTIFIER ARROW expression                               # ArrowFunctionExpr         // single parameter
+//    | OPEN_BRACKET parameterList CLOSE_BRACKET ARROW expression # ArrowFunctionWithParamsExpr // multiple parameters
+//    ;
+arrowFunction  // new ✅
+    : IDENTIFIER ARROW expression                                     # ArrowFunctionExpr
+    | IDENTIFIER ARROW block                                          # ArrowFunctionBlockExpr
+    | OPEN_BRACKET parameterList CLOSE_BRACKET ARROW expression       # ArrowFunctionWithParamsExpr
+    | OPEN_BRACKET parameterList CLOSE_BRACKET ARROW block            # ArrowFunctionWithParamsBlockExpr
     ;
+
+
 preFix
     : ( PP |  MM ) IDENTIFIER
     ;
@@ -338,17 +371,25 @@ postFix
     : IDENTIFIER  ( PP |  MM )
     ;
 
-propertyCall
-    : (THIS | IDENTIFIER) (QUESTION? DOT (IDENTIFIER | indexAccessValue))+                #SimplePropertyCall
-    | (THIS | IDENTIFIER) (QUESTION? DOT IDENTIFIER)* (DOT methodCall)*                   #PropertyWithMethodCall
+propertyCall // new ✅
+    : (THIS | IDENTIFIER) (QUESTION? DOT (IDENTIFIER | indexAccessValue))*       # SimplePropertyCall
+    | (THIS | IDENTIFIER) (QUESTION? DOT IDENTIFIER)* (DOT methodCall)+          # PropertyWithMethodCall
     ;
 
 
 methodCall
-    : IDENTIFIER OPEN_BRACKET  (expression (COMMA expression)*)? CLOSE_BRACKET (DOT IDENTIFIER)*
+    : IDENTIFIER (typeArguments)? OPEN_BRACKET  (expression (COMMA expression)*)? CLOSE_BRACKET (DOT IDENTIFIER)*
     ;
 
+//dataType
+//    : type (typeArguments | listSuffix)*
+//    ;
+// new ✅
 dataType
+    : singleDataType (OR singleDataType)*
+    ;
+// new ✅
+singleDataType
     : type (typeArguments | listSuffix)*
     ;
 
@@ -372,12 +413,16 @@ listSuffix
     : LIST
     ;
 
-
 accessModifiers
     : PRIVATE
     | PUBLIC
     | PROTECTED
     ;
+
+newExpression  // new ✅
+  : NEW IDENTIFIER (typeArguments)? OPEN_BRACKET (expression (COMMA expression)*)? CLOSE_BRACKET
+  ;
+
 
 //  -------------  propertyDeclarationRules --end
 

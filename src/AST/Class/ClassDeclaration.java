@@ -19,6 +19,18 @@ public class ClassDeclaration implements Statement {
         this.identifier = identifier;
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public List<ClassBody> getClassBody() {
+        return classBody;
+    }
+
+    public void setClassBody(List<ClassBody> classBody) {
+        this.classBody = classBody;
+    }
+
     public String getExport() {
         return export;
     }

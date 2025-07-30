@@ -1,9 +1,7 @@
 package Visitor;
 
 import AST.*;
-import AST.CSS.CssDocument;
-import AST.CSS.CssRule;
-import AST.CSS.RuleValue;
+import AST.CSS.*;
 import AST.Class.*;
 import AST.Component.*;
 import AST.ConditionStmt.ConditionalStatement;
@@ -34,6 +32,10 @@ import AST.ParameterList.*;
 import AST.Property.*;
 import AST.Method.*;
 import AST.PropertyValueClasses.PropertyValue;
+import AST.Routing.RouteArray;
+import AST.Routing.RouteObject;
+import AST.Routing.RouteProperty;
+import AST.Routing.RoutesDeclaration;
 import AST.Service.Arg;
 import AST.Service.ServiceArguments;
 import AST.Service.ServiceBlock;
@@ -52,7 +54,7 @@ import SymbolTable.MissingImportST ;
 import SymbolTable.DuplicateAttributeSymbolTable ;
 import SymbolTable.ReadProperties.PropertySymbolTable;
 import SymbolTable.InterfaceMissing.SymbolTable;
-import gen.Grammer.AngularParserBaseVisitor;
+import Grammer.AngularParserBaseVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
@@ -78,14 +80,16 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public DuplicateAttributeSymbolTable getSymbolTable2() {
         return duplicateAttributeSymbolTable;
     }
-    @Override
-    public Program visitProgram(AngularParser.ProgramContext ctx) {
-        Program program =new Program();
 
-        program.setStatement( (Statement)visit(ctx.statement()));
+    public Program visitProgram(AngularParser.ProgramContext ctx) {
+        Program program = new Program();
+
+        // Visit all statements
+        for (AngularParser.StatementContext stmtCtx : ctx.statement()) {
+            program.getStatement().add((Statement)visit(stmtCtx));
+        }
 
         semanticError.classImportNotFound();
-
         return program;
     }
 
@@ -313,32 +317,58 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return classDeclaration;
     }
 
+//    private MissedHTMLSymbolTable buildScopeFromObjectValue(ObjectValue objVal) {
+//        MissedHTMLSymbolTable missedHTMLSymbolTable = new MissedHTMLSymbolTable("object");
+//
+//        for (ObjectProperty property : objVal.getProperties()) {
+//            String propName = property.getIdentifier();
+//            PropertyValue value = property.getValue();
+//
+//            if (value instanceof LiteralExpr) {
+//                missedHTMLSymbolTable.addChild(propName, new MissedHTMLSymbolTable("string")); // Or "number", etc.
+//            } else if (value instanceof ObjectValue) {
+//                MissedHTMLSymbolTable childMissedHTMLSymbolTable = buildScopeFromObjectValue((ObjectValue) value);
+//                missedHTMLSymbolTable.addChild(propName, childMissedHTMLSymbolTable);
+//            }
+//
+//        }
+//
+//        return missedHTMLSymbolTable;
+//    }
+
+    // new added editing
     private MissedHTMLSymbolTable buildScopeFromObjectValue(ObjectValue objVal) {
         MissedHTMLSymbolTable missedHTMLSymbolTable = new MissedHTMLSymbolTable("object");
 
         for (ObjectProperty property : objVal.getProperties()) {
-            String propName = property.getIdentifier();
-            PropertyValue value = property.getValue();
+            if (property instanceof NormalObjectProperty normalProp) {
+                String propName = normalProp.getIdentifier();
+                PropertyValue value = normalProp.getValue();
 
-            if (value instanceof LiteralExpr) {
-                missedHTMLSymbolTable.addChild(propName, new MissedHTMLSymbolTable("string")); // Or "number", etc.
-            } else if (value instanceof ObjectValue) {
-                MissedHTMLSymbolTable childMissedHTMLSymbolTable = buildScopeFromObjectValue((ObjectValue) value);
-                missedHTMLSymbolTable.addChild(propName, childMissedHTMLSymbolTable);
+                if (value instanceof LiteralExpr) {
+                    missedHTMLSymbolTable.addChild(propName, new MissedHTMLSymbolTable("string")); // Or "number", etc.
+                } else if (value instanceof ObjectValue) {
+                    MissedHTMLSymbolTable childMissedHTMLSymbolTable = buildScopeFromObjectValue((ObjectValue) value);
+                    missedHTMLSymbolTable.addChild(propName, childMissedHTMLSymbolTable);
+                }
+
+            } else if (property instanceof SpreadObjectProperty) {
+                System.out.println("تم تجاهل SpreadObjectProperty داخل object");
             }
-
         }
 
         return missedHTMLSymbolTable;
     }
+
+
     @Override
     public ClassHeritage visitClassHeritage(AngularParser.ClassHeritageContext ctx) {
         ClassHeritage classHeritage=new ClassHeritage();
 
         if(ctx.EXTENDS()!=null)
-        classHeritage.setExtends_(ctx.EXTENDS().getText());
+            classHeritage.setExtends_(ctx.EXTENDS().getText());
         if(ctx.IDENTIFIER()!=null)
-        classHeritage.setSuperClassName(ctx.IDENTIFIER().getText());
+            classHeritage.setSuperClassName(ctx.IDENTIFIER().getText());
 
         return classHeritage;
     }
@@ -348,7 +378,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         ClassImplement classImplement = new ClassImplement();
 
         if(ctx.IMPLEMENTS()!=null)
-        classImplement.setImplements_(ctx.IMPLEMENTS().getText());
+            classImplement.setImplements_(ctx.IMPLEMENTS().getText());
 
         java.util.List<String> interfaces = new ArrayList<>();
 
@@ -408,11 +438,16 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
 
         // assignDataType
-        if (ctx.assignDataType() != null) {
+        if (ctx.assignDataType() != null) { // new added
             property.setAssignDataType(visitAssignDataType(ctx.assignDataType()));
-            for (AngularParser.DataTypeContext typeCtx: ctx.assignDataType().dataType()) {
-                Type type = (Type) visit(typeCtx.type());
-                typeList.add(type.getType()) ; //alaa-check
+            for (AngularParser.DataTypeContext typeCtx : ctx.assignDataType().dataType()) {
+                for (AngularParser.SingleDataTypeContext singleCtx : typeCtx.singleDataType()) {
+                    SingleDataType single = visitSingleDataType(singleCtx);
+                    Type type = single.getType();
+                    if (type != null) {
+                        typeList.add(type.getType()); // alaa-check
+                    }
+                }
             }
         }
 
@@ -706,23 +741,63 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             objectValue.setIdentifier(ctx.IDENTIFIER().getText());
         } else {
             for (AngularParser.ObjectPropertyContext propCtx : ctx.objectProperty()) {
-                objectValue.getProperties().add(visitObjectProperty(propCtx));
+                objectValue.getProperties().add((ObjectProperty) visit(propCtx));
             }
         }
         return objectValue;
     }
 
+//    @Override
+//    public ObjectProperty visitObjectProperty(AngularParser.ObjectPropertyContext ctx) {
+//        ObjectProperty objectProperty=new ObjectProperty();
+//
+//        objectProperty.setIdentifier(ctx.IDENTIFIER().getText());
+//
+//        if (ctx.propertyValue() != null) {
+//            objectProperty.setValue((PropertyValue) visit(ctx.propertyValue()));
+//        }
+//
+//        return objectProperty;
+//    }
+
+
     @Override
-    public ObjectProperty visitObjectProperty(AngularParser.ObjectPropertyContext ctx) {
-        ObjectProperty objectProperty=new ObjectProperty();
+    public NormalObjectProperty visitNormalObjectProperty(AngularParser.NormalObjectPropertyContext ctx) {
+        NormalObjectProperty normalObjectProperty = new NormalObjectProperty();
 
-        objectProperty.setIdentifier(ctx.IDENTIFIER().getText());
-
+        if(ctx.IDENTIFIER() != null) {
+            normalObjectProperty.setIdentifier(ctx.IDENTIFIER().getText());
+        }
         if (ctx.propertyValue() != null) {
-            objectProperty.setValue((PropertyValue) visit(ctx.propertyValue()));
+            normalObjectProperty.setValue((PropertyValue) visit(ctx.propertyValue()));
         }
 
-        return objectProperty;
+        return normalObjectProperty;
+    }
+
+    @Override
+    public SpreadObjectProperty visitSpreadObjectProperty(AngularParser.SpreadObjectPropertyContext ctx) {
+        SpreadObjectProperty spreadObjectProperty = new SpreadObjectProperty();
+        if(ctx.spreadElement() != null){
+            spreadObjectProperty.setSpreadElement((SpreadElementExpr) visit(ctx.spreadElement()));
+        }
+        return spreadObjectProperty ;
+    }
+
+    @Override
+    public SpreadElementExpr visitSpreadElementExpr(AngularParser.SpreadElementExprContext ctx) {
+        SpreadElementExpr spreadElementExpr = new SpreadElementExpr();
+        if(ctx.IDENTIFIER() != null){
+            spreadElementExpr.setIdentifier(ctx.IDENTIFIER().getText());
+        }
+        if(ctx.SPREAD() != null){
+            spreadElementExpr.setSpreadKey(ctx.SPREAD().getText());
+        }
+
+        if(ctx.propertyCall() != null){
+            spreadElementExpr.setPropertyCall((PropertyCall) visit(ctx.propertyCall()));
+        }
+        return  spreadElementExpr ;
     }
 
     @Override
@@ -731,6 +806,10 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
         for (AngularParser.PropertyValueContext propertyValueContext : ctx.propertyValue()) {
             lIst.getElements().add((PropertyValue) visit(propertyValueContext));
+        }
+
+        for (AngularParser.SpreadElementContext spreadElementContext : ctx.spreadElement()) {
+            lIst.getSpreadElements().add((SpreadElementExpr) visit(spreadElementContext));
         }
 
         return lIst;
@@ -747,15 +826,85 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     }
 
     @Override
-    public ArrowFunction visitArrowFunction(AngularParser.ArrowFunctionContext ctx) {
-        ArrowFunction arrowFunction =new ArrowFunction();
+    public ArrowFunctionExpr visitArrowFunctionExpr(AngularParser.ArrowFunctionExprContext ctx) {
+        ArrowFunctionExpr arrowFunctionExpr = new ArrowFunctionExpr();
 
-        arrowFunction.setParameterList(visitParameterList(ctx.parameterList()));
-        arrowFunction.setARROW(ctx.ARROW().getText());
-        arrowFunction.setExpression((Expression) visit(ctx.expression()));
+        if(ctx.IDENTIFIER() != null){
+            arrowFunctionExpr.setIdentifier(ctx.IDENTIFIER().getText());
+        }
 
-        return arrowFunction;
+        if(ctx.ARROW() != null){
+            arrowFunctionExpr.setArrowKey(ctx.ARROW().getText());
+        }
+
+        if(ctx.expression() != null){
+            arrowFunctionExpr.setExpression((Expression) visit(ctx.expression()));
+        }
+
+        return arrowFunctionExpr ;
     }
+
+    @Override
+    public ArrowFunctionBlockExpr visitArrowFunctionBlockExpr(AngularParser.ArrowFunctionBlockExprContext ctx) {
+        ArrowFunctionBlockExpr arrowFunctionBlockExpr = new ArrowFunctionBlockExpr();
+        if(ctx.IDENTIFIER() != null){
+            arrowFunctionBlockExpr.setIdentifier(ctx.IDENTIFIER().getText());
+        }
+
+        if(ctx.ARROW() != null){
+            arrowFunctionBlockExpr.setArrowKey(ctx.ARROW().getText());
+        }
+
+        if(ctx.block() != null){
+            arrowFunctionBlockExpr.setBlock(visitBlock(ctx.block()));
+        }
+        return arrowFunctionBlockExpr ;
+    }
+
+    @Override
+    public ArrowFunctionWithParamsBlockExpr visitArrowFunctionWithParamsBlockExpr(AngularParser.ArrowFunctionWithParamsBlockExprContext ctx) {
+        ArrowFunctionWithParamsBlockExpr af = new ArrowFunctionWithParamsBlockExpr();
+        if(ctx.ARROW() != null){
+            af.setArrowKey(ctx.ARROW().getText());
+        }
+
+        if(ctx.block() != null){
+            af.setBlock(visitBlock(ctx.block()));
+        }
+
+        if(ctx.parameterList() != null ){
+            af.setParameterList(visitParameterList(ctx.parameterList()));
+        }
+        return af ;
+
+    }
+
+    @Override
+    public ArrowFunctionWithParamExpr  visitArrowFunctionWithParamsExpr(AngularParser.ArrowFunctionWithParamsExprContext ctx) {
+        ArrowFunctionWithParamExpr afp = new ArrowFunctionWithParamExpr();
+        if(ctx.ARROW() != null){
+            afp.setArrowKey(ctx.ARROW().getText());
+        }
+
+        if(ctx.expression() != null){
+            afp.setExpression((Expression) visit(ctx.expression()));
+        }
+
+        if(ctx.parameterList() != null ){
+            afp.setParameterList(visitParameterList(ctx.parameterList()));
+        }
+        return  afp ;
+    }
+    //    @Override
+//    public ArrowFunction visitArrowFunction(AngularParser.ArrowFunctionContext ctx) {
+//        ArrowFunction arrowFunction =new ArrowFunction();
+//
+//        arrowFunction.setParameterList(visitParameterList(ctx.parameterList()));
+//        arrowFunction.setARROW(ctx.ARROW().getText());
+//        arrowFunction.setExpression((Expression) visit(ctx.expression()));
+//
+//        return arrowFunction;
+//    }
 
     @Override
     public PostFix visitPostFix(AngularParser.PostFixContext ctx) {
@@ -789,6 +938,47 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return preFix;
     }
 
+    @Override
+    public NewExpression visitNewExpression(AngularParser.NewExpressionContext ctx) {
+        NewExpression newExpression = new NewExpression();
+
+        if(ctx.NEW() != null){
+            newExpression.setNewKeyWord(ctx.NEW().getText());
+        }
+        if(ctx.IDENTIFIER() != null){
+            newExpression.setIdentifier(ctx.IDENTIFIER().getText());
+        }
+        if(ctx.typeArguments() != null){
+            newExpression.setTypeArgument(visitTypeArguments(ctx.typeArguments()));
+        }
+        if(ctx.expression() != null && !ctx.expression().isEmpty()){
+            if (ctx.expression()!=null) {
+                for (AngularParser.ExpressionContext expCtx : ctx.expression()) {
+                    newExpression.getExpressions().add((Expression) visit(expCtx));
+                }
+            }
+        }
+
+        return newExpression;
+    }
+
+//    @Override
+//    public SpreadElementExpr visitSpreadListElement(AngularParser.SpreadListElementContext ctx) {
+//        SpreadElementExpr spreadElement = new SpreadElementExpr();
+//
+//        if(ctx.IDENTIFIER() != null){
+//            spreadElement.setIdentifier(ctx.IDENTIFIER().getText());
+//        }
+//        if(ctx.SPREAD() != null){
+//            spreadElement.setSpreadKey(ctx.SPREAD().getText());
+//        }
+//
+//        if(ctx.propertyCall() != null){
+//            spreadElement.setPropertyCall((PropertyCall) visit(ctx.propertyCall()));
+//        }
+//        return spreadElement ;
+//    }
+
     /***********           PropertyCall Start ************************************/
     @Override //alaa
     public SimplePropertyCall visitSimplePropertyCall(AngularParser.SimplePropertyCallContext ctx) {//****wait Bilal
@@ -809,7 +999,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 ;// alaa-check
             }
         }
-            return simplePropertyCall;
+        return simplePropertyCall;
     }
 
 
@@ -991,10 +1181,10 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public FunctionInterface visitFunctionInterface(AngularParser.FunctionInterfaceContext ctx) {
         FunctionInterface functionInterface = new FunctionInterface();
-       boolean isOptional=false;
-        if (ctx.READONLY() != null) {
-            functionInterface.setReadonly(ctx.READONLY().getText());
-        }
+        boolean isOptional=false;
+//        if (ctx.READONLY() != null) {
+//            functionInterface.setReadonly(ctx.READONLY().getText());
+//        }
         if (ctx.IDENTIFIER() != null) {
             functionInterface.setIdentifier(ctx.IDENTIFIER().getText());
         }
@@ -1062,20 +1252,32 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public DataType visitDataType(AngularParser.DataTypeContext ctx) {
         DataType dataType = new DataType();
+
+        if (ctx.singleDataType() != null && !ctx.singleDataType().isEmpty()) {
+            for (AngularParser.SingleDataTypeContext typeArg : ctx.singleDataType()) {
+                dataType.getSingleDataTypeList().add(visitSingleDataType(typeArg));
+            }
+        }
+        return dataType;
+    }
+
+    @Override
+    public SingleDataType visitSingleDataType(AngularParser.SingleDataTypeContext ctx) {
+        SingleDataType singleDataType = new SingleDataType();
         if (ctx.type() != null) {
-            dataType.setType((Type) visit(ctx.type()));
+            singleDataType.setType((Type) visit(ctx.type()));
         }
         if (ctx.typeArguments() != null && !ctx.typeArguments().isEmpty()) {
             for (AngularParser.TypeArgumentsContext typeArg : ctx.typeArguments()) {
-                dataType.getTypeArguments().add(visitTypeArguments(typeArg));
+                singleDataType.getTypeArguments().add(visitTypeArguments(typeArg));
             }
         }
         if (ctx.listSuffix() != null && !ctx.listSuffix().isEmpty()) {
             for (AngularParser.ListSuffixContext listSuffixCtx : ctx.listSuffix()) {
-                dataType.getListSuffix().add(visitListSuffix(listSuffixCtx));
+                singleDataType.getListSuffix().add(visitListSuffix(listSuffixCtx));
             }
         }
-        return dataType;
+        return singleDataType ;
     }
 
     @Override
@@ -1126,7 +1328,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public ParameterPropertyAssignment visitParameterPropertyAssignment(AngularParser.ParameterPropertyAssignmentContext ctx) {
         ParameterPropertyAssignment parameterPropertyAssignment =new ParameterPropertyAssignment();
         if(ctx.accessModifiers() != null)
-        parameterPropertyAssignment.setAccessModifiers((visitAccessModifiers(ctx.accessModifiers())));
+            parameterPropertyAssignment.setAccessModifiers((visitAccessModifiers(ctx.accessModifiers())));
         if(ctx.READONLY() != null)
             parameterPropertyAssignment.setReadOnly(ctx.READONLY().getText());
         if(ctx.IDENTIFIER() != null)
@@ -1149,14 +1351,14 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             localVariableDeclaration.setConst_(ctx.CONST().getText());
         if(ctx.IDENTIFIER() != null)
         {localVariableDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
-        nameLocalVar=ctx.IDENTIFIER().getText();
+            nameLocalVar=ctx.IDENTIFIER().getText();
         }
         if(ctx.assignDataType() != null)
         {localVariableDeclaration.setAssignDataType(visitAssignDataType(ctx.assignDataType()));
-        type=ctx.assignDataType().getText();}
+            type=ctx.assignDataType().getText();}
         if(ctx.assigment() != null)
         {localVariableDeclaration.setAssigment(visitAssigment(ctx.assigment()));
-        value=ctx.assigment().getText();
+            value=ctx.assigment().getText();
         }
         symbolTable.define(nameLocalVar, value, type,false);
 
@@ -1355,8 +1557,11 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public InlineStyle visitInlineStyle(AngularParser.InlineStyleContext ctx) {
         InlineStyle inlineStyle = new InlineStyle();
-        if (ctx.cssDocument() != null) {
-            inlineStyle.setCssDocument(visitCssDocument(ctx.cssDocument()));
+        if(ctx.cssDocument() != null && !ctx.cssDocument().isEmpty()){
+
+            for (AngularParser.CssDocumentContext inlineStyleCtx : ctx.cssDocument()) {
+                inlineStyle.getCssDocument().add(visitCssDocument(inlineStyleCtx));
+            }
         }
         return inlineStyle;
     }
@@ -1441,7 +1646,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
     }
 
-//    @Override
+    //    @Override
 //    public MethodBody visitMethodBody(AngularParser.MethodBodyContext ctx) {
 //        MethodBody methodBody = new MethodBody();
 //        if (ctx.returnStatement() != null) {
@@ -1668,6 +1873,66 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return actionAttribute;
     }
 
+    @Override
+    public TemplateRef visitTemplateRef(AngularParser.TemplateRefContext ctx) {
+        TemplateRef templateRef = new TemplateRef();
+
+        if(ctx.IDENTIFIER()!= null){
+            templateRef.setRefValue(ctx.IDENTIFIER().getText());
+        }
+        return  templateRef ;
+    }
+
+    @Override
+    public BooleanAttribute visitBooleanAttribute(AngularParser.BooleanAttributeContext ctx) {
+        BooleanAttribute booleanAttribute = new BooleanAttribute();
+        if(ctx.IDENTIFIER() !=null){
+            booleanAttribute.setIdentifier(ctx.IDENTIFIER().getText());
+        }
+
+        return booleanAttribute ;
+    }
+
+    @Override
+    public PropertyBinding visitPropertyBinding(AngularParser.PropertyBindingContext ctx) {
+        PropertyBinding propertyBinding = new PropertyBinding();
+        if(ctx.IDENTIFIER() != null){
+            propertyBinding.setPropertyName(ctx.IDENTIFIER().getText());
+        }
+
+        if(ctx.STRING_LITERAL() != null){
+            propertyBinding.setPropertyValue(ctx.STRING_LITERAL().getText());
+        }
+
+        return  propertyBinding ;
+    }
+
+    @Override
+    public TwoWayBinding visitTwoWayBinding(AngularParser.TwoWayBindingContext ctx) {
+        TwoWayBinding twoWayBinding = new TwoWayBinding();
+
+        if(ctx.IDENTIFIER() != null){
+            twoWayBinding.setName(ctx.IDENTIFIER().getText());
+        }
+        if(ctx.STRING_LITERAL() != null){
+            twoWayBinding.setValue(ctx.STRING_LITERAL().getText());
+        }
+
+        return twoWayBinding ;
+    }
+
+    @Override
+    public EventBinding visitEventBinding(AngularParser.EventBindingContext ctx){
+        EventBinding eventBinding = new EventBinding();
+        if(ctx.IDENTIFIER() != null){
+            eventBinding.setEventName(ctx.IDENTIFIER().getText());
+        }
+        if(ctx.IDENTIFIER() != null){
+            eventBinding.setEventValue(ctx.IDENTIFIER().getText());
+        }
+        return eventBinding;
+    }
+
 
     @Override
     public HtmlContentBody visitHtmlContentBody(AngularParser.HtmlContentBodyContext ctx) {
@@ -1692,13 +1957,13 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public ObjectExpression visitObjectExpression(AngularParser.ObjectExpressionContext ctx) {
         ObjectExpression objectExpression = new ObjectExpression();
 
-        objectExpression.setPropertyValueObjects((PropertyValueObjects) visit(ctx.propertyValueObjects()));
+        objectExpression.setPropertyValue((PropertyValue) visit(ctx.propertyValue()));
 
-        PropertyValueObjects propertyValueObjects=objectExpression.getPropertyValueObjects();
+        PropertyValue propertyValue = objectExpression.getPropertyValue();
 
-        if (propertyValueObjects instanceof SimplePropertyCall){
+        if (propertyValue instanceof SimplePropertyCall){
 
-            List<String> identifiers= ((SimplePropertyCall) propertyValueObjects).getIdentifiers();
+            List<String> identifiers= ((SimplePropertyCall) propertyValue).getIdentifiers();
             htmlBindingsToValidate.add(identifiers);  // 👈 Store for later
 //                System.out.println(identifiers);
             MissedHTMLSymbolTable missedHTMLSymbolTable =new MissedHTMLSymbolTable();
@@ -1713,8 +1978,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 //            symbolTable2.print(" ");
 //            System.out.println("-------END HTML CODE------------");
 
-        } else if (propertyValueObjects instanceof ObjectValue) {
-            ObjectValue objectValue= ((ObjectValue) propertyValueObjects) ;
+        } else if (propertyValue instanceof ObjectValue) {
+            ObjectValue objectValue= ((ObjectValue) propertyValue) ;
             symbolTable2.addChild(" ",new MissedHTMLSymbolTable(objectValue.getIdentifier()));
             List<String>l=new ArrayList<>();
             l.add(objectValue.getIdentifier());
@@ -1745,9 +2010,9 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public CssDocument visitCssDocument(AngularParser.CssDocumentContext ctx) {
         CssDocument cssDocument = new CssDocument();
-        for (int i=0 ; i< ctx.IDENTIFIER().size() ; i++){
-            if(ctx.IDENTIFIER(i) != null){
-                cssDocument.getIdentifier().add(ctx.IDENTIFIER(i).getText());
+        for (int i=0 ; i< ctx.cssSelector().size() ; i++){
+            if(ctx.cssSelector(i) != null){
+                cssDocument.getCssSelector().add(visitCssSelector(ctx.cssSelector(i)));
             }
         }
         for (int i=0 ; i< ctx.cssRule().size() ; i++){
@@ -1812,6 +2077,39 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             }
         }
         return  constructorDeclaration ;
+    }
+
+    @Override
+    public CssSelector visitCssSelector(AngularParser.CssSelectorContext ctx) {
+        CssSelector cssSeletor = new CssSelector();
+
+        if(ctx.IDENTIFIER() != null && !ctx.isEmpty()){
+            for (int i=0 ; i< ctx.IDENTIFIER().size() ; i++) {
+                if (ctx.IDENTIFIER(i) != null) {
+                    cssSeletor.getSelectors().add(ctx.IDENTIFIER(i).getText());/* */
+                }
+            }
+        }
+
+        if(ctx.attributeSelector() != null && !ctx.attributeSelector().isEmpty()){
+            for (AngularParser.AttributeSelectorContext cssCtx : ctx.attributeSelector()) {
+                cssSeletor.getAttributeSelectorList().add(visitAttributeSelector(cssCtx));
+            }
+        }
+        return cssSeletor ;
+    }
+
+    @Override
+    public AttributeSelector visitAttributeSelector(AngularParser.AttributeSelectorContext ctx) {
+        AttributeSelector attributeSelector = new AttributeSelector();
+        if(ctx.IDENTIFIER() != null){
+            attributeSelector.setAttributeSelectorName(ctx.IDENTIFIER().getText());
+        }
+        if(ctx.STRING_LITERAL() != null){
+            attributeSelector.setAttributeSelectorValue(ctx.STRING_LITERAL().getText());
+        }
+
+        return  attributeSelector ;
     }
 
     @Override
@@ -2149,7 +2447,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         return  lists ;
     }
-//-----------------------------
+    //-----------------------------
     @Override
     public VariableDeclaration visitVariableDeclaration(AngularParser.VariableDeclarationContext ctx) {
         VariableDeclaration vd = new VariableDeclaration();
@@ -2217,14 +2515,83 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
         for (int i=0 ; i< ctx.returnStatement().size(); i++){
             if (ctx.returnStatement(i)!=null){
-                    block.getReturnStatements().add(visitReturnStatement(ctx.returnStatement(i))); /* */
+                block.getReturnStatements().add(visitReturnStatement(ctx.returnStatement(i))); /* */
             }
         }
         return  block ;
 
     }
 
+    @Override
+    public RoutesDeclaration visitRoutesDeclaration(AngularParser.RoutesDeclarationContext ctx) {
+        RoutesDeclaration routingDeclaration = new RoutesDeclaration();
 
-    //*****************************END //SARA//**************************************//
+        if (ctx.EXPORT() != null) {
+            routingDeclaration.setExport(ctx.EXPORT().getText());
+        }
+
+        if (ctx.declareVarsKeyword() != null) {
+            routingDeclaration.setDeclareVarsKeyWord(visitDeclareVarsKeyword(ctx.declareVarsKeyword()));
+        }
+        if (ctx.IDENTIFIER()!=null && !ctx.IDENTIFIER().isEmpty()){
+            for (int i=0 ; i< ctx.IDENTIFIER().size() ; i++){
+                if(ctx.IDENTIFIER(i) != null){
+                    routingDeclaration.getIdentifier().add(ctx.IDENTIFIER(i).getText());
+                }
+            }
+        }
+        if(ctx.routeArray() != null){
+            routingDeclaration.setRouteArray(visitRouteArray(ctx.routeArray()));
+        }
+
+        return  routingDeclaration ;
+    }
+
+    @Override
+    public RouteArray visitRouteArray(AngularParser.RouteArrayContext ctx) {
+        RouteArray routeArray = new RouteArray();
+
+        if(ctx.routeObject() != null && !ctx.routeObject().isEmpty()){
+            if (ctx.routeObject()!=null) {
+                for (AngularParser.RouteObjectContext routCtx : ctx.routeObject()) {
+                    routeArray.getRouteObjectList().add(visitRouteObject(routCtx));
+                }
+            }
+        }
+        return  routeArray ;
+    }
+
+    @Override
+    public RouteObject visitRouteObject(AngularParser.RouteObjectContext ctx) {
+        RouteObject routeObject = new RouteObject();
+        if(ctx.routeProperty() != null && !ctx.routeProperty().isEmpty()){
+            for (AngularParser.RoutePropertyContext routCtx : ctx.routeProperty()) {
+                routeObject.getRoutePropertyList().add(visitRouteProperty(routCtx));
+
+            }
+        }
+        return  routeObject ;
+    }
+
+    @Override
+    public RouteProperty visitRouteProperty(AngularParser.RoutePropertyContext ctx) {
+        RouteProperty routeProperty = new RouteProperty();
+
+        if(ctx.PATH() != null){
+            routeProperty.setPath(ctx.PATH().getText());
+        }
+        if(ctx.STRING_LITERAL() != null){
+            routeProperty.setPathValue(ctx.STRING_LITERAL().getText());
+        }
+        if(ctx.COMPONENT_KW() != null){
+            routeProperty.setComponentKeyWord(ctx.COMPONENT_KW().getText());
+        }
+        if(ctx.IDENTIFIER() != null){
+            routeProperty.setComponentClassName(ctx.IDENTIFIER().getText());
+        }
+        return  routeProperty ;
+    }
+
+    //*****************************END //SARAH//**************************************//
 
 }

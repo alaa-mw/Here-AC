@@ -1,18 +1,12 @@
-mport { Test } from "@angular/core"; // missing component , service
+import { Test } from "@angular/core"; // missing component , service
 import { NewClass } from "./new";
 
 
 export class Product {
 
 }
-
-@Injectable({
-  providedIn: 'root',
-})
-
 @Component({
   selector: 'app-root',
-  imports : [NewClass, sth , Product ], // missing sth
   template : `<div>{{title}}</div>` ,
 })
 

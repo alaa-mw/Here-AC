@@ -28,9 +28,11 @@ public class PropertyAssignment implements MethodBodyProperty,BlockProperty {
     @Override
     public String toString() {
         CustomStringBuilder sb = new CustomStringBuilder();
-        sb.appendTabOpenScope("PropertyAssignment {\n")
-                .append(propertyCall)
-                .append(compoundAssignment);
+        sb.appendTabOpenScope("PropertyAssignment {\n");
+        if(propertyCall != null)
+            sb.append(propertyCall);
+        if(compoundAssignment != null)
+            sb.append(compoundAssignment);
 
         sb.appendTabCloseScope("}").append("\n");
         return sb.toString();

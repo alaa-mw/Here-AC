@@ -28,7 +28,7 @@ public class ServiceArguments {
             sb.append(arguments);
         }
 
-        sb.appendTabCloseScope("}");
+        sb.appendTabCloseScope("}\n");
         return sb.toString();
     }
 

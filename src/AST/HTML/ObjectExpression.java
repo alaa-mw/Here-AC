@@ -1,6 +1,7 @@
 package AST.HTML;
 
 import AST.CustomStringBuilder;
+import AST.PropertyValueClasses.PropertyValue;
 import AST.PropertyValueObjects.PropertyValueObjects;
 
 public class ObjectExpression {
@@ -23,21 +24,21 @@ public class ObjectExpression {
 //        return sb.toString();
 //    }
 
-    private PropertyValueObjects propertyValueObjects;
+    private PropertyValue propertyValue;
 
-    public PropertyValueObjects getPropertyValueObjects() {
-        return propertyValueObjects;
+    public PropertyValue getPropertyValue() {
+        return propertyValue;
     }
 
-    public void setPropertyValueObjects(PropertyValueObjects propertyValueObjects) {
-        this.propertyValueObjects = propertyValueObjects;
+    public void setPropertyValue(PropertyValue propertyValue) {
+        this.propertyValue = propertyValue;
     }
 
     @Override
     public String toString() {
         CustomStringBuilder sb = new CustomStringBuilder();
-        sb.appendTabOpenScope("propertyValueObjects{").append("\n")
-                .append(propertyValueObjects)
+        sb.appendTabOpenScope("PropertyValue {").append("\n")
+                .append(propertyValue)
                 .appendTabCloseScope("}").append("\n");
         return sb.toString();
     }

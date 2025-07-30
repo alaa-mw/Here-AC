@@ -1,27 +1,63 @@
 Symbol Table
   nullglobal-program symbols: []{
-    interface Product symbols: [{name='name', value='null', type='string'}, {name='image', value='null', type='string'}, {name='desc', value='null', type='string'}]{
+    class AppComponent symbols: []{
     }
-    class ProductService symbols: [{name='selectedProduct', value='null', type='Product'}, {name='products', value='null', type='Product'}]{
-      method getProducts symbols: []{
+    interface Product symbols: [{name='id', value='null', type='string'}, {name='name', value='null', type='string'}, {name='image', value='null', type='string'}, {name='desc', value='null', type='string'}]{
+    }
+    class ProductState symbols: [{name='productsSubject', value='', type='null'}, {name='products$', value='null', type='null'}, {name='selectedProductSubject', value='', type='null'}, {name='selectedProduct$', value='null', type='null'}]{
+      method initProducts symbols: [{name='initialProducts', value='=[{id:'1',name:'Product 1 Camera',desc:'Capture moments with this amazing camera.',image:'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',},{id:'2',name:'Product 2 Laptop',desc:'High performance laptop for all your needs.',image:'https://images.unsplash.com/photo-1496181133206-80ce9b88a853',},{id:'3',name:'Product 3 Wireless Headphones',desc:'Experience premium sound quality wirelessly.',image:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',},]', type='Product[]'}]{
       }
-      method getProducts symbols: []{
-      }
-      method getSelectedProduct symbols: []{
-      }
-      method getSelectedProduct symbols: []{
+      method initProducts symbols: [{name='initialProducts', value='=[{id:'1',name:'Product 1 Camera',desc:'Capture moments with this amazing camera.',image:'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',},{id:'2',name:'Product 2 Laptop',desc:'High performance laptop for all your needs.',image:'https://images.unsplash.com/photo-1496181133206-80ce9b88a853',},{id:'3',name:'Product 3 Wireless Headphones',desc:'Experience premium sound quality wirelessly.',image:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',},]', type='Product[]'}]{
       }
       method selectProduct symbols: []{
       }
       method selectProduct symbols: []{
+      }
+      method addProduct symbols: [{name='newProduct', value='={...product,id:Math.random().toString(36).substring(2,9),}', type='Product'}, {name='updatedProducts', value='=[...this.productsSubject.value,newProduct]', type=''}]{
+      }
+      method addProduct symbols: [{name='newProduct', value='={...product,id:Math.random().toString(36).substring(2,9),}', type='Product'}, {name='updatedProducts', value='=[...this.productsSubject.value,newProduct]', type=''}]{
+      }
+      method deleteProduct symbols: [{name='updatedProducts', value='=this.productsSubject.value.filter(p=>p.id!==id)', type=''}]{
+      }
+      method deleteProduct symbols: [{name='updatedProducts', value='=this.productsSubject.value.filter(p=>p.id!==id)', type=''}]{
+      }
+      method updateProduct symbols: [{name='updatedProducts', value='=this.productsSubject.value.map(product=>product.id===updatedProduct.id?updatedProduct:product)', type=''}]{
+      }
+      method updateProduct symbols: [{name='updatedProducts', value='=this.productsSubject.value.map(product=>product.id===updatedProduct.id?updatedProduct:product)', type=''}]{
       }
     }
-    interface User symbols: [{name='id', value='null', type='number'}, {name='age', value='null', type='any'}]{
-    }
-    class AppComponent symbols: [{name='products', value='[]', type='Product'}, {name='selectedProduct', value='null', type='Product'}, {name='userData', value='null', type='number'}, {name='data', value='null', type='User'}, {name='userName', value='null', type='string'}, {name='userAge', value='null', type='number'}]{
-      method selectProduct symbols: []{
+    class ProductListComponent symbols: [{name='products$', value='null', type='null'}, {name='selectedProduct$', value='null', type='null'}]{
+      method goToDetails symbols: []{
       }
-      method selectProduct symbols: []{
+      method goToDetails symbols: []{
+      }
+      method deleteProduct symbols: []{
+      }
+      method deleteProduct symbols: []{
+      }
+      method editProduct symbols: []{
+      }
+      method editProduct symbols: []{
+      }
+    }
+    class ProductDetailsComponent symbols: [{name='__implements__', value='OnInit', type='implements'}, {name='product', value='null', type='Product'}]{
+      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}, {name='found', value='=this.productState.products$.subscribe(products=>{this.product=products.find(p=>p.id===id);})', type=''}]{
+      }
+      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}, {name='found', value='=this.productState.products$.subscribe(products=>{this.product=products.find(p=>p.id===id);})', type=''}]{
+      }
+    }
+    class AddProductComponent symbols: [{name='__implements__', value='OnInit', type='implements'}, {name='newProduct', value='null', type='any'}, {name='editingId', value='null', type='string'}]{
+      method ngOnInit symbols: [{name='id', value='=params.get('id')', type=''}, {name='existingProduct', value='=products.find(p=>p.id===id)', type=''}]{
+      }
+      method ngOnInit symbols: [{name='id', value='=params.get('id')', type=''}, {name='existingProduct', value='=products.find(p=>p.id===id)', type=''}]{
+      }
+      method onSubmit symbols: []{
+      }
+      method onSubmit symbols: []{
+      }
+      method cancel symbols: []{
+      }
+      method cancel symbols: []{
       }
     }
   }
