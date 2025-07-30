@@ -3,16 +3,16 @@ package AST;
 import java.util.ArrayList;
 
 public class Program {
-    private ArrayList<Statement> statement = new ArrayList<>();
+    private ArrayList<Statement> statements = new ArrayList<>();
 
     public Program() {}
 
-    public ArrayList<Statement> getStatement() {
-        return statement;
+    public ArrayList<Statement> getStatements() {
+        return statements;
     }
 
-    public void setStatement(ArrayList<Statement> statement) {
-        this.statement = statement;
+    public void setStatements(ArrayList<Statement> statements) {
+        this.statements = statements;
     }
 
     @Override
@@ -20,8 +20,8 @@ public class Program {
         CustomStringBuilder sb = new CustomStringBuilder();
         sb.appendTabOpenScope("Program {\n");
 
-        if (statement != null && !statement.isEmpty()) {
-            sb.append(statement);
+        if (statements != null && !statements.isEmpty()) {
+            sb.append(statements);
         }
 
         sb.appendTabCloseScope("}\n");

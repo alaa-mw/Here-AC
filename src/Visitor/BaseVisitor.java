@@ -86,7 +86,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
         // Visit all statements
         for (AngularParser.StatementContext stmtCtx : ctx.statement()) {
-            program.getStatement().add((Statement)visit(stmtCtx));
+            program.getStatements().add((Statement)visit(stmtCtx));
         }
 
         semanticError.classImportNotFound();

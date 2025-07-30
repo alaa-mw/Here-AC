@@ -4,6 +4,7 @@ import Grammer.AngularParser;
 import SemanticCheck.SemanticError;
 import SymbolTable.InterfaceMissing.SymbolTable;
 import Visitor.BaseVisitor;
+import Visitor.Generation;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -41,6 +42,8 @@ public class Main {
 //        System.out.println(print());
         semanticError.errorResult();
 
+        Generation generation=new Generation();
+        generation.generate(doc);
     }
     public static String getSource(int fileKey) {
         return switch (fileKey) {
