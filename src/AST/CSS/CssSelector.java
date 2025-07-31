@@ -8,7 +8,7 @@ import java.util.List;
 public class CssSelector {
     private List<String> selectors = new ArrayList<>();
     private List<AttributeSelector> attributeSelectorList = new ArrayList<>();
-
+    private ArrayList<String> symbol = new ArrayList<>(); // *
     public List<AttributeSelector> getAttributeSelectorList() {
         return attributeSelectorList;
     }
@@ -25,6 +25,13 @@ public class CssSelector {
         this.selectors = selectors;
     }
 
+    public ArrayList<String> getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(ArrayList<String> symbol) {
+        this.symbol = symbol;
+    }
 
     @Override
     public String toString() {
@@ -36,6 +43,10 @@ public class CssSelector {
 
         if (attributeSelectorList != null && !attributeSelectorList.isEmpty()) {;
             sb.append(attributeSelectorList);
+
+        }
+        if (symbol != null && !symbol.isEmpty()) {;
+            sb.append(symbol).append("\n");
 
         }
         sb.appendTabCloseScope("}\n");

@@ -2088,6 +2088,14 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 if (ctx.IDENTIFIER(i) != null) {
                     cssSeletor.getSelectors().add(ctx.IDENTIFIER(i).getText());/* */
                 }
+                if (ctx.DOT(i) != null) {
+                    cssSeletor.getSymbol().add(ctx.DOT(i).getText());
+                }
+                else if (ctx.DOT_DOT(i) != null) {
+                    cssSeletor.getSymbol().add(ctx.DOT_DOT(i).getText());
+                } else{
+                    cssSeletor.getSymbol().add(" ");
+                }
             }
         }
 
