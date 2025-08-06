@@ -27,6 +27,29 @@ export class AppComponent {
   title : string = 'Compiler Test Counter';
   mssg = '';
   count : number = 0;
+  count =this.x.v;
+
+     initialProducts: Product[] = [
+       {
+         id: '1',
+         name: 'Product 1 Camera',
+         desc: 'Capture moments with this amazing camera.',
+         image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',
+       },
+       {
+         id: '2',
+         name: 'Product 2 Laptop',
+         desc: 'High performance laptop for all your needs.',
+         image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853',
+       },
+       {
+         id: '3',
+         name: 'Product 3 Wireless Headphones',
+         desc: 'Experience premium sound quality wirelessly.',
+         image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+       },
+     ];
+
 
   increment() {
     this.count += 1;

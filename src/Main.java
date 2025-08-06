@@ -51,6 +51,7 @@ public class Main {
             case 1 -> "src/Test/newTests/mainTest.txt";
             case 2 -> "src/Test/newTests/calculator.txt";
             case 3 -> "src/Test/newTests/errorTest.txt";
+            case 4 -> "src/Test/test3.txt";
             default -> throw new IllegalArgumentException("Unknown test file: " + fileKey);
         };
     }

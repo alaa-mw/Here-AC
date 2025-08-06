@@ -6,107 +6,21 @@
 </head>
 <body>
 		<div class="component">
-<nav>
-<a routerLink="/" routerLinkActive="active">
-ProductList</a>
-<a routerLink="/add" routerLinkActive="active">
-AddProduct</a>
-</nav>
-<router-outlet>
-</router-outlet>
-		<script>
-		</script>
-		</div>
-		<div class="component">
-<div class="products-container">
-<div class="product-list">
+<div class="counter-container">
 <h1>
-ProductList</h1>
-<div class="product-item" onclick="goToDetails(product.id)">
-<h3>
-<span id=""></span></h3>
-<div class="product-content">
-<img						src="product.image"  alt="Product Image" />
-<div class="product-actions">
-<button onclick="editProduct($event, product)">
-Edit</button>
-<button onclick="deleteProduct($event, product.id)">
-Delete</button>
-</div>
-</div>
-</div>
-</div>
-<div class="detailsSide">
+<span id= " title"></span></h1>
 <h1>
-ProductDetails</h1>
-<div class="product-details">
-<ng-container>
-<h2>
-<span id=""></span></h2>
-<p>
-<span id=""></span></p>
-<img						src="selectedProduct.image"  alt="Product Image" />
-</ng-container>
-<ng-template>
-<h2>
-Selectaproducttoviewdetails</h2>
-</ng-template>
-</div>
-</div>
-</div>
-		<script>
-		</script>
-		</div>
-		<div class="component">
-<div>
+<span id= " count"></span></h1>
 <h1>
-<span id=""></span></h1>
-<p>
-<span id=""></span></p>
-<img			src="product.image"  alt="Product Image"  width="300" />
+<span id= " mssg"></span></h1>
+<button onclick="increment()">
+</button>
+<button onclick="decrement()">
+</button>
+<button onclick="reset()">
+Reset</button>
 </div>
-<ng-template>
-<p>
-Productnotfound</p>
-</ng-template>
-		<script>
-		</script>
 		</div>
-		<div class="component">
-<div class="add-product-form">
-<h2>
-AddNewProduct</h2>
-<form>
-<div>
-<label>
-Name</label>
-<input name="name" />
-</div>
-<div>
-<label>
-Description</label>
-<textarea name="desc">
-</textarea>
-</div>
-<div>
-<label>
-ImageURL</label>
-<input name="image" />
-</div>
-<button type="submit">
-<span id=""></span></button>
-<button type="button" onclick="cancel()">
-Cancel</button>
-</form>
-</div>
-		<script>
-		</script>
-		</div>
-
-<script>
-		<!-- Interface Declaration: Product -->
-		<!-- Service Block -->
-</script>
 
 </body>
-</html>
+<script src="script.js"></script></html>
