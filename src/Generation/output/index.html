@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Angular Compiler Output</title>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+		<nav>
+			<a id="nav-list" href="/">
+				Product
+				List
+			</a>
+
+			<a id="nav-add" href="/add">
+				Add
+				Product
+			</a>
+
+		</nav>
+		<router-outlet>
+		</router-outlet>
+		<div class="product-list" id="product-list-section">
+			<h1>
+				Product
+				List
+			</h1>
+
+			<div class="product-item" id="product-item">
+			</div>
+
+		</div>
+		<div class="product-details" id="product-details-section">
+			<h1>
+
+			</h1>
+
+			<p>
+
+			</p>
+
+			<img />
+
+		</div>
+		<ng-template>
+			<p>
+				Product
+				not
+				found
+			</p>
+
+		</ng-template>
+		<div class="add-product-form" id="add-edit-product-section">
+			<h2>
+				Product
+				Form
+			</h2>
+
+			<form onclick="ngSubmit" id="product-form">
+				<div>
+					<label>
+						Name
+					</label>
+
+					<input name="name" />
+
+				</div>
+
+				<div>
+					<label>
+						Description
+					</label>
+
+					<input name="desc" />
+
+				</div>
+
+				<div>
+					<label>
+						Image
+						URL
+					</label>
+
+					<input name="image" />
+
+				</div>
+
+				<button id="submit" type="submit">
+
+				</button>
+
+				<button id="cancel" type="button">
+					Cancel
+				</button>
+
+			</form>
+
+		</div>
+
+</body>
+<script src="script.js"></script>4</html>

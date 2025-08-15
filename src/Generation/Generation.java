@@ -1,38 +1,30 @@
-package Visitor;
+package Generation;
 
-import AST.*;
 import AST.CSS.*;
 import AST.Class.ClassBody;
 import AST.Class.ClassDeclaration;
 import AST.Class.ClassHeritage;
 import AST.Class.ClassPropertyDeclaration;
 import AST.Component.*;
-import AST.ConditionStmt.ConditionalStatement;
-import AST.ConditionStmt.ElseIfStatement;
-import AST.ConditionStmt.ElseStatement;
-import AST.Constructor.*;
+import AST.Constructor.ConstructorDeclaration;
 import AST.Expression.BinaryExpression;
 import AST.Expression.Expression;
 import AST.Expression.LiteralOrReferenceExpression;
 import AST.Expression.ParentExpression;
 import AST.HTML.*;
 import AST.Interface.InterfaceDeclaration;
-import AST.LiteralValueClasses.LiteralExpr;
 import AST.LiteralValueClasses.LiteralValue;
-import AST.Method.MethodBody;
-import AST.Method.MethodBodyProperty;
 import AST.Method.MethodDeclaration;
-import AST.ParameterList.Parameter;
-import AST.ParameterList.ParameterList;
-import AST.Property.LocalVariableDeclaration;
-import AST.Property.ParameterPropertyAssignment;
-import AST.Property.PropertyAssignment;
+import AST.MethodCall;
+import AST.Operation;
+import AST.Program;
 import AST.PropertyValueClasses.BinaryOperationPropertyValueExpr;
 import AST.PropertyValueClasses.BracketedPropertyValueExpr;
 import AST.PropertyValueClasses.PropertyValue;
 import AST.PropertyValueClasses.ShortIfExpr;
 import AST.PropertyValueObjects.*;
 import AST.Service.ServiceBlock;
+import AST.Statement;
 import AST.propertyCallClasses.PropertyCall;
 import AST.propertyCallClasses.PropertyWithMethodCall;
 import AST.propertyCallClasses.SimplePropertyCall;
@@ -40,8 +32,9 @@ import AST.propertyCallClasses.SimplePropertyCall;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static Generation.GenerationHelper.*;
 
 public class Generation {
     private FileWriter index_fw;
@@ -49,17 +42,40 @@ public class Generation {
     private FileWriter js_fw;
     private String currentSpace = "";
 
-    private static final String[] CSS_ELEMENT_SELECTORS = {"nav", "a", "h1", "div", "p", "span","button"};
+    /*
+        شرح مهم:
+       -componentMap:
+           سيتم اعتمادها كبنية للتخزين.
+           يمكن اضافة اي تابع في   ComponentModel class اذا احتجت.
+           اذا كانت مهمتك التخزين خزن فيها حصرا.
+
+            من الممكن احتياج شيء مخزن مسبقا لتكمل المعالجة لذا انشأت :
+        -componentTempMap:
+            تحوي النتيجة النهائية للتخزين.
+            للقراءة فقط.
+            سيتم حذفها عند تجميع الكود.
+
+        -currentComponent:
+           احتجت اليها عندما اردت التخزين.
+           تعيين قيمتها مهمة من يمر على classDeclaration
+     */
+
+    private Map<String, ComponentModel> componentMap = new HashMap<>(); // for store
+
+    Map<String, ComponentModel> componentTempMap = TempFiller.getComponentModels();
+
+    String currentComponent = "ProductListComponent";
     public void generate(Program program) {
-        File dir = new File("src/codeGeneration");
+        System.out.println(componentTempMap);
+        File dir = new File("src/Generation");
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
         try {
-            index_fw = new FileWriter("src\\codeGeneration\\index.html");
-            styles_fw = new FileWriter("src\\codeGeneration\\styles.css");
-            js_fw = new FileWriter("src\\codeGeneration\\script.js");
+            index_fw = new FileWriter("src\\Generation\\output\\index.html");
+            styles_fw = new FileWriter("src\\Generation\\output\\styles.css");
+            js_fw = new FileWriter("src\\Generation\\output\\script.js");
             generateHeader();
             generateBody(program);
             generateScriptSection(program);
@@ -117,23 +133,22 @@ public class Generation {
         index_fw.write("\n</body>\n");
         index_fw.write("<script src=\"script.js\"></script>4");
         index_fw.write("</html>\n");
+
+        generateJsDomElements(); // alaa
     }
+
     // ======================= our code gen =============================
     private void generate(ComponentBlock componentBlock) throws IOException {
-        index_fw.write(currentSpace + "<div class=\"component\">\n");
-        generate(componentBlock.getComponentDeclaration());
+        generate(componentBlock.getComponentDeclaration()); // alaa
 
-//        js_fw.write(currentSpace + "<script>\n");
         for (ClassDeclaration classDeclaration : componentBlock.getClassDeclarations()) {
             generate(classDeclaration);
         }
-//        js_fw.write(currentSpace + "</script>\n");
-        index_fw.write(currentSpace + "</div>\n");
     }
 
     private void generate(ComponentDeclaration componentDeclaration) throws IOException {
         for (ComponentArguments componentArguments : componentDeclaration.getComponentArguments()) {
-            if (componentArguments instanceof Template) {
+            if (componentArguments instanceof Template) { // alaa
                 generate((Template) componentArguments);
             }
             if (componentArguments instanceof Styles) {
@@ -148,7 +163,11 @@ public class Generation {
     }
 
     private void generate(HtmlDocument htmlDocument) throws IOException {
+//        GenerationAnalysis gs = new GenerationAnalysis();
+//        gs.analyzeTemplate(htmlDocument.getHtmlElement());
+//        System.out.println("|||||||||||||||||||||||||\n" + gs.toString());
         for (HtmlElement htmlElement : htmlDocument.getHtmlElement()) {
+
             generate(htmlElement);
         }
     }
@@ -157,108 +176,147 @@ public class Generation {
         if (htmlElement.getSelfClosingTag() != null) {
             generate(htmlElement.getSelfClosingTag());
         } else {
-            generate(htmlElement.getOpenTag());
-            index_fw.write("\n");
+             generate(htmlElement.getOpenTag());
 
-            if (htmlElement.getHtmlContentBody() != null) {
-                String savedSpace = currentSpace;
-                currentSpace += "\t";
-                for (HtmlContentBody htmlContentBody : htmlElement.getHtmlContentBody()) {
-                    generate(htmlContentBody);
+            if(!hasNgFor(htmlElement)) {
+                // توليد المحتوى الداخلي إذا لم يكن هناك ngFor
+                if (htmlElement.getHtmlContentBody() != null) {
+                    // Keep the same indentation for inner content
+                    String savedSpace = currentSpace;
+                    currentSpace += "\t";
+                    for (HtmlContentBody htmlContentBody : htmlElement.getHtmlContentBody()) {
+                        generate(htmlContentBody);
+                    }
+                    currentSpace = savedSpace;
                 }
-                currentSpace = savedSpace;
+            }else{
+                // هنا ترسل المحتوى إلى توليد جافاسكريبت (JS) بدلاً من توليد HTML
+                generateJsInnerHtml(htmlElement);
             }
             generate(htmlElement.getCloseTag());
-            index_fw.write("\n");
         }
     }
 
+    // Generates an open tag, converting Angular attributes to standard HTML
+    private void generate(OpenTag openTag) throws IOException {
+        index_fw.write(currentSpace + "<" + openTag.getIdentifier());
+
+        if (openTag.getHtmlAttributeArray() != null) {
+            for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
+                // Ignore Angular-specific directives like *ngFor and *ngIf
+                if (htmlAttribute instanceof NgFor || htmlAttribute instanceof NgIF) {
+                    // Do nothing, we handle dynamic content in JavaScript
+                } else if (htmlAttribute instanceof BasicAttribute) {
+                    generate((BasicAttribute) htmlAttribute);
+                } else if (htmlAttribute instanceof ActionAttribute) {
+                    // Convert Angular (click) to standard onclick
+                    generate((ActionAttribute) htmlAttribute);
+                } else if (htmlAttribute instanceof HtmlBinding) {
+                    generate((HtmlBinding) htmlAttribute);
+                } else {
+                    // imageAttribute
+                }
+            }
+        }
+        index_fw.write(">\n");
+    }
+
+    // Generates a self-closing tag
     private void generate(SelfClosingTag selfClosingTag) throws IOException {
-        index_fw.write("<" + selfClosingTag.getIdentifier());
+        index_fw.write(currentSpace + "<" + selfClosingTag.getIdentifier());
 
         for (HtmlAttribute htmlAttribute : selfClosingTag.getHtmlAttributes()) {
             if (htmlAttribute instanceof BasicAttribute) {
                 generate((BasicAttribute) htmlAttribute);
-            }
-            if (htmlAttribute instanceof ImageAttribute) {
-                generate((ImageAttribute) htmlAttribute);
-            }
-            if (htmlAttribute instanceof ActionAttribute) {
-                generate((ActionAttribute) htmlAttribute);
             }
         }
 
         index_fw.write(" />\n");
     }
 
+    // Generates a standard basic attribute
     private void generate(BasicAttribute basicAttribute) throws IOException {
         String key = basicAttribute.getIdentifier() != null ?
                 basicAttribute.getIdentifier() :
                 basicAttribute.getC_lass();
-        String value = basicAttribute.getStringLiteral();
-        index_fw.write(" " + key + "=" + value);
-    }
-
-    private void generate(ImageAttribute imageAttribute) throws IOException {
-        String value = imageAttribute.getStringLiteral();
-        index_fw.write(currentSpace + "src=" + value);
-        if (imageAttribute.getBasicAttribute() != null) {
-            for (BasicAttribute basicAttribute : imageAttribute.getBasicAttribute()) {
-                index_fw.write(" ");
-                generate(basicAttribute);
-            }
+        String value= basicAttribute.getStringLiteral();
+        String withoutQuotes = value.replace("\"", "");
+        boolean ignore = false;
+        switch(key) {
+            case "routerLink":
+                key = "href";
+                value = withoutQuotes;
+                break;
+            case "routerLinkActive":
+                ignore = true;
+                break;
+            default:
+                value = withoutQuotes;
         }
-    }
+        if(!ignore)
+            index_fw.write(" " + key + "=\"" + value + "\"");
 
+        // لو المفتاح id خزّن في idMap
+        if ("id".equals(key)) {
+            if(componentMap.get(currentComponent) == null)
+                componentMap.put(currentComponent,new ComponentModel()); // note:  must be put before in class pass , delete later
+
+            componentMap.get(currentComponent).getDomElements().add( // alaa - new
+                    new DomElement(withoutQuotes.replaceAll("-", ""),withoutQuotes)
+            );
+        }
+
+    }
     private void generate(ActionAttribute actionAttribute) throws IOException {
-        String value = actionAttribute.getStringLiteral();
-        index_fw.write(" " + "onclick=" + value);
+        //
     }
+    // Generates a property binding like [src] or [routerLink]
+    private void generate(HtmlBinding htmlBinding) throws IOException {
 
-    private void generate(OpenTag openTag) throws IOException {
-        index_fw.write("<" + openTag.getIdentifier());
-
-        if (openTag.getHtmlAttributeArray() != null) {
-            for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
-                if (htmlAttribute instanceof BasicAttribute) {
-                    generate((BasicAttribute) htmlAttribute);
-                }
-                if (htmlAttribute instanceof ImageAttribute) {
-                    generate((ImageAttribute) htmlAttribute);
-                }
-                if (htmlAttribute instanceof ActionAttribute) {
-                    generate((ActionAttribute) htmlAttribute);
-                }
+        if (htmlBinding instanceof PropertyBinding) {
+            PropertyBinding binding = (PropertyBinding) htmlBinding;
+            if ("src".equals(binding.getPropertyName())) {
+            } else if ("routerLink".equals(binding.getPropertyName())) {
+                index_fw.write(" href=\"#" + binding.getPropertyValue().replaceAll("'", "") + "\"");
             }
+        } else if (htmlBinding instanceof EventBinding) {
+            EventBinding binding = (EventBinding) htmlBinding;
+            // Convert (click) to onclick and strip Angular's event object
+            index_fw.write(" onclick=\"" + binding.getEventValue().replaceAll("\\$event, ", "") + "\"");
+        } else if (htmlBinding instanceof TwoWayBinding) {
+            TwoWayBinding binding = (TwoWayBinding) htmlBinding;
+            index_fw.write(" value=\"" + binding.getValue().replaceAll("'", "") + "\"");
         }
-        index_fw.write(">");
     }
 
+    // Generates a close tag
+    private void generate(CloseTag closeTag) throws IOException {
+        index_fw.write(currentSpace + "</" + closeTag.getCloseTagName() + ">\n");
+    }
+
+    // Generates the content inside an HTML tag
     private void generate(HtmlContentBody htmlContentBody) throws IOException {
         if (htmlContentBody.getHtmlIdentifier() != null) {
-            index_fw.write(htmlContentBody.getHtmlIdentifier());
+            index_fw.write( currentSpace + htmlContentBody.getHtmlIdentifier() );
+
         } else if (htmlContentBody.getHtmlElement() != null) {
+
             generate(htmlContentBody.getHtmlElement());
+
         } else if (htmlContentBody.getObjectExpression() != null) {
+            // Correctly handle the {{ expression }} syntax
             generate(htmlContentBody.getObjectExpression());
         }
+        index_fw.write("\n");
     }
 
-    private void generate(CloseTag closeTag) throws IOException {
-        index_fw.write("</" + closeTag.getCloseTagName() + ">");
-    }
-
+    // Generates a template expression {{ expression }}
     private void generate(ObjectExpression objectExpression) throws IOException {
-//        index_fw.write("<span id=\"");
-        index_fw.write("<span id= \" ");
         PropertyValue propertyValueObjects = objectExpression.getPropertyValue();
-        // new line
-        if (propertyValueObjects instanceof ObjectValue){
-            index_fw.write(((ObjectValue) propertyValueObjects).getIdentifier());
+        if (propertyValueObjects instanceof ObjectValue) {
+            // Output the identifier as plain text
+            index_fw.write(currentSpace+((ObjectValue) propertyValueObjects).getIdentifier());
         }
-
-        index_fw.write("\"></span>");
-        
     }
 
     // ===================== CSS Generation Methods =====================
@@ -291,14 +349,15 @@ public class Generation {
     }
 
     private void generate(CssSelector selector) throws IOException {
-        boolean first = true;
-
         for (int i = 0; i < selector.getSelectors().size(); i++) {
-            styles_fw.write(selector.getSymbol().get(i));
+            int index = selector.getSymbol().indexOf(selector.getSelectors().get(i));
+            String symbol = index > 0 ? selector.getSymbol().get(index-1) : "";
+            if( symbol.equals(".") || symbol.equals(":") )
+                styles_fw.write(symbol);
+            else
+                styles_fw.write(" ");
             styles_fw.write(selector.getSelectors().get(i));
-            first = false;
         }
-
         // Generate attribute selectors
         for (AttributeSelector attrSel : selector.getAttributeSelectorList()) {
             generate(attrSel);
@@ -398,54 +457,9 @@ public class Generation {
             generate((ClassPropertyDeclaration) body);
         }
         else if (body instanceof ConstructorDeclaration) {
-            generate((ConstructorDeclaration) body);
+            //generate((ConstructorDeclaration) body); fix
         } else if (body instanceof MethodDeclaration) {
-            generate((MethodDeclaration) body);
-        }
-    }
-
-    private void generate(ConstructorDeclaration cd) throws IOException {
-    js_fw.write(cd.getConstructor() + "(");
-    if(cd.getConstructorParams() != null){
-        generate(cd.getConstructorParams());
-    }
-    js_fw.write( ") {");
-    for (ConstructorBody cb : cd.getConstructorBody()){
-        generate(cb);
-    }
-        js_fw.write( "}");
-    }
-
-    private void generate(ConstructorBody cb) throws IOException {
-    if(cb instanceof ConstructorBodyProperty){
-        generate((ConstructorBodyProperty) cb);
-    }
-    if(cb instanceof CommonStatement){
-        generate((CommonStatement) cb);
-    }
-
-    }
-    private void generate(ConstructorBodyProperty cp) throws IOException {
-    if(cp instanceof ParameterPropertyAssignment){
-        generate((ParameterPropertyAssignment) cp);
-    }
-    if(cp instanceof MethodBodyProperty){
-        generate((MethodBodyProperty) cp);
-    }
-    }
-
-    private void generate(ParameterPropertyAssignment ppa) throws IOException {
-
-    }
-
-
-    private void generate(ConstructorParams cp) throws IOException {
-            List<ConstructorParam> parameters = cp.getConstructorParam();
-        for (int i = 0; i < parameters.size(); i++) {
-            js_fw.write(parameters.get(i).getConstructorParamName()); // your own method to generate a parameter
-            if (i < parameters.size() - 1) {
-                js_fw.write(","); // write comma between parameters
-            }
+            //generate((MethodDeclaration) body); fix
         }
     }
 
@@ -696,7 +710,7 @@ public class Generation {
                     if (spreadElement.getIdentifier() != null) {
                         sb.append(spreadElement.getIdentifier());
                     } else if (spreadElement.getPropertyCall() != null) {
-                        sb.append(generate((PropertyValueObjects) spreadElement.getPropertyCall())); // Assume it returns a string
+                        sb.append(generate(spreadElement.getPropertyCall())); // Assume it returns a string
                     }
                 }
             } else if (prop instanceof NormalObjectProperty) {
@@ -740,155 +754,153 @@ public class Generation {
         return sb.toString();
     }
 
-    // Method declaration
-    private void generate(MethodDeclaration methodDeclaration) throws  IOException {
-        if(methodDeclaration.getAsync() != null){
-            js_fw.write(methodDeclaration.getAsync() + " ");
-        }
-        if(methodDeclaration.getStatic_() != null){
-            js_fw.write(methodDeclaration.getStatic_() + " ");
-        }
-        js_fw.write(methodDeclaration.getIdentifier() );
-        js_fw.write( "(");
-        if(methodDeclaration.getParameterList() != null){
-            generate(methodDeclaration.getParameterList());
-        }
-        js_fw.write(")");
-        js_fw.write( "{");
-        for(MethodBody methodBody : methodDeclaration.getMethodBody()){
-            generate(methodBody);
-        }
-        js_fw.write("}");
-    }
-
-    private void  generate(ParameterList pl) throws IOException {
-        // in Js there is no need for dataType so there is just identifier
-        if (pl.getParameters() != null) {
-            List<Parameter> parameters = pl.getParameters();
-            for (int i = 0; i < parameters.size(); i++) {
-                js_fw.write(parameters.get(i).getIdentifier()); // your own method to generate a parameter
-                if (i < parameters.size() - 1) {
-                    js_fw.write(","); // write comma between parameters
-                }
-            }
-        }
-        if (pl.getIdentifiers() != null) {
-            List<String> identifiers = pl.getIdentifiers();
-            for (int i = 0; i < identifiers.size(); i++) {
-                js_fw.write(identifiers.get(i));
-                if (i < identifiers.size() - 1) {
-                    js_fw.write(",");
-                }
-            }
-        } else {
-            js_fw.write("");
-            // Empty parameter list
-        }
-
-
-    }
-    private void  generate(MethodBody mp) throws IOException {
-        if (mp instanceof ReturnStatement) {
-            generate((ReturnStatement) mp);
-        }
-        else if (mp instanceof CommonStatement) {
-            generate((CommonStatement) mp);
-        } else if (mp instanceof MethodBodyProperty) {
-            generate((MethodBodyProperty) mp);
-        } else if (mp instanceof PropertyCall) {
-            generate(mp) ;
-            js_fw.write(";");
-        }
-    }
-
-    private void  generate(MethodBodyProperty methodP) throws IOException {
-        if(methodP instanceof LocalVariableDeclaration){
-            generate((LocalVariableDeclaration) methodP);
-            js_fw.write(";");
-        } else {
-            generate((PropertyAssignment)methodP) ;
-            js_fw.write(";");
-        }
-    }
-
-    private void  generate(LocalVariableDeclaration lvd) throws IOException {
-        String keyWord = "" ;
-        if(lvd.getConst_() !=null){
-            keyWord = lvd.getConst_();
-        } else {
-            keyWord = lvd.getLet();
-        }
-        js_fw.write(keyWord + lvd.getIdentifier());
-        if (lvd.getAssigment() != null) {
-            js_fw.write(" = ");
-            js_fw.write(generate(lvd.getAssigment().getPropertyValue())+ ";");
-        }
-
-    }
-    private void  generate(PropertyAssignment propertyAssignment) throws IOException {
-
-    }
-
-    private void  generate(ReturnStatement returnStatement) throws IOException {
-        js_fw.write("return ");
-        String exp = null;
-        if(returnStatement.getExpression() != null){
-           exp = generate(returnStatement.getExpression());
-           js_fw.write(exp);
-        }
-        js_fw.write("; ");
-    }
-    private void  generate(CommonStatement cs) throws IOException {
-//        : printStatement
-//                | conditionalStatement
-//                | switchStatement
-//                | forStatement
-//                | whileStatement
-//                | doWhileStatement
-//        ;
-       if(cs instanceof ConditionalStatement){
-           generate((ConditionalStatement) cs);
-       }
-    }
-    private void  generate(ConditionalStatement conditionalS) throws IOException {
-        js_fw.write("if (");
-        generate(conditionalS.getExpression());
-        js_fw.write(")");
-        generate(conditionalS.getBlock());
-
-        if(conditionalS.getElseIfStmt() != null){
-            for(ElseIfStatement elseIfStatement : conditionalS.getElseIfStmt()){
-                generate(elseIfStatement) ;
-            }
-        }
-        if(conditionalS.getElseStatement() != null){
-           generate(conditionalS.getElseStatement());
-        }
-
-
-    }
-    private void  generate(Block block) throws IOException {
-
-    }
-    private void  generate(ElseIfStatement elseIfStatement) throws IOException {
-        js_fw.write("else if (");
-        generate(elseIfStatement.getExpression());
-        js_fw.write(")");
-        generate(elseIfStatement.getBlock());
-    }
-    private void  generate(ElseStatement elseStatement) throws IOException {
-        js_fw.write("else ");
-        generate(elseStatement.getBlock());
-    }
-
-
     // ServiceBlock Section
     private void generate(ServiceBlock service) throws IOException {
         js_fw.write(currentSpace + "<!-- Service Block -->\n");
-
     }
 
     private void generate(InterfaceDeclaration iface) throws IOException {
         js_fw.write(currentSpace + "<!-- Interface Declaration: " + iface.getIdentifier() + " -->\n");
     }
+
+    //=================== generate js (inner html) =========== // alaa
+    private void generateJsInnerHtml(HtmlElement htmlElement) throws IOException {
+
+        String idValue = getIdValueFromHtmlElement(htmlElement);
+        String jsConst = componentMap.get(currentComponent).getConstFromId(idValue);
+        String list = Objects.requireNonNull(splitNgFor(htmlElement))[3].replace("$","");
+        String mapvar = "p";
+
+        js_fw.write("function render"+idValue+"() {\n");
+//        System.out.println("list= "+list);
+
+        js_fw.write(jsConst+".innerHTML = state."+list+ ".map("+mapvar+"=>`\n"); // complete
+        //gen inner html
+        if (htmlElement.getHtmlContentBody() != null) {
+            for (HtmlContentBody htmlContentBody : htmlElement.getHtmlContentBody()) {
+                generateJs(htmlContentBody);
+            }
+        }
+        //alaa
+        js_fw.write("`).join('');\n");
+        js_fw.write("}\n");
+    }
+
+    private void generateJs(HtmlElement htmlElement) throws IOException {
+        js_fw.write("\n");
+        if (htmlElement.getSelfClosingTag() != null) {
+            generateJs(htmlElement.getSelfClosingTag()); //done
+        } else {
+            generateJs(htmlElement.getOpenTag());
+
+            if (htmlElement.getHtmlContentBody() != null) {
+                for (HtmlContentBody htmlContentBody : htmlElement.getHtmlContentBody()) {
+                    generateJs(htmlContentBody);
+                }
+            }
+            js_fw.write("\n");
+            generateJs(htmlElement.getCloseTag());
+        }
+    }
+
+    private void generateJs(OpenTag openTag) throws IOException {
+        js_fw.write("<" + openTag.getIdentifier());
+
+        if (openTag.getHtmlAttributeArray() != null) {
+            for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
+                if (htmlAttribute instanceof BasicAttribute ){
+                    generateJs((BasicAttribute) htmlAttribute);
+                } else if (htmlAttribute instanceof ObjectExpression ){
+                    generateJs((ObjectExpression) htmlAttribute);
+                } else if (htmlAttribute instanceof ActionAttribute) {
+                  // no need
+               }
+            }
+        }
+        js_fw.write(">");
+    }
+
+    // Generates a self-closing tag
+    private void generateJs(SelfClosingTag selfClosingTag) throws IOException {
+        js_fw.write( "<" + selfClosingTag.getIdentifier());
+
+        for (HtmlAttribute htmlAttribute : selfClosingTag.getHtmlAttributes()) {
+           if (htmlAttribute instanceof ImageAttribute) {
+                generateJs((ImageAttribute) htmlAttribute);
+            }
+        }
+
+        js_fw.write(" />");
+    }
+
+    private void generateJs(ImageAttribute imageAttribute) throws IOException {
+      js_fw.write(" " + imageAttribute.getImageSrc()+"="
+                    +imageAttribute.getStringLiteral()); // stringLiteral need fix
+    }
+
+    // Generates a standard basic attribute
+    private void generateJs(BasicAttribute basicAttribute) throws IOException {
+        String key = basicAttribute.getIdentifier() != null ?
+                basicAttribute.getIdentifier() :
+                basicAttribute.getC_lass();
+        String value= basicAttribute.getStringLiteral();
+        String withoutQuotes = value.replace("\"", "");
+
+        js_fw.write(" " + key + "=\"" + withoutQuotes + "\"");
+
+    }
+    private void generateJs(HtmlBinding htmlBinding) throws IOException {
+
+    }
+
+    // Generates a close tag
+    private void generateJs(CloseTag closeTag) throws IOException {
+        js_fw.write( "</" + closeTag.getCloseTagName() + ">");
+    }
+    private void generateJs(HtmlContentBody htmlContentBody) throws IOException {
+        if (htmlContentBody.getHtmlIdentifier() != null) {
+            js_fw.write( " " + htmlContentBody.getHtmlIdentifier() );
+
+        } else if (htmlContentBody.getHtmlElement() != null) {
+            generateJs(htmlContentBody.getHtmlElement());
+
+        } else if (htmlContentBody.getObjectExpression() != null) {
+            // Correctly handle the {{ expression }} syntax
+            generateJs(htmlContentBody.getObjectExpression());
+        }
+    }
+
+    private void generateJs(ObjectExpression objectExpression) throws IOException {
+        PropertyValue propertyValue = objectExpression.getPropertyValue();
+        if (propertyValue instanceof PropertyCall) {
+            // Output the identifier as plain text
+            js_fw.write("${");
+            generateJs((PropertyCall)propertyValue);
+            js_fw.write("}");
+        }
+    }
+    private void generateJs(PropertyCall propertyCall) throws IOException {
+        if (propertyCall instanceof SimplePropertyCall) {
+            // handle "this" later
+            for (String id: ((SimplePropertyCall) propertyCall).getIdentifiers()) {
+                js_fw.write("."+id);
+            }
+        }else if(propertyCall instanceof MethodCall){
+            // later
+        }
+    }
+    private void generateJsDomElements() throws IOException {
+        componentMap.forEach((key, component) -> { // alaa - new
+            component.getDomElements().forEach(domElement -> {
+                try {
+                    js_fw.write("const " + domElement.getConstant() +
+                            " = document.getElementById('" + domElement.getId() + "');\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+        });
+    }
+
 }
