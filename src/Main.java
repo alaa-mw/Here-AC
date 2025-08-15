@@ -4,7 +4,7 @@ import Grammer.AngularParser;
 import SemanticCheck.SemanticError;
 import SymbolTable.InterfaceMissing.SymbolTable;
 import Visitor.BaseVisitor;
-import Visitor.Generation;
+import Generation.Generation;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;

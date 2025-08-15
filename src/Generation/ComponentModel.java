@@ -1,0 +1,241 @@
+package Generation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+public class ComponentModel {
+    // class
+    private List<String> attributes = new ArrayList<>();
+    private String ngOnInit;
+    private List<ComponentFunction> functions = new ArrayList<>();;
+    // component
+    private String render;
+    private List<DomElement> domElements = new ArrayList<>();
+    private List<ComponentEvent> events = new ArrayList<>();
+
+    // Getters and setters
+
+
+    public List<String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<String> attributes) {
+        this.attributes = attributes;
+    }
+
+    public String getNgOnInit() {
+        return ngOnInit;
+    }
+
+    public void setNgOnInit(String ngOnInit) {
+        this.ngOnInit = ngOnInit;
+    }
+
+    public List<ComponentFunction> getFunctions() {
+        return functions;
+    }
+
+    public void setFunctions(List<ComponentFunction> functions) {
+        this.functions = functions;
+    }
+
+    public String getRender() {
+        return render;
+    }
+
+    public void setRender(String render) {
+        this.render = render;
+    }
+
+    public List<DomElement> getDomElements() {
+        return domElements;
+    }
+
+    public void setDomElements(List<DomElement> domElements) {
+        this.domElements = domElements;
+    }
+
+    public List<ComponentEvent> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<ComponentEvent> events) {
+        this.events = events;
+    }
+
+    public String getConstFromId(String id){
+        for (DomElement d: domElements) {
+            if(Objects.equals(d.getId(), id))
+                return d.getConstant();
+        }
+        return null;
+    }
+    @Override
+    public String toString() {
+        return "ComponentModel{" +
+                "attributes=" + attributes +'\n' +
+                ", ngOnInit='" + ngOnInit +'\''+'\n' +
+                ", functions=" + functions +'\n' +
+                ", render='" + render +'\''+'\n' +
+                ", domElements=" + domElements +'\n' +
+                ", events=" + events +'\n' +
+                '}'+'\n'+'\n';
+    }
+}
+
+
+class ComponentFunction {
+    private String name;
+    private String implement;
+
+    public ComponentFunction(String name, String implement) {
+        this.name = name;
+        this.implement = implement;
+    }
+
+    // Getters and setters
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getImplement() { return implement; }
+    public void setImplement(String implement) { this.implement = implement; }
+
+    @Override
+    public String toString() {
+        return "ComponentFunction{" +
+                "name='" + name + '\'' +
+                ", implement='" + implement + '\'' +
+                '}';
+    }
+}
+
+class DomElement {
+    private String constant;
+    private String id;
+
+    public DomElement(String constant, String id) {
+        this.constant = constant;
+        this.id = id;
+    }
+
+    // Getters and setters
+    public String getConstant() { return constant; }
+    public void setConstant(String constant) { this.constant = constant; }
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+
+    @Override
+    public String toString() {
+        return "DomElement{" +
+                "constant='" + constant + '\'' +
+                ", id='" + id + '\'' +
+                '}';
+    }
+}
+
+class ComponentEvent {
+    private String buttonFunction;
+    private String id;
+    private boolean dataId;
+
+    public ComponentEvent(String buttonFunction, String id, boolean dataId) {
+        this.buttonFunction = buttonFunction;
+        this.id = id;
+        this.dataId = dataId;
+    }
+
+    // Getters and setters
+    public String getButtonFunction() { return buttonFunction; }
+    public void setButtonFunction(String buttonFunction) { this.buttonFunction = buttonFunction; }
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public boolean isDataId() { return dataId; }
+    public void setDataId(boolean dataId) { this.dataId = dataId; }
+
+    @Override
+    public String toString() {
+        return "ComponentEvent{" +
+                "buttonFunction='" + buttonFunction + '\'' +
+                ", id='" + id + '\'' +
+                ", dataId=" + dataId +
+                '}';
+    }
+}
+
+/* for imagine
+{
+[key]>> "ProductListComponent": {
+
+        "attributes":["products$"],
+        "ngOnInit":null,
+        "functions":[
+        {
+        "name":"goToDetails",
+        "implement":"handleRoute(`/product/${id}`);"
+        },
+        {
+        "name":"deleteProduct",
+        "implement":"state.deleteProduct(id);\nhandleRoute('/'); "
+        },
+        {
+        "name":"editProduct",
+        "implement":"handleRoute(`/edit/${id}`);"
+        }
+        ],
+
+        "render":"renderList",
+        "domElements":[
+        {"const":"listSection","id":"product-list-section"}
+        ],
+        "events":[
+        {"buttonFunction":"goToDetails", "id":"details-btn", "data-id":true},
+        {"buttonFunction":"editProduct", "id":"edit-btn", "data-id":true},
+        {"buttonFunction":"deleteProduct", "id":"delete-btn", "data-id":true}
+        ]
+        },
+        "AddProductComponent":{
+
+        "attributes":["formProduct","editingId"],
+        "ngOnInit":"ngOninitForm",
+        "functions":[
+        {
+        "name":"onSubmit",
+        "implement":" e.preventDefault();\nconsole.log(formProduct)\nif (editingId) {\nstate.updateProduct({\nid: editingId,\n...formProduct\n});\n} else {\nstate.addProduct(formProduct);\n}\nhandleRoute('/');"},
+        {
+        "name":"cancel",
+        "implement":" e.preventDefault();\nhandleRoute('/');"
+        }
+        ],
+
+        "render":"renderForm",
+        "domElements":[
+        {"const":"formSection","id":"add-edit-product-section"},
+        {"const":"form","id":"product-form"}
+        ],
+        "events":[
+        {"buttonFunction":"onSubmit", "id":"submit", "data-id":false},
+        {"buttonFunction":"cancel", "id":"cancel", "data-id":false}
+        ]
+        },
+
+        "ProductDetailsComponent":{
+
+        "attributes":["selectedProduct"],
+        "ngOnInit":"ngOnInitDetails",
+        "functions":[],
+
+        "render":"renderDetails",
+        "domElements":[
+        {"const":"detailsSection","id":"product-details-section"}
+        ],
+        "events":[]
+        }
+        }
+        */

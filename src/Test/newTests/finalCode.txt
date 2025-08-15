@@ -2,16 +2,6 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule,  Router } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
-
-import { Routes } from '@angular/router';
-import {   ProductDetailsComponent, ProductListComponent } from './app_components';
-import { AddProductComponent } from './app_components';
 
 @Component({
   selector: 'app-root',
@@ -19,8 +9,8 @@ import { AddProductComponent } from './app_components';
   imports: [CommonModule, RouterModule],
   template: `
     <nav>
-      <a routerLink="/" routerLinkActive="active">Product List</a>
-      <a routerLink="/add" routerLinkActive="active">Add Product</a>
+      <a id="nav-list" routerLink="/" routerLinkActive="active">Product List</a>
+      <a id="nav-add" routerLink="/add" routerLinkActive="active">Add Product</a>
     </nav>
     <router-outlet></router-outlet>
   `,
@@ -31,26 +21,29 @@ import { AddProductComponent } from './app_components';
       padding: 20px;
       background-color: #f5f5f5;
       border-bottom: 1px solid #ddd;
+      cursor: pointer;
     }
     nav a {
-      text-decoration: none;
-      color: #333;
-      font-weight: bold;
-      padding: 5px 10px;
-      border-radius: 4px;
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 4px;
     }
     nav a.active {
-      background-color: #4CAF50;
-      color: white;
+        background-color: #4CAF50;
+        color: white;
     }
   `],
 })
 export class AppComponent {}
-
-
-
-//=========================
-
+//==========================================
+import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule,  Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 
 // Product Interface
 interface Product {
@@ -65,9 +58,6 @@ interface Product {
 export class ProductState {
   private productsSubject = new BehaviorSubject<Product[]>([]);
   products$ = this.productsSubject.asObservable();
-
-  private selectedProductSubject = new BehaviorSubject<Product | null>(null);
-  selectedProduct$ = this.selectedProductSubject.asObservable();
 
   constructor() {
     this.initProducts();
@@ -97,35 +87,25 @@ export class ProductState {
     this.productsSubject.next(initialProducts);
   }
 
-  selectProduct(product: Product): void {
-    this.selectedProductSubject.next(product);
-  }
-
   addProduct(product: any): void {
     const newProduct: Product = {
       ...product,
       id: Math.random().toString(36).substring(2, 9),
     };
-    const updatedProducts = [...this.productsSubject.value, newProduct];
-    this.productsSubject.next(updatedProducts);
+    this.productsSubject.next([...this.productsSubject.value, newProduct]);
   }
 
   deleteProduct(id: string): void {
-  const updatedProducts = this.productsSubject.value.filter(p => p.id !== id);
-  this.productsSubject.next(updatedProducts);
-  // Clear selected product if it was deleted
-  if (this.selectedProductSubject.value?.id === id) {
-    this.selectedProductSubject.next(null);
+    const updatedProducts = this.productsSubject.value.filter(p => p.id !== id);
+    this.productsSubject.next(updatedProducts);
   }
-}
 
-updateProduct(updatedProduct: Product): void {
-  const updatedProducts = this.productsSubject.value.map(product =>
-    product.id === updatedProduct.id ? updatedProduct : product
-  );
-  this.productsSubject.next(updatedProducts);
-  this.selectedProductSubject.next(updatedProduct); // optional: update details view
-}
+  updateProduct(updatedProduct: Product): void {
+    const updatedProducts = this.productsSubject.value.map(product =>
+      product.id === updatedProduct.id ? updatedProduct : product
+    );
+    this.productsSubject.next(updatedProducts);
+  }
 
 }
 
@@ -135,145 +115,104 @@ updateProduct(updatedProduct: Product): void {
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="products-container">
-      <div class="product-list">
+      <div class="product-list" id ="product-list-section" >
         <h1>Product List</h1>
         <div
-  class="product-item"
-  *ngFor="let product of products$ | async"
-  (click)="goToDetails(product.id)"
-
->
-  <h3>{{ product.name }}</h3>
-  <div class="product-content">
-    <img [src]="product.image" alt="Product Image" />
-    <div class="product-actions">
-      <button (click)="editProduct($event, product)">Edit</button>
-      <button (click)="deleteProduct($event, product.id)">Delete</button>
-    </div>
-  </div>
-</div>
-      </div>
-      <div class="detailsSide">
-        <h1>Product Details</h1>
-        <div class="product-details">
-          <ng-container *ngIf="selectedProduct$ | async as selectedProduct; else noProduct">
-            <h2>{{ selectedProduct.name }}</h2>
-            <p>{{ selectedProduct.desc }}</p>
-            <img [src]="selectedProduct.image" alt="Product Image" />
-          </ng-container>
-          <ng-template #noProduct>
-            <h2>Select a product to view details</h2>
-          </ng-template>
+        class="product-item"
+        id="product-item"
+        *ngFor="let product of this.products$ | async"
+        >
+          <h3>{{ product.name }}</h3>
+          <div class="product-content">
+            <img [src]="product.image" alt="Product Image" />
+            <div class="product-actions">
+              <button id="details-btn" (click)="goToDetails(product.id)">Details</button>
+              <button id="edit-btn"  (click)="editProduct($event, product.id)">Edit</button>
+              <button id="delete-btn"  (click)="deleteProduct($event, product.id)">Delete</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
   `,
   styles: [`
-    .products-container {
-      display: flex;
-      gap: 20px;
-      padding: 20px;
-    }
     .product-list {
-      flex: 1;
-      max-width: 40%;
+    flex: 1;
+    padding: 12px;
+    max-width: 40%;
     }
     .product-item {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background-color 0.3s;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
     }
     .product-item:hover {
-      background-color: #f5f5f5;
+    background-color: #f5f5f5;
     }
     .product-item img {
-      max-width: 100px;
-      max-height: 100px;
-      display: block;
-      margin-top: 10px;
+    max-width: 100px;
+    max-height: 100px;
+    display: block;
+    margin-top: 10px;
     }
-    .detailsSide {
-      flex: 1;
-      padding: 0 20px;
-    }
-    .product-details {
-      border: 1px solid #ddd;
-      padding: 20px;
-      border-radius: 5px;
-    }
-    .product-details img {
-      max-width: 200px;
-      max-height: 200px;
-      margin-top: 15px;
 
-    }
     .product-content {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-top: 10px;
-}
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    }
 
-.product-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-left: 300px;
-}
+    .product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 300px;
+    }
 
-.product-actions button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 5px;
-  border: none;
-  transition: background-color 0.3s;
-}
+    .product-actions button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s;
+    }
 
-.product-actions button:first-child {
-  background-color: #82bbf5ff;
-  color: white;
-}
+    .product-actions button:first-child {
+    background-color: #82bbf5;
+    color: white;
+    }
 
-.product-actions button:last-child {
-  background-color: #f77777ff;
-  color: white;
-}
+    .product-actions button:last-child {
+    background-color: #f77777;
+    color: white;
+    }
   `],
 })
 export class ProductListComponent {
   products$;
-  selectedProduct$;
 
   constructor(private productState: ProductState,private router: Router ) {
     this.products$ = this.productState.products$;
-    this.selectedProduct$ = this.productState.selectedProduct$;
-
   }
 
   goToDetails(id: string): void {
   this.router.navigate(['/product', id]);
-}
+  }
 
-  // selectProduct(product: Product): void {
-  //   this.productState.selectProduct(product);
-  // }
 
   deleteProduct(event: Event, id: string): void {
   event.stopPropagation(); // منع تفعيل selectProduct
   this.productState.deleteProduct(id);
-}
+  this.router.navigate(['/']);
+  }
 
-editProduct(event: Event, product: Product): void {
-  event.stopPropagation(); // منع تفعيل selectProduct
-  // يمكن استخدام selectProduct لإعادة تعبئة النموذج
-  this.productState.selectProduct(product);
-  this.router.navigate(['/edit', product.id]);
-}
+  editProduct(event: Event, id: string): void {
+    event.stopPropagation(); // منع تفعيل selectProduct
+    this.router.navigate(['/edit', id]); // *
+  }
 
 }
 @Component({
@@ -281,18 +220,31 @@ editProduct(event: Event, product: Product): void {
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div *ngIf="product; else notFound">
-      <h1>{{ product.name }}</h1>
-      <p>{{ product.desc }}</p>
-      <img [src]="product.image" alt="Product Image" width="300" />
+    <div class="product-details" id="product-details-section" *ngIf="selectedProduct; else notFound">
+      <h1>{{ selectedProduct.name }}</h1>
+      <p>{{ selectedProduct.desc }}</p>
+      <img [src]="selectedProduct.image" alt="Product Image" width="300" />
     </div>
     <ng-template #notFound>
       <p>Product not found</p>
     </ng-template>
   `,
+  styles:`
+    .product-details {
+    display: block;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 5px;
+    }
+    .product-details img {
+    max-width: 200px;
+    max-height: 200px;
+    margin-top: 15px;
+
+    }`,
 })
 export class ProductDetailsComponent implements OnInit {
-  product: Product | undefined;
+  selectedProduct: Product | undefined;
 
   constructor(
     private route: ActivatedRoute,
@@ -304,7 +256,7 @@ export class ProductDetailsComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       const found = this.productState.products$.subscribe(products => {
-        this.product = products.find(p => p.id === id);
+        this.selectedProduct = products.find(p => p.id === id);
       });
     }
   }
@@ -315,23 +267,23 @@ export class ProductDetailsComponent implements OnInit {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="add-product-form">
-      <h2>Add New Product</h2>
-      <form (ngSubmit)="onSubmit()">
+    <div class="add-product-form" id="add-edit-product-section">
+      <h2>Product Form</h2>
+      <form (ngSubmit)="onSubmit()"  id="product-form">
         <div>
           <label>Name</label>
-          <input [(ngModel)]="newProduct.name" name="name" required/>
+          <input [(ngModel)]="formProduct.name" name="name" required />
         </div>
         <div>
           <label>Description</label>
-          <textarea [(ngModel)]="newProduct.desc" name="desc" required></textarea>
+          <input [(ngModel)]="formProduct.desc" name="desc" required/>
         </div>
         <div>
           <label>Image URL</label>
-          <input [(ngModel)]="newProduct.image" name="image" required/>
+          <input [(ngModel)]="formProduct.image" name="image" required />
         </div>
-        <button type="submit">{{ editingId ? 'Edit Product' : 'Add Product' }}</button>
-        <button type="button" (click)="cancel()">Cancel</button>
+        <button id="submit" type="submit" >{{ editingId ? 'Edit Product' : 'Add Product' }}</button>
+        <button id="cancel" type="button" (click)="cancel()"  >Cancel</button>
       </form>
     </div>
   `,
@@ -369,7 +321,7 @@ export class ProductDetailsComponent implements OnInit {
   `],
 })
 export class AddProductComponent implements OnInit {
-  newProduct: any = { name: '', desc: '', image: '' };
+  formProduct: any = { name: '', desc: '', image: '' };
   editingId: string | null = null;
 
   constructor(
@@ -378,7 +330,7 @@ export class AddProductComponent implements OnInit {
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void { //***
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -386,7 +338,7 @@ export class AddProductComponent implements OnInit {
         this.productState.products$.subscribe(products => {
           const existingProduct = products.find(p => p.id === id);
           if (existingProduct) {
-            this.newProduct = {
+            this.formProduct = {
               name: existingProduct.name,
               desc: existingProduct.desc,
               image: existingProduct.image
@@ -401,10 +353,10 @@ export class AddProductComponent implements OnInit {
     if (this.editingId) {
       this.productState.updateProduct({
         id: this.editingId,
-        ...this.newProduct
+        ...this.formProduct
       });
     } else {
-      this.productState.addProduct(this.newProduct);
+      this.productState.addProduct(this.formProduct);
     }
 
     this.router.navigate(['/']);
@@ -414,8 +366,10 @@ export class AddProductComponent implements OnInit {
     this.router.navigate(['/']);
   }
 }
-
-//===========================
+//=================================
+import { Routes } from '@angular/router';
+import {   ProductDetailsComponent, ProductListComponent } from './app_components';
+import { AddProductComponent } from './app_components';
 
 export const routes: Routes = [
   { path: '', component: ProductListComponent },

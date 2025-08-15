@@ -55,6 +55,7 @@ import SymbolTable.DuplicateAttributeSymbolTable ;
 import SymbolTable.ReadProperties.PropertySymbolTable;
 import SymbolTable.InterfaceMissing.SymbolTable;
 import Grammer.AngularParserBaseVisitor;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
@@ -2083,20 +2084,17 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public CssSelector visitCssSelector(AngularParser.CssSelectorContext ctx) {
         CssSelector cssSeletor = new CssSelector();
 
-        if(ctx.IDENTIFIER() != null && !ctx.isEmpty()){
-            for (int i=0 ; i< ctx.IDENTIFIER().size() ; i++) {
+        if(ctx.IDENTIFIER() != null && !ctx.isEmpty()) {
+            for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
                 if (ctx.IDENTIFIER(i) != null) {
                     cssSeletor.getSelectors().add(ctx.IDENTIFIER(i).getText());/* */
                 }
-                if (ctx.DOT(i) != null) {
-                    cssSeletor.getSymbol().add(ctx.DOT(i).getText());
-                }
-                else if (ctx.DOT_DOT(i) != null) {
-                    cssSeletor.getSymbol().add(ctx.DOT_DOT(i).getText());
-                } else{
-                    cssSeletor.getSymbol().add(" ");
-                }
             }
+        }
+
+        for (int i = 0; i < ctx.children.size(); i++) {
+            ParseTree child = ctx.children.get(i);
+            cssSeletor.getSymbol().add(child.getText());
         }
 
         if(ctx.attributeSelector() != null && !ctx.attributeSelector().isEmpty()){
