@@ -19,7 +19,7 @@ public  class TempFiller {
         productList.getFunctions().add(new ComponentFunction("editProduct", "handleRoute(`/edit/${id}`);"));
 
         productList.setRender("renderList");
-        productList.getDomElements().add( new DomElement("listSection", "product-list-section") );
+        productList.setDomElement( new DomElement("listSection", "product-list-section") );
 
         productList.getEvents().add(new ComponentEvent("goToDetails", "details-btn", true));
         productList.getEvents().add(new ComponentEvent("editProduct", "edit-btn", true));
@@ -40,8 +40,7 @@ public  class TempFiller {
         addProduct.getFunctions().add(new ComponentFunction("cancel", "e.preventDefault();\nhandleRoute('/');"));
 
         addProduct.setRender("renderForm");
-        addProduct.getDomElements().add(new DomElement("formSection", "add-edit-product-section"));
-        addProduct.getDomElements().add(new DomElement("form", "product-form"));
+        addProduct.setDomElement(new DomElement("formSection", "add-edit-product-section"));
 
         addProduct.getEvents().add(new ComponentEvent("onSubmit", "submit", false));
         addProduct.getEvents().add(new ComponentEvent("cancel", "cancel", false));
@@ -53,7 +52,7 @@ public  class TempFiller {
         productDetails.getAttributes().add("selectedProduct");
         productDetails.setNgOnInit("ngOnInitDetails");
         productDetails.setRender("renderDetails");
-        productDetails.getDomElements().add(new DomElement("detailsSection", "product-details-section"));
+        productDetails.setDomElement(new DomElement("detailsSection", "product-details-section"));
 
         map.put("ProductDetailsComponent", productDetails);
     }

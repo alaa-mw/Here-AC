@@ -12,7 +12,7 @@ public class ComponentModel {
     private List<ComponentFunction> functions = new ArrayList<>();;
     // component
     private String render;
-    private List<DomElement> domElements = new ArrayList<>();
+    private DomElement domElement ;
     private List<ComponentEvent> events = new ArrayList<>();
 
     // Getters and setters
@@ -50,12 +50,12 @@ public class ComponentModel {
         this.render = render;
     }
 
-    public List<DomElement> getDomElements() {
-        return domElements;
+    public DomElement getDomElement() {
+        return domElement;
     }
 
-    public void setDomElements(List<DomElement> domElements) {
-        this.domElements = domElements;
+    public void setDomElement(DomElement domElement) {
+        this.domElement = domElement;
     }
 
     public List<ComponentEvent> getEvents() {
@@ -66,13 +66,7 @@ public class ComponentModel {
         this.events = events;
     }
 
-    public String getConstFromId(String id){
-        for (DomElement d: domElements) {
-            if(Objects.equals(d.getId(), id))
-                return d.getConstant();
-        }
-        return null;
-    }
+
     @Override
     public String toString() {
         return "ComponentModel{" +
@@ -80,7 +74,7 @@ public class ComponentModel {
                 ", ngOnInit='" + ngOnInit +'\''+'\n' +
                 ", functions=" + functions +'\n' +
                 ", render='" + render +'\''+'\n' +
-                ", domElements=" + domElements +'\n' +
+                ", domElements=" + domElement +'\n' +
                 ", events=" + events +'\n' +
                 '}'+'\n'+'\n';
     }
@@ -191,9 +185,9 @@ class ComponentEvent {
         ],
 
         "render":"renderList",
-        "domElements":[
+        "domElement":
         {"const":"listSection","id":"product-list-section"}
-        ],
+        ,
         "events":[
         {"buttonFunction":"goToDetails", "id":"details-btn", "data-id":true},
         {"buttonFunction":"editProduct", "id":"edit-btn", "data-id":true},
@@ -215,10 +209,9 @@ class ComponentEvent {
         ],
 
         "render":"renderForm",
-        "domElements":[
+        "domElement":
         {"const":"formSection","id":"add-edit-product-section"},
-        {"const":"form","id":"product-form"}
-        ],
+
         "events":[
         {"buttonFunction":"onSubmit", "id":"submit", "data-id":false},
         {"buttonFunction":"cancel", "id":"cancel", "data-id":false}
@@ -232,9 +225,9 @@ class ComponentEvent {
         "functions":[],
 
         "render":"renderDetails",
-        "domElements":[
+        "domElement":
         {"const":"detailsSection","id":"product-details-section"}
-        ],
+        ,
         "events":[]
         }
         }

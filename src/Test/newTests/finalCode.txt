@@ -220,14 +220,16 @@ export class ProductListComponent {
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="product-details" id="product-details-section" *ngIf="selectedProduct; else notFound">
-      <h1>{{ selectedProduct.name }}</h1>
-      <p>{{ selectedProduct.desc }}</p>
-      <img [src]="selectedProduct.image" alt="Product Image" width="300" />
-    </div>
-    <ng-template #notFound>
-      <p>Product not found</p>
-    </ng-template>
+     <div class="product-details" id="product-details-section">
+        <div *ngIf="selectedProduct; else notFound">
+          <h1>{{ selectedProduct.name }}</h1>
+          <p>{{ selectedProduct.desc }}</p>
+          <img [src]="selectedProduct.image" alt="Product Image" width="300" />
+        </div>
+        <ng-template #notFound>
+          <p>Product not found</p>
+        </ng-template>
+      </div>
   `,
   styles:`
     .product-details {

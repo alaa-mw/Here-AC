@@ -35,6 +35,7 @@ import AST.Service.ServiceBlock;
 import AST.propertyCallClasses.PropertyCall;
 import AST.propertyCallClasses.PropertyWithMethodCall;
 import AST.propertyCallClasses.SimplePropertyCall;
+import org.antlr.v4.runtime.misc.Pair;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -73,7 +74,7 @@ public class Generation {
 
     String currentComponent = "ProductListComponent";
     public void generate(Program program) {
-        System.out.println(componentTempMap);
+//        System.out.println(componentTempMap);
         File dir = new File("src/Generation");
         if (!dir.exists()) {
             dir.mkdirs();
@@ -138,10 +139,11 @@ public class Generation {
 
     private void generateFooter() throws IOException {
         index_fw.write("\n</body>\n");
-        index_fw.write("<script src=\"script.js\"></script>4");
+        index_fw.write("<script src=\"script.js\"></script>\n");
         index_fw.write("</html>\n");
 
         generateJsDomElements(); // alaa
+        System.out.println(componentMap);
     }
 
     // ======================= our code gen =============================
@@ -183,9 +185,14 @@ public class Generation {
         if (htmlElement.getSelfClosingTag() != null) {
             generate(htmlElement.getSelfClosingTag());
         } else {
-             generate(htmlElement.getOpenTag());
-
-            if(!hasNgFor(htmlElement)) {
+            if(hasNgFor(htmlElement)){
+                generateJsInnerHtml(htmlElement);
+            } else if (hasNgIf(htmlElement)) {
+                generateJsInnerHtml(htmlElement);
+            } else if (hasEventBinding(htmlElement)) {
+                generateJsInnerHtml(htmlElement);
+            } else{
+                generate(htmlElement.getOpenTag());
                 // توليد المحتوى الداخلي إذا لم يكن هناك ngFor
                 if (htmlElement.getHtmlContentBody() != null) {
                     // Keep the same indentation for inner content
@@ -196,11 +203,8 @@ public class Generation {
                     }
                     currentSpace = savedSpace;
                 }
-            }else{
-                // هنا ترسل المحتوى إلى توليد جافاسكريبت (JS) بدلاً من توليد HTML
-                generateJsInnerHtml(htmlElement);
+                generate(htmlElement.getCloseTag());
             }
-            generate(htmlElement.getCloseTag());
         }
     }
 
@@ -210,18 +214,10 @@ public class Generation {
 
         if (openTag.getHtmlAttributeArray() != null) {
             for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
-                // Ignore Angular-specific directives like *ngFor and *ngIf
-                if (htmlAttribute instanceof NgFor || htmlAttribute instanceof NgIF) {
-                    // Do nothing, we handle dynamic content in JavaScript
-                } else if (htmlAttribute instanceof BasicAttribute) {
+                if (htmlAttribute instanceof BasicAttribute) {
                     generate((BasicAttribute) htmlAttribute);
-                } else if (htmlAttribute instanceof ActionAttribute) {
-                    // Convert Angular (click) to standard onclick
-                    generate((ActionAttribute) htmlAttribute);
                 } else if (htmlAttribute instanceof HtmlBinding) {
                     generate((HtmlBinding) htmlAttribute);
-                } else {
-                    // imageAttribute
                 }
             }
         }
@@ -268,15 +264,14 @@ public class Generation {
             if(componentMap.get(currentComponent) == null)
                 componentMap.put(currentComponent,new ComponentModel()); // note:  must be put before in class pass , delete later
 
-            componentMap.get(currentComponent).getDomElements().add( // alaa - new
-                    new DomElement(withoutQuotes.replaceAll("-", ""),withoutQuotes)
+            componentMap.get(currentComponent).setDomElement( // alaa - new
+                    new DomElement(convertKebabToCamel(withoutQuotes),withoutQuotes)
             );
+            System.out.println(componentMap.get(currentComponent).getDomElement());
         }
 
     }
-    private void generate(ActionAttribute actionAttribute) throws IOException {
-        //
-    }
+
     // Generates a property binding like [src] or [routerLink]
     private void generate(HtmlBinding htmlBinding) throws IOException {
 
@@ -961,28 +956,37 @@ public class Generation {
     //=================== generate js (inner html) =========== // alaa
     private void generateJsInnerHtml(HtmlElement htmlElement) throws IOException {
 
-        String idValue = getIdValueFromHtmlElement(htmlElement);
-        String jsConst = componentMap.get(currentComponent).getConstFromId(idValue);
-        String list = Objects.requireNonNull(splitNgFor(htmlElement))[3].replace("$","");
-        String mapvar = "p";
+        String jsConst = componentMap.get(currentComponent).getDomElement().getConstant();
+        String render = "render"+jsConst;
+        componentMap.get(currentComponent).setRender(render);
+        js_fw.write("function "+render+"() {\n");
 
-        js_fw.write("function render"+idValue+"() {\n");
-//        System.out.println("list= "+list);
+        js_fw.write("const template = \n");
 
-        js_fw.write(jsConst+".innerHTML = state."+list+ ".map("+mapvar+"=>`\n"); // complete
-        //gen inner html
-        if (htmlElement.getHtmlContentBody() != null) {
-            for (HtmlContentBody htmlContentBody : htmlElement.getHtmlContentBody()) {
-                generateJs(htmlContentBody);
-            }
-        }
-        //alaa
-        js_fw.write("`).join('');\n");
+        generateJsInnerShape(htmlElement);
+
+        js_fw.write(jsConst+".innerHTML = template;\n");
         js_fw.write("}\n");
     }
 
+    public void generateJsInnerShape(HtmlElement htmlElement) throws IOException { // alaa
+        if(hasNgFor(htmlElement)){
+            js_fw.write("state.products.map(product => `\n"); // handle later
+            generateJs(htmlElement);
+            js_fw.write("`).join('');\n");
+
+        } else if (hasNgIf(htmlElement)) {
+            js_fw.write("selectedProduct \n" + "? `");  // handle later
+            generateJs(htmlElement);
+            js_fw.write(": `<p>Product not found</p>`;\n");
+        }else {
+            js_fw.write("`\n");
+            generateJs(htmlElement);
+            js_fw.write("`;\n");
+        }
+    }
     private void generateJs(HtmlElement htmlElement) throws IOException {
-        js_fw.write("\n");
+
         if (htmlElement.getSelfClosingTag() != null) {
             generateJs(htmlElement.getSelfClosingTag()); //done
         } else {
@@ -1004,15 +1008,19 @@ public class Generation {
         if (openTag.getHtmlAttributeArray() != null) {
             for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
                 if (htmlAttribute instanceof BasicAttribute ){
+                    if(openTag.getIdentifier() =="button")
+                        generateJsEvent((BasicAttribute) htmlAttribute ,openTag.getIdentifier());
                     generateJs((BasicAttribute) htmlAttribute);
+
                 } else if (htmlAttribute instanceof ObjectExpression ){
                     generateJs((ObjectExpression) htmlAttribute);
+
                 } else if (htmlAttribute instanceof ActionAttribute) {
-                  // no need
+                    generateJs((ActionAttribute) htmlAttribute);
                }
             }
         }
-        js_fw.write(">");
+        js_fw.write(">\n");
     }
 
     // Generates a self-closing tag
@@ -1025,15 +1033,9 @@ public class Generation {
             }
         }
 
-        js_fw.write(" />");
+        js_fw.write(" />\n");
     }
 
-    private void generateJs(ImageAttribute imageAttribute) throws IOException {
-      js_fw.write(" " + imageAttribute.getImageSrc()+"="
-                    +imageAttribute.getStringLiteral()); // stringLiteral need fix
-    }
-
-    // Generates a standard basic attribute
     private void generateJs(BasicAttribute basicAttribute) throws IOException {
         String key = basicAttribute.getIdentifier() != null ?
                 basicAttribute.getIdentifier() :
@@ -1041,16 +1043,44 @@ public class Generation {
         String value= basicAttribute.getStringLiteral();
         String withoutQuotes = value.replace("\"", "");
 
-        js_fw.write(" " + key + "=\"" + withoutQuotes + "\"");
+        js_fw.write(" " + key + "=\"" + withoutQuotes + "\" ");
 
     }
+
+    public void generateJsEvent(BasicAttribute basicAttribute, String tagName) throws IOException {
+        String key = basicAttribute.getIdentifier() != null ?
+                basicAttribute.getIdentifier() :
+                basicAttribute.getC_lass();
+        String value= basicAttribute.getStringLiteral();
+        String withoutQuotes = value.replace("\"", "");
+
+        js_fw.write(" " + key + "=\"" + withoutQuotes + "\" ");
+        if ("id".equals(key) ) {
+            componentMap.get(currentComponent).getEvents().add(new ComponentEvent(tagName,key,true));
+        }
+    }
+    private void generateJs(ImageAttribute imageAttribute) throws IOException {
+      js_fw.write(" " +
+              imageAttribute.getImageSrc()
+              +"= \"${"
+              +imageAttribute.getStringLiteral().replace("\"", "")
+              +"}\" ");
+    }
+
+    private void generateJs(ActionAttribute actionAttribute) throws IOException {
+        Pair<String, List<String>> result= parseMethodCall(actionAttribute.getStringLiteral().replace("\"", ""));
+        if(!result.b.isEmpty())
+            js_fw.write("data-id=\"${"+ result.b.get(result.b.size() - 1) + "}\" ");
+    }
+    // Generates a standard basic attribute
+
     private void generateJs(HtmlBinding htmlBinding) throws IOException {
 
     }
 
     // Generates a close tag
     private void generateJs(CloseTag closeTag) throws IOException {
-        js_fw.write( "</" + closeTag.getCloseTagName() + ">");
+        js_fw.write( "</" + closeTag.getCloseTagName() + ">\n");
     }
     private void generateJs(HtmlContentBody htmlContentBody) throws IOException {
         if (htmlContentBody.getHtmlIdentifier() != null) {
@@ -1075,10 +1105,13 @@ public class Generation {
         }
     }
     private void generateJs(PropertyCall propertyCall) throws IOException {
+        boolean first = true;
         if (propertyCall instanceof SimplePropertyCall) {
             // handle "this" later
             for (String id: ((SimplePropertyCall) propertyCall).getIdentifiers()) {
-                js_fw.write("."+id);
+                if (!first) js_fw.write(".");
+                js_fw.write(id);
+                first=false;
             }
         }else if(propertyCall instanceof MethodCall){
             // later
@@ -1086,15 +1119,12 @@ public class Generation {
     }
     private void generateJsDomElements() throws IOException {
         componentMap.forEach((key, component) -> { // alaa - new
-            component.getDomElements().forEach(domElement -> {
                 try {
-                    js_fw.write("const " + domElement.getConstant() +
-                            " = document.getElementById('" + domElement.getId() + "');\n");
+                    js_fw.write("const " + component.getDomElement().getConstant() +
+                            " = document.getElementById('" + component.getDomElement().getId() + "');\n");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
-            });
         });
     }
 

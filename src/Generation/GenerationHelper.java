@@ -1,6 +1,14 @@
 package Generation;
 
 import AST.HTML.*;
+import org.antlr.v4.runtime.misc.Pair;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GenerationHelper {
 
@@ -16,6 +24,26 @@ public class GenerationHelper {
         return false;
     }
 
+    public static boolean hasNgIf(HtmlElement htmlElement){
+        if (htmlElement.getOpenTag() != null && htmlElement.getOpenTag().getHtmlAttributeArray() != null) {
+            for (HtmlAttribute attr : htmlElement.getOpenTag().getHtmlAttributeArray()) {
+                if (attr instanceof NgIF) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    public static boolean hasEventBinding(HtmlElement htmlElement){
+        if (htmlElement.getOpenTag() != null && htmlElement.getOpenTag().getHtmlAttributeArray() != null) {
+            for (HtmlAttribute attr : htmlElement.getOpenTag().getHtmlAttributeArray()) {
+                if (attr instanceof EventBinding) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     public static String getIdValueFromHtmlElement(HtmlElement htmlElement) {
         OpenTag openTag = htmlElement.getOpenTag();
 
@@ -57,5 +85,44 @@ public class GenerationHelper {
         }
         return null;
     }
+
+    public static String convertKebabToCamel(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+
+        String[] parts = str.split("-");
+        return parts[0] + Arrays.stream(parts)
+                .skip(1)
+                .map(part -> part.substring(0, 1).toUpperCase() + part.substring(1))
+                .collect(Collectors.joining());
+    }
+
+    public static Pair<String, List<String>> parseMethodCall(String methodCall) {
+        // Regex to match method name and parameters
+        System.out.println(methodCall);//"goToDetails(product.id)"
+        Pattern pattern = Pattern.compile("^(\\w+)\\(([^)]*)\\)$");
+        Matcher matcher = pattern.matcher(methodCall.trim());
+
+        if (matcher.find()) {
+            String methodName = matcher.group(1);  // e.g., "goToDetails"
+            String paramsStr = matcher.group(2);   // e.g., "$event, product.id"
+
+            // Split parameters (handle empty case)
+            List<String> params = new ArrayList<>();
+            if (!paramsStr.isEmpty()) {
+                String[] parts = paramsStr.split("\\s*,\\s*");  // Split by comma + optional whitespace
+                for (String param : parts) {
+                    params.add(param.trim());
+                }
+            }
+
+            return new Pair<>(methodName, params);
+        } else {
+            throw new IllegalArgumentException("Invalid method call format: " + methodCall); // but return exception
+        }
+    }
+
+
 
 }

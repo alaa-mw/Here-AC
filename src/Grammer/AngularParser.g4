@@ -106,6 +106,8 @@ ngIF : STAR NG_IF EQ STRING_LITERAL ;
 imageAttribute : OPEN_SQUARE_BRACKET? IMAGE_SRC CLOSE_SQUARE_BRACKET? EQ STRING_LITERAL basicAttribute* ;
 actionAttribute : OPEN_BRACKET CLICK CLOSE_BRACKET EQ STRING_LITERAL ;
 
+
+
 htmlBinding : HASH IDENTIFIER                                                         #TemplateRef      // new ✅
             | OPEN_BRACKET IDENTIFIER CLOSE_BRACKET EQ STRING_LITERAL                 #EventBinding     // new ✅
             | OPEN_SQUARE_BRACKET IDENTIFIER CLOSE_SQUARE_BRACKET EQ STRING_LITERAL   #PropertyBinding  // new ✅
