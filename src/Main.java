@@ -8,7 +8,6 @@ import Visitor.Generation;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-
 import java.io.IOException;
 import java.util.Scanner;
 import static org.antlr.v4.runtime.CharStreams.fromFileName;
@@ -22,15 +21,16 @@ public class Main {
         int input = Integer.parseInt(scanner.nextLine().trim());
 
         String source = getSource(input);
-
+        // AST visit and print
         CharStream cs = fromFileName(source);
         AngularLexer lexer = new AngularLexer(cs);
         CommonTokenStream token = new CommonTokenStream(lexer);
         AngularParser parser = new AngularParser(token);
         ParseTree tree = parser.program();
         Program doc = (Program) new BaseVisitor().visit(tree);
-        System.out.println(doc);
+        //System.out.println(doc);
 
+        // Semantic check
         BaseVisitor visitor = new BaseVisitor();
         visitor.visit(tree);
         System.out.println();
@@ -39,9 +39,10 @@ public class Main {
         symbolTable.printToFile("src/result/symbolTable.txt");
         System.out.println();
         SemanticError semanticError = new SemanticError();
-//        System.out.println(print());
+        //System.out.println(print());
         semanticError.errorResult();
 
+        // Code Generation
         Generation generation=new Generation();
         generation.generate(doc);
     }

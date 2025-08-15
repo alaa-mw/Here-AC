@@ -8,7 +8,10 @@ import java.util.List;
 public class CssSelector {
     private List<String> selectors = new ArrayList<>();
     private List<AttributeSelector> attributeSelectorList = new ArrayList<>();
-    private ArrayList<String> symbol = new ArrayList<>(); // *
+    private ArrayList<String> symbol = new ArrayList<>();
+
+
+    // *
     public List<AttributeSelector> getAttributeSelectorList() {
         return attributeSelectorList;
     }

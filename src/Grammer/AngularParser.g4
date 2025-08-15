@@ -196,7 +196,10 @@ classPropertyDeclaration
 
 // 5.1 ------------- MethodsDeclaration
 methodDeclaration
-           : decorator* accessModifiers* ASYNC? STATIC? IDENTIFIER  OPEN_BRACKET (parameterList)? CLOSE_BRACKET (returnType)? assigmentToNull? OPEN_CURLY_BRACKET (methodBody)* CLOSE_CURLY_BRACKET ;
+           : decorator* accessModifiers* ASYNC? STATIC? IDENTIFIER
+           OPEN_BRACKET (parameterList)? CLOSE_BRACKET
+           (returnType)? assigmentToNull? // not need in js
+           OPEN_CURLY_BRACKET (methodBody)* CLOSE_CURLY_BRACKET ;
 decorator  : ATT IDENTIFIER ;
 returnType : DOT_DOT dataType
            ;
@@ -241,6 +244,7 @@ constructorBody
     : constructorBodyProperty
     | commonStatement
     ;
+
 constructorBodyProperty
     : parameterPropertyAssignment
     | methodBodyProperty  // Inherits all method statement types
