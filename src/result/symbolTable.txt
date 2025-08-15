@@ -4,14 +4,18 @@ Symbol Table
     }
     interface Product symbols: [{name='id', value='null', type='string'}, {name='name', value='null', type='string'}, {name='image', value='null', type='string'}, {name='desc', value='null', type='string'}]{
     }
-    class ProductState symbols: [{name='productsSubject', value='', type='null'}, {name='products$', value='null', type='null'}]{
+    class ProductState symbols: [{name='productsSubject', value='', type='null'}, {name='products$', value='null', type='null'}, {name='selectedProductSubject', value='', type='null'}, {name='selectedProduct$', value='null', type='null'}]{
       method initProducts symbols: [{name='initialProducts', value='=[{id:'1',name:'Product 1 Camera',desc:'Capture moments with this amazing camera.',image:'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',},{id:'2',name:'Product 2 Laptop',desc:'High performance laptop for all your needs.',image:'https://images.unsplash.com/photo-1496181133206-80ce9b88a853',},{id:'3',name:'Product 3 Wireless Headphones',desc:'Experience premium sound quality wirelessly.',image:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',},]', type='Product[]'}]{
       }
       method initProducts symbols: [{name='initialProducts', value='=[{id:'1',name:'Product 1 Camera',desc:'Capture moments with this amazing camera.',image:'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',},{id:'2',name:'Product 2 Laptop',desc:'High performance laptop for all your needs.',image:'https://images.unsplash.com/photo-1496181133206-80ce9b88a853',},{id:'3',name:'Product 3 Wireless Headphones',desc:'Experience premium sound quality wirelessly.',image:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',},]', type='Product[]'}]{
       }
-      method addProduct symbols: [{name='newProduct', value='={...product,id:Math.random().toString(36).substring(2,9),}', type='Product'}]{
+      method selectProduct symbols: []{
       }
-      method addProduct symbols: [{name='newProduct', value='={...product,id:Math.random().toString(36).substring(2,9),}', type='Product'}]{
+      method selectProduct symbols: []{
+      }
+      method addProduct symbols: [{name='newProduct', value='={...product,id:Math.random().toString(36).substring(2,9),}', type='Product'}, {name='updatedProducts', value='=[...this.productsSubject.value,newProduct]', type=''}]{
+      }
+      method addProduct symbols: [{name='newProduct', value='={...product,id:Math.random().toString(36).substring(2,9),}', type='Product'}, {name='updatedProducts', value='=[...this.productsSubject.value,newProduct]', type=''}]{
       }
       method deleteProduct symbols: [{name='updatedProducts', value='=this.productsSubject.value.filter(p=>p.id!==id)', type=''}]{
       }
@@ -22,7 +26,7 @@ Symbol Table
       method updateProduct symbols: [{name='updatedProducts', value='=this.productsSubject.value.map(product=>product.id===updatedProduct.id?updatedProduct:product)', type=''}]{
       }
     }
-    class ProductListComponent symbols: [{name='products$', value='null', type='null'}]{
+    class ProductListComponent symbols: [{name='products$', value='null', type='null'}, {name='selectedProduct$', value='null', type='null'}]{
       method goToDetails symbols: []{
       }
       method goToDetails symbols: []{
@@ -36,13 +40,13 @@ Symbol Table
       method editProduct symbols: []{
       }
     }
-    class ProductDetailsComponent symbols: [{name='__implements__', value='OnInit', type='implements'}, {name='selectedProduct', value='null', type='Product'}]{
-      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}, {name='found', value='=this.productState.products$.subscribe(products=>{this.selectedProduct=products.find(p=>p.id===id);})', type=''}]{
+    class ProductDetailsComponent symbols: [{name='__implements__', value='OnInit', type='implements'}, {name='product', value='null', type='Product'}]{
+      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}, {name='found', value='=this.productState.products$.subscribe(products=>{this.product=products.find(p=>p.id===id);})', type=''}]{
       }
-      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}, {name='found', value='=this.productState.products$.subscribe(products=>{this.selectedProduct=products.find(p=>p.id===id);})', type=''}]{
+      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}, {name='found', value='=this.productState.products$.subscribe(products=>{this.product=products.find(p=>p.id===id);})', type=''}]{
       }
     }
-    class AddProductComponent symbols: [{name='__implements__', value='OnInit', type='implements'}, {name='formProduct', value='null', type='any'}, {name='editingId', value='null', type='string'}]{
+    class AddProductComponent symbols: [{name='__implements__', value='OnInit', type='implements'}, {name='newProduct', value='null', type='any'}, {name='editingId', value='null', type='string'}]{
       method ngOnInit symbols: [{name='id', value='=params.get('id')', type=''}, {name='existingProduct', value='=products.find(p=>p.id===id)', type=''}]{
       }
       method ngOnInit symbols: [{name='id', value='=params.get('id')', type=''}, {name='existingProduct', value='=products.find(p=>p.id===id)', type=''}]{

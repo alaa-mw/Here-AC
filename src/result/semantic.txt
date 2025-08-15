@@ -1,4 +1,5 @@
 Semantic Check :
 Invalid HTML binding: product
+Invalid HTML binding: selectedProduct
 Invalid HTML binding: name
 Invalid HTML binding: desc
