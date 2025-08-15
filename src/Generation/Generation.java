@@ -1,12 +1,16 @@
 package Generation;
 
+import AST.*;
 import AST.CSS.*;
 import AST.Class.ClassBody;
 import AST.Class.ClassDeclaration;
 import AST.Class.ClassHeritage;
 import AST.Class.ClassPropertyDeclaration;
 import AST.Component.*;
-import AST.Constructor.ConstructorDeclaration;
+import AST.ConditionStmt.ConditionalStatement;
+import AST.ConditionStmt.ElseIfStatement;
+import AST.ConditionStmt.ElseStatement;
+import AST.Constructor.*;
 import AST.Expression.BinaryExpression;
 import AST.Expression.Expression;
 import AST.Expression.LiteralOrReferenceExpression;
@@ -14,17 +18,20 @@ import AST.Expression.ParentExpression;
 import AST.HTML.*;
 import AST.Interface.InterfaceDeclaration;
 import AST.LiteralValueClasses.LiteralValue;
+import AST.Method.MethodBody;
+import AST.Method.MethodBodyProperty;
 import AST.Method.MethodDeclaration;
-import AST.MethodCall;
-import AST.Operation;
-import AST.Program;
+import AST.ParameterList.Parameter;
+import AST.ParameterList.ParameterList;
+import AST.Property.LocalVariableDeclaration;
+import AST.Property.ParameterPropertyAssignment;
+import AST.Property.PropertyAssignment;
 import AST.PropertyValueClasses.BinaryOperationPropertyValueExpr;
 import AST.PropertyValueClasses.BracketedPropertyValueExpr;
 import AST.PropertyValueClasses.PropertyValue;
 import AST.PropertyValueClasses.ShortIfExpr;
 import AST.PropertyValueObjects.*;
 import AST.Service.ServiceBlock;
-import AST.Statement;
 import AST.propertyCallClasses.PropertyCall;
 import AST.propertyCallClasses.PropertyWithMethodCall;
 import AST.propertyCallClasses.SimplePropertyCall;
@@ -457,9 +464,54 @@ public class Generation {
             generate((ClassPropertyDeclaration) body);
         }
         else if (body instanceof ConstructorDeclaration) {
-            //generate((ConstructorDeclaration) body); fix
+            generate((ConstructorDeclaration) body);
         } else if (body instanceof MethodDeclaration) {
-            //generate((MethodDeclaration) body); fix
+            generate((MethodDeclaration) body);
+        }
+    }
+
+    private void generate(ConstructorDeclaration cd) throws IOException {
+        js_fw.write(cd.getConstructor() + "(");
+        if(cd.getConstructorParams() != null){
+            generate(cd.getConstructorParams());
+        }
+        js_fw.write( ") {");
+        for (ConstructorBody cb : cd.getConstructorBody()){
+            generate(cb);
+        }
+        js_fw.write( "}");
+    }
+
+    private void generate(ConstructorBody cb) throws IOException {
+        if(cb instanceof ConstructorBodyProperty){
+            generate((ConstructorBodyProperty) cb);
+        }
+        if(cb instanceof CommonStatement){
+            generate((CommonStatement) cb);
+        }
+
+    }
+    private void generate(ConstructorBodyProperty cp) throws IOException {
+        if(cp instanceof ParameterPropertyAssignment){
+            generate((ParameterPropertyAssignment) cp);
+        }
+        if(cp instanceof MethodBodyProperty){
+            generate((MethodBodyProperty) cp);
+        }
+    }
+
+    private void generate(ParameterPropertyAssignment ppa) throws IOException {
+
+    }
+
+
+    private void generate(ConstructorParams cp) throws IOException {
+        List<ConstructorParam> parameters = cp.getConstructorParam();
+        for (int i = 0; i < parameters.size(); i++) {
+            js_fw.write(parameters.get(i).getConstructorParamName()); // your own method to generate a parameter
+            if (i < parameters.size() - 1) {
+                js_fw.write(","); // write comma between parameters
+            }
         }
     }
 
@@ -710,7 +762,7 @@ public class Generation {
                     if (spreadElement.getIdentifier() != null) {
                         sb.append(spreadElement.getIdentifier());
                     } else if (spreadElement.getPropertyCall() != null) {
-                        sb.append(generate(spreadElement.getPropertyCall())); // Assume it returns a string
+                        sb.append(generate((PropertyValueObjects) spreadElement.getPropertyCall())); // Assume it returns a string
                     }
                 }
             } else if (prop instanceof NormalObjectProperty) {
@@ -753,6 +805,149 @@ public class Generation {
         sb.append("]");
         return sb.toString();
     }
+
+    // Method declaration
+    private void generate(MethodDeclaration methodDeclaration) throws  IOException {
+        if(methodDeclaration.getAsync() != null){
+            js_fw.write(methodDeclaration.getAsync() + " ");
+        }
+        if(methodDeclaration.getStatic_() != null){
+            js_fw.write(methodDeclaration.getStatic_() + " ");
+        }
+        js_fw.write(methodDeclaration.getIdentifier() );
+        js_fw.write( "(");
+        if(methodDeclaration.getParameterList() != null){
+            generate(methodDeclaration.getParameterList());
+        }
+        js_fw.write(")");
+        js_fw.write( "{");
+        for(MethodBody methodBody : methodDeclaration.getMethodBody()){
+            generate(methodBody);
+        }
+        js_fw.write("}");
+    }
+
+    private void  generate(ParameterList pl) throws IOException {
+        // in Js there is no need for dataType so there is just identifier
+        if (pl.getParameters() != null) {
+            List<Parameter> parameters = pl.getParameters();
+            for (int i = 0; i < parameters.size(); i++) {
+                js_fw.write(parameters.get(i).getIdentifier()); // your own method to generate a parameter
+                if (i < parameters.size() - 1) {
+                    js_fw.write(","); // write comma between parameters
+                }
+            }
+        }
+        if (pl.getIdentifiers() != null) {
+            List<String> identifiers = pl.getIdentifiers();
+            for (int i = 0; i < identifiers.size(); i++) {
+                js_fw.write(identifiers.get(i));
+                if (i < identifiers.size() - 1) {
+                    js_fw.write(",");
+                }
+            }
+        } else {
+            js_fw.write("");
+            // Empty parameter list
+        }
+
+
+    }
+    private void  generate(MethodBody mp) throws IOException {
+        if (mp instanceof ReturnStatement) {
+            generate((ReturnStatement) mp);
+        }
+        else if (mp instanceof CommonStatement) {
+            generate((CommonStatement) mp);
+        } else if (mp instanceof MethodBodyProperty) {
+            generate((MethodBodyProperty) mp);
+        } else if (mp instanceof PropertyCall) {
+            generate(mp) ;
+            js_fw.write(";");
+        }
+    }
+
+    private void  generate(MethodBodyProperty methodP) throws IOException {
+        if(methodP instanceof LocalVariableDeclaration){
+            generate((LocalVariableDeclaration) methodP);
+            js_fw.write(";");
+        } else {
+            generate((PropertyAssignment)methodP) ;
+            js_fw.write(";");
+        }
+    }
+
+    private void  generate(LocalVariableDeclaration lvd) throws IOException {
+        String keyWord = "" ;
+        if(lvd.getConst_() !=null){
+            keyWord = lvd.getConst_();
+        } else {
+            keyWord = lvd.getLet();
+        }
+        js_fw.write(keyWord + lvd.getIdentifier());
+        if (lvd.getAssigment() != null) {
+            js_fw.write(" = ");
+            js_fw.write(generate(lvd.getAssigment().getPropertyValue())+ ";");
+        }
+
+    }
+    private void  generate(PropertyAssignment propertyAssignment) throws IOException {
+
+    }
+
+    private void  generate(ReturnStatement returnStatement) throws IOException {
+        js_fw.write("return ");
+        String exp = null;
+        if(returnStatement.getExpression() != null){
+            exp = generate(returnStatement.getExpression());
+            js_fw.write(exp);
+        }
+        js_fw.write("; ");
+    }
+    private void  generate(CommonStatement cs) throws IOException {
+//        : printStatement
+//                | conditionalStatement
+//                | switchStatement
+//                | forStatement
+//                | whileStatement
+//                | doWhileStatement
+//        ;
+        if(cs instanceof ConditionalStatement){
+            generate((ConditionalStatement) cs);
+        }
+    }
+    private void  generate(ConditionalStatement conditionalS) throws IOException {
+        js_fw.write("if (");
+        generate(conditionalS.getExpression());
+        js_fw.write(")");
+        generate(conditionalS.getBlock());
+
+        if(conditionalS.getElseIfStmt() != null){
+            for(ElseIfStatement elseIfStatement : conditionalS.getElseIfStmt()){
+                generate(elseIfStatement) ;
+            }
+        }
+        if(conditionalS.getElseStatement() != null){
+            generate(conditionalS.getElseStatement());
+        }
+
+
+    }
+    private void  generate(Block block) throws IOException {
+
+    }
+    private void  generate(ElseIfStatement elseIfStatement) throws IOException {
+        js_fw.write("else if (");
+        generate(elseIfStatement.getExpression());
+        js_fw.write(")");
+        generate(elseIfStatement.getBlock());
+    }
+    private void  generate(ElseStatement elseStatement) throws IOException {
+        js_fw.write("else ");
+        generate(elseStatement.getBlock());
+    }
+
+
 
     // ServiceBlock Section
     private void generate(ServiceBlock service) throws IOException {
