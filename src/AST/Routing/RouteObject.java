@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RouteObject {
-    private List<RouteProperty> routePropertyList = new ArrayList<>();
+    private RouteProperty routeProperty ;
 
-    public List<RouteProperty> getRoutePropertyList() {
-        return routePropertyList;
+    public RouteProperty getRouteProperty() {
+        return routeProperty;
     }
 
-    public void setRoutePropertyList(List<RouteProperty> routePropertyList) {
-        this.routePropertyList = routePropertyList;
+    public void setRouteProperty(RouteProperty routeProperty) {
+        this.routeProperty = routeProperty;
     }
 
     @Override
@@ -21,8 +21,8 @@ public class RouteObject {
         CustomStringBuilder sb = new CustomStringBuilder();
         sb.appendTabOpenScope("RouteObject {\n");
 
-        if ( routePropertyList != null && !routePropertyList.isEmpty()) {
-            sb.append(routePropertyList);
+        if ( routeProperty != null) {
+            sb.append(routeProperty);
         }
 
         sb.appendTabCloseScope("}").append("\n");

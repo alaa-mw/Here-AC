@@ -106,4 +106,45 @@ cancel(){;}
 }
 		<!-- Interface Declaration: Product -->
 		<!-- Service Block -->
+
+function setActiveNav(navId) {
+  document.querySelectorAll('nav a').forEach(x => x.classList.remove('active'));
+  if (navId) document.getElementById(navId).classList.add('active');
+ }
+
+// ===== Generated Routing =====
+function handleRoute(path) {
+    history.pushState(null, '', path);
+    const idAddProduct = path.match(/^\/edit\/([^\/]+)$/);
+    const idProductDetails = path.match(/^\/product\/([^\/]+)$/);
+    
+    if (path.includes('/add')) {
+        ngOnInit(null);
+        renderForm();
+        showSection(formSection);
+        setActiveNav('nav-add');
+    }
+    else if (path.includes('/edit')) {
+        ngOnInit(idAddProduct[1]);
+        renderForm();
+        showSection(formSection);
+    }
+    else if (path.includes('/product')) {
+        ngOnInit(idProductDetails[1]);
+        renderDetails();
+        showSection(detailsSection);
+    }
+    else if (path.includes('/')) {
+        ngOnInit(null);
+        renderList();
+        showSection(listSection);
+        setActiveNav('nav-list');
+    }
+}
+
+function showSection(section) {
+  [formSection, detailsSection, listSection].forEach(s => s.style.display = 'none');
+  section.style.display = 'block';
+}
+
 const addEditProductSection = document.getElementById('add-edit-product-section');

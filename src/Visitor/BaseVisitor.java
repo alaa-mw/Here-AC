@@ -2570,11 +2570,14 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     @Override
     public RouteObject visitRouteObject(AngularParser.RouteObjectContext ctx) {
         RouteObject routeObject = new RouteObject();
-        if(ctx.routeProperty() != null && !ctx.routeProperty().isEmpty()){
-            for (AngularParser.RoutePropertyContext routCtx : ctx.routeProperty()) {
-                routeObject.getRoutePropertyList().add(visitRouteProperty(routCtx));
-
-            }
+//        if(ctx.routeProperty() != null && !ctx.routeProperty().isEmpty()){
+//            for (AngularParser.RoutePropertyContext routCtx : ctx.routeProperty()) {
+//                routeObject.getRoutePropertyList().add(visitRouteProperty(routCtx));
+//
+//            }
+//        }
+        if (ctx.routeProperty() != null) {
+            routeObject.setRouteProperty(visitRouteProperty(ctx.routeProperty()));
         }
         return  routeObject ;
     }
