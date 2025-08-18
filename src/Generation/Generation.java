@@ -11,6 +11,9 @@ import AST.ConditionStmt.ConditionalStatement;
 import AST.ConditionStmt.ElseIfStatement;
 import AST.ConditionStmt.ElseStatement;
 import AST.Constructor.*;
+import AST.DataType.DataType;
+import AST.DataType.ListSuffix;
+import AST.DataType.SingleDataType;
 import AST.Expression.BinaryExpression;
 import AST.Expression.Expression;
 import AST.Expression.LiteralOrReferenceExpression;
@@ -23,9 +26,7 @@ import AST.Method.MethodBodyProperty;
 import AST.Method.MethodDeclaration;
 import AST.ParameterList.Parameter;
 import AST.ParameterList.ParameterList;
-import AST.Property.LocalVariableDeclaration;
-import AST.Property.ParameterPropertyAssignment;
-import AST.Property.PropertyAssignment;
+import AST.Property.*;
 import AST.PropertyValueClasses.BinaryOperationPropertyValueExpr;
 import AST.PropertyValueClasses.BracketedPropertyValueExpr;
 import AST.PropertyValueClasses.PropertyValue;
@@ -489,7 +490,8 @@ public class Generation {
             generate((ConstructorBodyProperty) cb);
         }
         if(cb instanceof CommonStatement){
-            generate((CommonStatement) cb);
+//            generate((CommonStatement) cb);
+            js_fw.write(generate((CommonStatement) cb));
         }
 
     }
@@ -543,6 +545,16 @@ public class Generation {
             //localStorage.setItem("products", JSON.stringify(products));
         }
 
+        //         AssignDataType
+        if (prop.getAssignDataType() != null) {
+            String type=generate(prop.getAssignDataType());
+            if (type.equals("null")) {
+                line.append(" = ");
+                line.append(type);
+            }
+
+        }
+
 //         Assignment
         if (prop.getAssigment() != null) {
             line.append(" = ");
@@ -555,6 +567,68 @@ public class Generation {
 
         // Write to file
         js_fw.write(line.toString() + "\n");
+    }
+
+    private String generate(AssignDataType assignDataType) throws IOException {
+        if (assignDataType == null) return "";
+
+        StringBuilder sb = new StringBuilder();
+
+        if (assignDataType.getDataTypes() != null && !assignDataType.getDataTypes().isEmpty()) {
+            for (int i = 0; i < assignDataType.getDataTypes().size(); i++) {
+                DataType dt = assignDataType.getDataTypes().get(i);
+                  sb.append(generate(dt));
+//                if (i < assignDataType.getDataTypes().size() - 1) {
+//                    sb.append(" | "); // في حال كان هناك Union types
+//                }
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private String generate(DataType dataType) throws IOException {
+        if (dataType == null) return "";
+
+        StringBuilder sb = new StringBuilder();
+
+        if (dataType.getSingleDataTypeList() != null && !dataType.getSingleDataTypeList().isEmpty()) {
+            for (int i = 0; i < dataType.getSingleDataTypeList().size(); i++) {
+                SingleDataType sdt = dataType.getSingleDataTypeList().get(i);
+                String type=generate(sdt);
+
+//                if (type.equals("null")) {
+                    sb.append(type);
+//                }
+
+
+            }
+        }
+
+        return sb.toString();
+    }
+    private String generate(SingleDataType singleDataType) throws IOException {
+        if (singleDataType == null) return "";
+        StringBuilder sb = new StringBuilder();
+
+        // Data types
+        if (singleDataType.getType()!=null){
+            String type= singleDataType.getType().getType();
+            if ("undefined".equals(type)) {
+                return "null";
+            }
+        }
+
+        // 3. Handle list suffixes (arrays)
+        if (singleDataType.getListSuffix() != null && !singleDataType.getListSuffix().isEmpty()) {
+            for (ListSuffix suffix : singleDataType.getListSuffix()) {
+//                sb.append("[]");
+                sb.append(suffix.getList());
+            }
+        }
+
+
+        return sb.toString();
     }
 
     private String generate(PropertyValue value) throws IOException {
@@ -583,7 +657,7 @@ public class Generation {
         //propertyCall extends // 1  -> propertyWithMethodCall ✔
         //   -> SimplePropertyCall ✔
 
-        //ArrowFunction
+        //ArrowFunction  ✔
         //IndexAccessValue
         //LIst ✔
         //ObjectValue //2
@@ -612,6 +686,14 @@ public class Generation {
         if (propertyValueObjects instanceof LIst) {
             return generate((LIst) propertyValueObjects);
         }
+        if (propertyValueObjects instanceof ArrowFunctionExpr) {
+            return "ArrowFunctionExpr";
+//            return generate((ArrowFunctionExpr) propertyValueObjects);
+        }
+        if (propertyValueObjects instanceof ArrowFunctionBlockExpr) {
+            return generate((ArrowFunctionBlockExpr) propertyValueObjects);
+//            return generate((ArrowFunction) propertyValueObjects);
+        }
         return " ";
     }
 
@@ -620,6 +702,27 @@ public class Generation {
             return "";
         }
         return literalValue.getValue();
+    }
+
+    private String generate(ArrowFunctionBlockExpr arrowFunctionBlockExpr) throws IOException{ // ✔
+
+        StringBuilder js = new StringBuilder();
+
+        // 1. المعامل (identifier)
+//        if (arrowFunctionBlockExpr.getIdentifier() != null) {
+//            js.append(arrowFunctionBlockExpr.getIdentifier());
+//        }
+//        if (arrowFunctionBlockExpr.getArrowKey()!=null){
+//            js.append(arrowFunctionBlockExpr.getArrowKey());
+//        }
+        if (arrowFunctionBlockExpr.getBlock() != null) {
+
+          return generate(arrowFunctionBlockExpr.getBlock());
+
+        }
+
+        return js.toString();
+
     }
 
     private String generate(PropertyWithMethodCall propertyWithMethodCall) throws IOException{ //✔
@@ -645,6 +748,9 @@ public class Generation {
         List<MethodCall> methodCalls = propertyWithMethodCall.getMethodCalls();
         if (methodCalls != null && !methodCalls.isEmpty()) {
             for (MethodCall methodCall : methodCalls) {
+                if (sb.length() > 0) {
+                    sb.append(".");
+                }
                 sb.append(generate(methodCall)); // returns e.g. `.getName()`
             }
         }
@@ -666,7 +772,7 @@ public class Generation {
         }
 
         // Write the line (ending with semicolon only if you're generating a statement)
-        sb.append(";\n");
+//        sb.append("\n");
 
         return sb.toString();
     }
@@ -749,41 +855,48 @@ public class Generation {
 
     private String generate(ObjectValue objectValue) throws IOException{
         StringBuilder sb = new StringBuilder();
-        sb.append("{");
 
-        List<ObjectProperty> properties = objectValue.getProperties();
-        for (int i = 0; i < properties.size(); i++) {
-            ObjectProperty prop = properties.get(i);
+        if (objectValue.getIdentifier()!=null){
+            sb.append(objectValue.getIdentifier());
+        }
+        else {
+            sb.append("{");
 
-            if (prop instanceof SpreadObjectProperty) { // fix
-                SpreadObjectProperty spreadProp = (SpreadObjectProperty) prop;
-                SpreadElementExpr spreadElement = spreadProp.getSpreadElement();
+            List<ObjectProperty> properties = objectValue.getProperties();
+            for (int i = 0; i < properties.size(); i++) {
+                ObjectProperty prop = properties.get(i);
 
-                if (spreadElement != null) {
-                    sb.append("...");
-                    if (spreadElement.getIdentifier() != null) {
-                        sb.append(spreadElement.getIdentifier());
-                    } else if (spreadElement.getPropertyCall() != null) {
-                        sb.append(generate((PropertyValueObjects) spreadElement.getPropertyCall())); // Assume it returns a string
+                if (prop instanceof SpreadObjectProperty) { // fix
+                    SpreadObjectProperty spreadProp = (SpreadObjectProperty) prop;
+                    SpreadElementExpr spreadElement = spreadProp.getSpreadElement();
+
+                    if (spreadElement != null) {
+                        sb.append("...");
+                        if (spreadElement.getIdentifier() != null) {
+                            sb.append(spreadElement.getIdentifier());
+                        } else if (spreadElement.getPropertyCall() != null) {
+                            sb.append(generate((PropertyValueObjects) spreadElement.getPropertyCall())); // Assume it returns a string
+                        }
+                    }
+                } else if (prop instanceof NormalObjectProperty) {
+                    NormalObjectProperty normalObjectProperty = (NormalObjectProperty) prop;
+                    String key = normalObjectProperty.getIdentifier();
+                    PropertyValue value = normalObjectProperty.getValue();
+
+                    if (key != null && value != null) {
+                        sb.append(key).append(": ");
+                        sb.append(generate(value)); //  generate(PropertyValue)
                     }
                 }
-            } else if (prop instanceof NormalObjectProperty) {
-                NormalObjectProperty normalObjectProperty = (NormalObjectProperty) prop;
-                String key = normalObjectProperty.getIdentifier();
-                PropertyValue value = normalObjectProperty.getValue();
 
-                if (key != null && value != null) {
-                    sb.append(key).append(": ");
-                    sb.append(generate(value)); //  generate(PropertyValue)
+                if (i < properties.size() - 1) {
+                    sb.append(", ");
                 }
             }
 
-            if (i < properties.size() - 1) {
-                sb.append(", ");
-            }
+            sb.append("}");
         }
 
-        sb.append("}");
         return sb.toString();
     }
 
@@ -857,10 +970,13 @@ public class Generation {
     }
     private void  generate(MethodBody mp) throws IOException {
         if (mp instanceof ReturnStatement) {
-            generate((ReturnStatement) mp);
+//            generate((ReturnStatement) mp);
+            String s=generate((ReturnStatement) mp);
+            js_fw.write(s);
         }
         else if (mp instanceof CommonStatement) {
-            generate((CommonStatement) mp);
+//            generate((CommonStatement) mp);
+            js_fw.write(generate((CommonStatement) mp));
         } else if (mp instanceof MethodBodyProperty) {
             generate((MethodBodyProperty) mp);
         } else if (mp instanceof PropertyCall) {
@@ -872,41 +988,102 @@ public class Generation {
     private void  generate(MethodBodyProperty methodP) throws IOException {
         if(methodP instanceof LocalVariableDeclaration){
             generate((LocalVariableDeclaration) methodP);
-            js_fw.write(";");
+//            js_fw.write(";");
         } else {
             generate((PropertyAssignment)methodP) ;
             js_fw.write(";");
         }
     }
 
-    private void  generate(LocalVariableDeclaration lvd) throws IOException {
+    private String generate(LocalVariableDeclaration lvd) throws IOException {
         String keyWord = "" ;
-        if(lvd.getConst_() !=null){
+        if (lvd.getConst_() != null) {
             keyWord = lvd.getConst_();
         } else {
             keyWord = lvd.getLet();
         }
-        js_fw.write(keyWord + lvd.getIdentifier());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(keyWord).append(" ").append(lvd.getIdentifier());
+
         if (lvd.getAssigment() != null) {
-            js_fw.write(" = ");
-            js_fw.write(generate(lvd.getAssigment().getPropertyValue())+ ";");
+            sb.append(" = ");
+            sb.append(generate(lvd.getAssigment().getPropertyValue()));
         }
 
+        sb.append(";");
+        return sb.toString();
     }
-    private void  generate(PropertyAssignment propertyAssignment) throws IOException {
+    private String  generate(PropertyAssignment propertyAssignment) throws IOException {
+        StringBuilder sb = new StringBuilder();
 
-    }
+        // left-hand side (property call)
+        if (propertyAssignment.getPropertyCall() != null) {
+            PropertyCall propertyCall=propertyAssignment.getPropertyCall();
+            if (propertyCall instanceof SimplePropertyCall){
+                sb.append(generate((SimplePropertyCall)propertyCall));
+            }
 
-    private void  generate(ReturnStatement returnStatement) throws IOException {
-        js_fw.write("return ");
-        String exp = null;
-        if(returnStatement.getExpression() != null){
-            exp = generate(returnStatement.getExpression());
-            js_fw.write(exp);
         }
-        js_fw.write("; ");
+
+        // operator and right-hand side (compound assignment)
+        if (propertyAssignment.getCompoundAssignment() != null) {
+            sb.append(" ");
+            sb.append(generate(propertyAssignment.getCompoundAssignment()));
+        }
+
+        // ضع ; لأنه statement
+        sb.append(";");
+
+        return sb.toString();
     }
-    private void  generate(CommonStatement cs) throws IOException {
+
+    private String generate(CompoundAssignment compoundAssignment) throws IOException {
+        StringBuilder sb = new StringBuilder();
+
+
+        if (compoundAssignment.getEq() != null) {
+            sb.append("= ");
+        } else if (compoundAssignment.getPlusEq() != null) {
+            sb.append("+= ");
+        } else if (compoundAssignment.getMinusEq() != null) {
+            sb.append("-= ");
+        } else if (compoundAssignment.getStarEq() != null) {
+            sb.append("*= ");
+        } else if (compoundAssignment.getSlashEq() != null) {
+            sb.append("/= ");
+        }
+
+
+        if (compoundAssignment.getPropertyValue() != null) {
+            sb.append(generate(compoundAssignment.getPropertyValue()));
+        }
+
+        return sb.toString();
+    }
+//    private void  generate(ReturnStatement returnStatement) throws IOException {
+//        js_fw.write("return ");
+//        String exp = null;
+//        if(returnStatement.getExpression() != null){
+//            exp = generate(returnStatement.getExpression());
+//            js_fw.write(exp);
+//        }
+//        js_fw.write("; ");
+//    }
+
+    private String generate(ReturnStatement returnStatement) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("return ");
+
+        if (returnStatement.getExpression() != null) {
+            String exp = generate(returnStatement.getExpression());
+            sb.append(exp);
+        }
+
+        sb.append("; ");
+        return sb.toString();
+    }
+    private String  generate(CommonStatement cs) throws IOException {
 //        : printStatement
 //                | conditionalStatement
 //                | switchStatement
@@ -914,39 +1091,143 @@ public class Generation {
 //                | whileStatement
 //                | doWhileStatement
 //        ;
-        if(cs instanceof ConditionalStatement){
-            generate((ConditionalStatement) cs);
+        if (cs instanceof ConditionalStatement) {
+            return generate((ConditionalStatement) cs);
         }
+        // لو في أنواع أخرى أضفهم هون
+        return "";
     }
-    private void  generate(ConditionalStatement conditionalS) throws IOException {
-        js_fw.write("if (");
-        generate(conditionalS.getExpression());
-        js_fw.write(")");
-        generate(conditionalS.getBlock());
+//    private void  generate(ConditionalStatement conditionalS) throws IOException {
+//        js_fw.write("if (");
+//        js_fw.write(generate(conditionalS.getExpression()));
+//        js_fw.write(")");
+//        generate(conditionalS.getBlock());
+//
+//        if(conditionalS.getElseIfStmt() != null){
+//            for(ElseIfStatement elseIfStatement : conditionalS.getElseIfStmt()){
+//                generate(elseIfStatement) ;
+//            }
+//        }
+//        if(conditionalS.getElseStatement() != null){
+//            generate(conditionalS.getElseStatement());
+//        }
+//
+//
+//    }
+    private String generate(ConditionalStatement conditionalS) throws IOException {
+        StringBuilder sb = new StringBuilder();
 
-        if(conditionalS.getElseIfStmt() != null){
-            for(ElseIfStatement elseIfStatement : conditionalS.getElseIfStmt()){
-                generate(elseIfStatement) ;
+        sb.append("if (")
+                .append(generate(conditionalS.getExpression()))
+                .append(")");
+
+        sb.append(generate(conditionalS.getBlock()));
+
+        if (conditionalS.getElseIfStmt() != null) {
+            for (ElseIfStatement elseIfStatement : conditionalS.getElseIfStmt()) {
+                sb.append(generate(elseIfStatement));
             }
         }
-        if(conditionalS.getElseStatement() != null){
-            generate(conditionalS.getElseStatement());
+
+        if (conditionalS.getElseStatement() != null) {
+            sb.append(generate(conditionalS.getElseStatement()));
         }
 
+        return sb.toString();
+    }
+//    private void  generate(Block block) throws IOException {
+//        if (block == null) return;
+//
+//        js_fw.write("{\n");
+//
+//
+//        if (block.getBlockProperties() != null) {
+//            for (BlockProperty prop : block.getBlockProperties()) {
+//                if (prop instanceof LocalVariableDeclaration) {
+//                    LocalVariableDeclaration local = (LocalVariableDeclaration) prop;
+//                    generate(local);
+//                }
+//
+//                if (prop instanceof PropertyAssignment) {
+//                    PropertyAssignment local = (PropertyAssignment) prop;
+//                    generate(local);
+//                }
+//            }
+//        }
+//
+//
+//        if (block.getCommonStatements() != null) {
+//            for (CommonStatement stmt : block.getCommonStatements()) {
+//                generate(stmt);
+//            }
+//        }
+//
+//
+//        if (block.getReturnStatements() != null) {
+//            for (ReturnStatement ret : block.getReturnStatements()) {
+//                generate(ret);
+//            }
+//        }
+//
+//        // اغلق البلوك
+//        js_fw.write("}\n");
+//    }
 
-    }
-    private void  generate(Block block) throws IOException {
+    private String generate(Block block) throws IOException {
+        if (block == null) return "";
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+
+        if (block.getBlockProperties() != null) {
+            for (BlockProperty prop : block.getBlockProperties()) {
+                if (prop instanceof LocalVariableDeclaration) {
+                    sb.append(generate((LocalVariableDeclaration) prop)).append("\n");
+                }
+                if (prop instanceof PropertyAssignment) {
+                    sb.append(generate((PropertyAssignment) prop)).append("\n");
+                }
+            }
+        }
+
+        if (block.getCommonStatements() != null) {
+            for (CommonStatement stmt : block.getCommonStatements()) {
+                sb.append(generate(stmt)).append("\n");
+            }
+        }
+
+        if (block.getReturnStatements() != null) {
+            for (ReturnStatement ret : block.getReturnStatements()) {
+                sb.append(generate(ret)).append("\n");
+            }
+        }
+
+        sb.append("}\n");
+        return sb.toString();
     }
-    private void  generate(ElseIfStatement elseIfStatement) throws IOException {
-        js_fw.write("else if (");
-        generate(elseIfStatement.getExpression());
-        js_fw.write(")");
-        generate(elseIfStatement.getBlock());
+//    private void  generate(ElseIfStatement elseIfStatement) throws IOException {
+//        js_fw.write("else if (");
+//        generate(elseIfStatement.getExpression());
+//        js_fw.write(")");
+//        generate(elseIfStatement.getBlock());
+//    }
+    private String generate(ElseIfStatement elseIfStatement) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("else if (")
+                .append(generate(elseIfStatement.getExpression()))
+                .append(")")
+                .append(generate(elseIfStatement.getBlock()));
+        return sb.toString();
     }
-    private void  generate(ElseStatement elseStatement) throws IOException {
-        js_fw.write("else ");
-        generate(elseStatement.getBlock());
+//    private void  generate(ElseStatement elseStatement) throws IOException {
+//        js_fw.write("else ");
+//        generate(elseStatement.getBlock());
+//    }
+    private String generate(ElseStatement elseStatement) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("else ")
+                .append(generate(elseStatement.getBlock()));
+        return sb.toString();
     }
 
 
@@ -959,6 +1240,7 @@ public class Generation {
     private void generate(InterfaceDeclaration iface) throws IOException {
         js_fw.write(currentSpace + "<!-- Interface Declaration: " + iface.getIdentifier() + " -->\n");
     }
+
 
     //=================== generate js (inner html) =========== // alaa
     private void generateJsInnerHtml(HtmlElement htmlElement) throws IOException {
