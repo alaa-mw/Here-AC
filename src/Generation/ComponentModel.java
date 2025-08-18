@@ -7,8 +7,6 @@ import java.util.Objects;
 
 public class ComponentModel {
     // class
-    private List<String> attributes = new ArrayList<>();
-    private String ngOnInit;
     private List<ComponentFunction> functions = new ArrayList<>();;
     // component
     private String render;
@@ -16,23 +14,6 @@ public class ComponentModel {
     private List<ComponentEvent> events = new ArrayList<>();
 
     // Getters and setters
-
-
-    public List<String> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(List<String> attributes) {
-        this.attributes = attributes;
-    }
-
-    public String getNgOnInit() {
-        return ngOnInit;
-    }
-
-    public void setNgOnInit(String ngOnInit) {
-        this.ngOnInit = ngOnInit;
-    }
 
     public List<ComponentFunction> getFunctions() {
         return functions;
@@ -66,12 +47,20 @@ public class ComponentModel {
         this.events = events;
     }
 
+    public String getNgOnInitFunction() {
+        for (ComponentFunction fn : functions) {
+            if (fn.getName().startsWith("ngOnInit")) {
+                return fn.getName();
+            }
+        }
+        return null;
+    }
 
     @Override
     public String toString() {
         return "ComponentModel{" +
-                "attributes=" + attributes +'\n' +
-                ", ngOnInit='" + ngOnInit +'\''+'\n' +
+//                "attributes=" + attributes +'\n' +
+//                ", ngOnInit='" + ngOnInit +'\''+'\n' +
                 ", functions=" + functions +'\n' +
                 ", render='" + render +'\''+'\n' +
                 ", domElements=" + domElement +'\n' +

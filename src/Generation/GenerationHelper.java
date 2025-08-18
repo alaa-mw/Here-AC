@@ -123,6 +123,42 @@ public class GenerationHelper {
         }
     }
 
+    // مساعدة لإزالة علامات الاقتباس من STRING_LITERAL
+    public static String stripQuotes(String s) {
+        return s.replaceAll("^\"|\"$", "")
+                .replaceAll("^'|'$", "");
+    }
+    public static String PrintSetActiveNav(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        sb.append("function setActiveNav(navId) {\n");
+        sb.append("  document.querySelectorAll('nav a').forEach(x => x.classList.remove('active'));\n");
+        sb.append("  if (navId) document.getElementById(navId).classList.add('active');\n");
+        sb.append(" }\n\n");
+        return sb.toString();
+    }
+
+    public static String PrintShowSection(List<String> itemShowSection) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        sb.append("function showSection(section) {\n");
+
+        sb.append("  [");
+        for (int i = 0; i < itemShowSection.size(); i++) {
+            sb.append(itemShowSection.get(i));
+            if (i < itemShowSection.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("].forEach(s => s.style.display = 'none');\n");
+
+        sb.append("  section.style.display = 'block';\n");
+        sb.append("}\n\n");
+
+        return sb.toString();
+    }
+
+
 
 
 }

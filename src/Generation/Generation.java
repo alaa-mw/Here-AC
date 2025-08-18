@@ -32,6 +32,9 @@ import AST.PropertyValueClasses.BracketedPropertyValueExpr;
 import AST.PropertyValueClasses.PropertyValue;
 import AST.PropertyValueClasses.ShortIfExpr;
 import AST.PropertyValueObjects.*;
+import AST.Routing.RouteObject;
+import AST.Routing.RouteProperty;
+import AST.Routing.RoutesDeclaration;
 import AST.Service.ServiceBlock;
 import AST.propertyCallClasses.PropertyCall;
 import AST.propertyCallClasses.PropertyWithMethodCall;
@@ -132,7 +135,11 @@ public class Generation {
                 generate((ServiceBlock) statement);
             } else if (statement instanceof InterfaceDeclaration) {
                 generate((InterfaceDeclaration) statement);
+            } else if (statement instanceof RoutesDeclaration) {
+                generateRoutesJS((RoutesDeclaration) statement);
             }
+
+
         }
 
 //        js_fw.write("</script>\n");
@@ -1409,5 +1416,104 @@ public class Generation {
                 }
         });
     }
+    private void generateRoutesJS(RoutesDeclaration routeDecl) throws IOException {
+        //   طباعة تابع setActiveNav
+        js_fw.write(PrintSetActiveNav());
+
+        // تعريف المصفوفة التي سوف أرسلها إلى تابع showSection
+        List<String> itemShowSection =new ArrayList<>();
+
+        js_fw.write("// ===== Generated Routing =====\n");
+        js_fw.write("function handleRoute(path) {\n");
+        js_fw.write("    history.pushState(null, '', path);\n");
+
+        // ⃣ تجهيز متغيرات regex لكل مسار يحتوي على :id
+        for (RouteObject routeObj : routeDecl.getRouteArray().getRouteObjectList()) {
+            String rawPath = stripQuotes(routeObj.getRouteProperty().getPathValue());
+            String componentName = routeObj.getRouteProperty().getComponentClassName();
+
+            if (rawPath.contains(":id")) {
+                String varName = "id" + componentName.replace("Component", "");
+                String regex = rawPath.replace("/:id", "\\/([^\\/]+)");
+                js_fw.write("    const " + varName + " = path.match(/^\\/" + regex + "$/);\n");
+            }
+        }
+        js_fw.write("    \n");
+
+        // 2️⃣ بناء شروط if / else if لكل مسار
+        boolean firstCondition = true;
+        List<RouteObject> sortedRoutes = new ArrayList<>(routeDecl.getRouteArray().getRouteObjectList());
+
+        // ترتيب المسارات: المسار '/' في النهاية
+        sortedRoutes.sort((a, b) -> {
+            String pathA = stripQuotes(a.getRouteProperty().getPathValue());
+            String pathB = stripQuotes(b.getRouteProperty().getPathValue());
+            if (pathA.equals("")) return 1;
+            if (pathB.equals("")) return -1;
+            return 0;
+        });
+        for (RouteObject routeObj : sortedRoutes) {
+            String rawPath = stripQuotes(routeObj.getRouteProperty().getPathValue());
+            String componentName = routeObj.getRouteProperty().getComponentClassName();
+
+            ComponentModel comp = componentTempMap.get(componentName);
+            if (comp == null) continue;
+
+            String ngOnInit = comp.getNgOnInitFunction();
+            System.out.println(ngOnInit+"=====================");
+            String render = comp.getRender();
+            String domConst = comp.getDomElement().getConstant();
+            if (!itemShowSection.contains(domConst)) {
+                itemShowSection.add(domConst);
+            }
+            String condition = firstCondition ? "if" : "else if";
+            firstCondition = false;
+
+            if (rawPath.equals("")) {
+                js_fw.write("    " + condition + " (path.includes('/')) {\n");
+            } else {
+                String cleanPath = "/" + rawPath.replace("/:id", "");
+                js_fw.write("    " + condition + " (path.includes('" + cleanPath + "')) {\n");
+            }
+
+            // استدعاء ngOnInit
+            if (ngOnInit != null && !ngOnInit.isEmpty()) {
+                if (rawPath.contains(":id")) {
+                    String varName = "id" + componentName.replace("Component", "");
+                    js_fw.write("        " + ngOnInit + "(" + varName + "[1]);\n");
+                } else {
+                    js_fw.write("        " + ngOnInit + "(null);\n");
+                }
+            }
+
+            // استدعاء render
+            if (render != null && !render.isEmpty()) {
+                js_fw.write("        " + render + "();\n");
+            }
+
+            // استدعاء showSection
+            if (domConst != null) {
+                js_fw.write("        showSection(" + domConst + ");\n");
+            }
+
+            // إضافة setActiveNav للصفحة الرئيسية و Add
+            if (rawPath.equals("") || rawPath.equals("add")) {
+                String nav = rawPath.equals("") ? "nav-list" : "nav-add";
+                js_fw.write("        setActiveNav('" + nav + "');\n");
+            }
+
+            js_fw.write("    }\n");
+        }
+
+        js_fw.write("}\n");
+
+        //طباعة تابع showSection
+        js_fw.write(PrintShowSection(itemShowSection));
+    }
+
+
+
+
+
 
 }

@@ -11,9 +11,8 @@ public  class TempFiller {
 
         // 1. ProductListComponent
         ComponentModel productList = new ComponentModel();
-        productList.getAttributes().add("products$");
-        productList.setNgOnInit(null);
 
+        productList.getFunctions().add(new ComponentFunction("ngOnInit", ""));
         productList.getFunctions().add(new ComponentFunction("goToDetails", "handleRoute(`/product/${id}`);"));
         productList.getFunctions().add(new ComponentFunction("deleteProduct", "state.deleteProduct(id);\nhandleRoute('/');"));
         productList.getFunctions().add(new ComponentFunction("editProduct", "handleRoute(`/edit/${id}`);"));
@@ -29,10 +28,9 @@ public  class TempFiller {
 
         // 2. AddProductComponent
         ComponentModel addProduct = new ComponentModel();
-        addProduct.getAttributes().add("formProduct");
-        addProduct.getAttributes().add("editingId");
-        addProduct.setNgOnInit("ngOninitForm");
 
+
+        addProduct.getFunctions().add(new ComponentFunction("ngOnInit", ""));
         addProduct.getFunctions().add(new ComponentFunction("onSubmit",
                 "e.preventDefault();\nconsole.log(formProduct)\nif (editingId) {\n" +
                         "state.updateProduct({\nid: editingId,\n...formProduct\n});\n} else {\n" +
@@ -49,8 +47,9 @@ public  class TempFiller {
 
         // 3. ProductDetailsComponent
         ComponentModel productDetails = new ComponentModel();
-        productDetails.getAttributes().add("selectedProduct");
-        productDetails.setNgOnInit("ngOnInitDetails");
+
+        productDetails.getFunctions().add(new ComponentFunction("ngOnInit", ""));
+
         productDetails.setRender("renderDetails");
         productDetails.setDomElement(new DomElement("detailsSection", "product-details-section"));
 

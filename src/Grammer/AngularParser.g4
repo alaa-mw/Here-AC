@@ -150,7 +150,7 @@ routeArray
     : OPEN_SQUARE_BRACKET routeObject (COMMA routeObject)* CLOSE_SQUARE_BRACKET
     ;
 routeObject
-    : OPEN_CURLY_BRACKET routeProperty (COMMA routeProperty)* CLOSE_CURLY_BRACKET
+    : OPEN_CURLY_BRACKET routeProperty  CLOSE_CURLY_BRACKET
     ;
 
 routeProperty
