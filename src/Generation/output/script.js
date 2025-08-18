@@ -1,12 +1,65 @@
-class AddProductComponent {
-    formProduct = {name: '', desc: '', image: ''};
+class AppComponent {
+}
+function renderproductListSection() {
+const template = 
+state.products.map(product => `
+<div class="product-item"  id="product-item" >
+<h3>
+${product.name}
+</h3>
+<div class="product-content" >
+<img src= "${product.image}"  />
+<div class="product-actions" >
+<button id="details-btn"  id="details-btn" data-id="${product.id}" >
+ Details
+</button>
+<button id="edit-btn"  id="edit-btn" data-id="${product.id}" >
+ Edit
+</button>
+<button id="delete-btn"  id="delete-btn" data-id="${product.id}" >
+ Delete
+</button>
 
-    editingId = null;
+</div>
 
+</div>
+
+</div>
+`).join('');
+productListSection.innerHTML = template;
+}
+class ProductListComponent {
+    products$;
+
+constructor(productState,router) {;}
+goToDetails(id){;}
+deleteProduct(event,id){;;;}
+editProduct(event,id){;;}
+}
+function renderproductListSection() {
+const template = 
+selectedProduct 
+? `<div>
+<h1>
+${selectedProduct.name}
+</h1>
+<p>
+${selectedProduct.desc}
+</p>
+<img src= "${selectedProduct.image}"  />
+
+</div>
+` : `  <p>
+ Product not found
+</p>
+
+` 
+productListSection.innerHTML = template;
+}
+class ProductDetailsComponent {
     selectedProduct = null;
 
-    initialProducts = [{id: '1', name: 'Product 1 Camera', desc: 'Capture moments with this amazing camera.', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32'}, {id: '2', name: 'Product 2 Laptop', desc: 'High performance laptop for all your needs.', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853'}, {id: '3', name: 'Product 3 Wireless Headphones', desc: 'Experience premium sound quality wirelessly.', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e'}];
-
+constructor(route,productState,router) {}
 ngOnInit(){if (id){
 const found = this.productState.products$.subscribe({
 this.selectedProduct = products.find(ArrowFunctionExpr);
@@ -14,6 +67,58 @@ this.selectedProduct = products.find(ArrowFunctionExpr);
 );
 }
 }
+}
+function renderaddEditProductSection() {
+const template = 
+`
+<form id="product-form" >
+<div>
+<label>
+ Name
+</label>
+<input value="${formProduct.name}" name="name"  />
+
+</div>
+<div>
+<label>
+ Description
+</label>
+<input value="${formProduct.desc}" name="desc"  />
+
+</div>
+<div>
+<label>
+ Image URL
+</label>
+<input value="${formProduct.image}" name="image"  />
+
+</div>
+<button id="submit"  id="submit"  type="submit"  type="submit" >
+{{editingId?'Edit Product':'Add Product'}}
+</button>
+<button id="cancel"  id="cancel"  type="button"  type="button" >
+ Cancel
+</button>
+
+</form>
+`;
+addEditProductSection.innerHTML = template;
+}
+class AddProductComponent {
+    formProduct = {name: '', desc: '', image: ''};
+
+    editingId = null;
+
+constructor(productState,router,route) {}
+ngOnInit(){;}
+onSubmit(){if (this.editingId){
+;
+}
+else {
+;
+}
+;}
+cancel(){;}
 }
 		<!-- Interface Declaration: Product -->
 		<!-- Service Block -->
@@ -59,4 +164,3 @@ function showSection(section) {
 }
 
 const addEditProductSection = document.getElementById('add-edit-product-section');
-

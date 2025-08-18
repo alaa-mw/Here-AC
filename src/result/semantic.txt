@@ -1,2 +1,4 @@
 Semantic Check :
-No Error Added
+Invalid HTML binding: product
+Invalid HTML binding: name
+Invalid HTML binding: desc

@@ -1,4 +1,4 @@
-// Generated from C:/Users/G.force/Desktop/comp now/Here-AC/src/Grammer\AngularLexer.g4 by ANTLR 4.10.1
+// Generated from D:/compiler projects/_last-git/Here-AC/src/Grammer\AngularLexer.g4 by ANTLR 4.10.1
 package Grammer;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

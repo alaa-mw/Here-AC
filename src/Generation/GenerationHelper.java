@@ -25,10 +25,13 @@ public class GenerationHelper {
     }
 
     public static boolean hasNgIf(HtmlElement htmlElement){
-        if (htmlElement.getOpenTag() != null && htmlElement.getOpenTag().getHtmlAttributeArray() != null) {
-            for (HtmlAttribute attr : htmlElement.getOpenTag().getHtmlAttributeArray()) {
-                if (attr instanceof NgIF) {
-                    return true;
+        for ( HtmlContentBody htmlContentBody: htmlElement.getHtmlContentBody()
+             ) {
+            if(htmlContentBody.getHtmlElement() != null) {
+                for (HtmlAttribute attr : htmlContentBody.getHtmlElement().getOpenTag().getHtmlAttributeArray()) {
+                    if (attr instanceof NgIF) {
+                        return true;
+                    }
                 }
             }
         }

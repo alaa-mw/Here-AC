@@ -635,11 +635,11 @@ public class Generation {
         if (value == null) return "";
 
         if (value instanceof BinaryOperationPropertyValueExpr) {
-           // return generate((BinaryOperationPropertyValueExpr) value); fix
+            return generate((BinaryOperationPropertyValueExpr) value); //✔️
         } else if (value instanceof BracketedPropertyValueExpr) {
             //return generate((BracketedPropertyValueExpr) value); fix
         } else if (value instanceof ShortIfExpr) {
-            //return generate((ShortIfExpr) value);  fix
+            return generate((ShortIfExpr) value);  //✔️
         }
         //  PropertyValueObjects interface extends from PropertyValueObjectExpr interface and there are 11 classes implement from PropertyValueObjects
         else if (value instanceof PropertyValueObjects) {
@@ -1265,9 +1265,15 @@ public class Generation {
             js_fw.write("`).join('');\n");
 
         } else if (hasNgIf(htmlElement)) {
+
             js_fw.write("selectedProduct \n" + "? `");  // handle later
-            generateJs(htmlElement);
-            js_fw.write(": `<p>Product not found</p>`;\n");
+
+            generateJs(htmlElement.getHtmlContentBody().get(0));
+
+            js_fw.write("` : `  ");
+
+            generateJs(htmlElement.getHtmlContentBody().get(1));
+            js_fw.write("` \n");
         }else {
             js_fw.write("`\n");
             generateJs(htmlElement);
@@ -1292,12 +1298,15 @@ public class Generation {
     }
 
     private void generateJs(OpenTag openTag) throws IOException {
+
+        if(Objects.equals(openTag.getIdentifier(), "ng-template") ) return;
+
         js_fw.write("<" + openTag.getIdentifier());
 
         if (openTag.getHtmlAttributeArray() != null) {
             for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
                 if (htmlAttribute instanceof BasicAttribute ){
-                    if(openTag.getIdentifier() =="button")
+                    if(Objects.equals(openTag.getIdentifier(), "button"))
                         generateJsEvent((BasicAttribute) htmlAttribute ,openTag.getIdentifier());
                     generateJs((BasicAttribute) htmlAttribute);
 
@@ -1306,7 +1315,10 @@ public class Generation {
 
                 } else if (htmlAttribute instanceof ActionAttribute) {
                     generateJs((ActionAttribute) htmlAttribute);
-               }
+
+               } else if (htmlAttribute instanceof HtmlBinding) {
+                    generateJs((HtmlBinding)htmlAttribute);
+                }
             }
         }
         js_fw.write(">\n");
@@ -1317,9 +1329,15 @@ public class Generation {
         js_fw.write( "<" + selfClosingTag.getIdentifier());
 
         for (HtmlAttribute htmlAttribute : selfClosingTag.getHtmlAttributes()) {
-           if (htmlAttribute instanceof ImageAttribute) {
+            if (htmlAttribute instanceof BasicAttribute ){
+                generateJs((BasicAttribute) htmlAttribute);
+
+            } else if (htmlAttribute instanceof ImageAttribute) {
                 generateJs((ImageAttribute) htmlAttribute);
-            }
+
+            }else if (htmlAttribute instanceof HtmlBinding) {
+               generateJs((HtmlBinding)htmlAttribute);
+           }
         }
 
         js_fw.write(" />\n");
@@ -1364,11 +1382,17 @@ public class Generation {
     // Generates a standard basic attribute
 
     private void generateJs(HtmlBinding htmlBinding) throws IOException {
+        if(htmlBinding instanceof TwoWayBinding){
+            js_fw.write(" value=\"${" +
+                        stripQuotes(((TwoWayBinding) htmlBinding).getValue())
+                        +"}\"");
+        }
 
     }
 
     // Generates a close tag
     private void generateJs(CloseTag closeTag) throws IOException {
+        if(Objects.equals(closeTag.getCloseTagName(), "ng-template") ) return;
         js_fw.write( "</" + closeTag.getCloseTagName() + ">\n");
     }
     private void generateJs(HtmlContentBody htmlContentBody) throws IOException {
@@ -1391,6 +1415,12 @@ public class Generation {
             js_fw.write("${");
             generateJs((PropertyCall)propertyValue);
             js_fw.write("}");
+        }if (propertyValue instanceof ShortIfExpr) {
+            // Output the identifier as plain text
+            js_fw.write("{{");
+            String out = generate((ShortIfExpr) propertyValue);
+            js_fw.write(out);
+            js_fw.write("}}");
         }
     }
     private void generateJs(PropertyCall propertyCall) throws IOException {
@@ -1416,6 +1446,7 @@ public class Generation {
                 }
         });
     }
+    // ================== generate Routes JS ==================== oula :)
     private void generateRoutesJS(RoutesDeclaration routeDecl) throws IOException {
         //   طباعة تابع setActiveNav
         js_fw.write(PrintSetActiveNav());
@@ -1460,7 +1491,6 @@ public class Generation {
             if (comp == null) continue;
 
             String ngOnInit = comp.getNgOnInitFunction();
-            System.out.println(ngOnInit+"=====================");
             String render = comp.getRender();
             String domConst = comp.getDomElement().getConstant();
             if (!itemShowSection.contains(domConst)) {
@@ -1511,9 +1541,40 @@ public class Generation {
         js_fw.write(PrintShowSection(itemShowSection));
     }
 
+//================== temp
+    private String generate(ShortIfExpr shortIfExpr) throws IOException{ // ✔️
+        if (shortIfExpr == null) return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append(generate(shortIfExpr.getCondition()))
+                .append(shortIfExpr.getQuestionToken())
+                .append(generate(shortIfExpr.getTrueBranch()))
+                .append(shortIfExpr.getDotDotToken())
+                .append(generate(shortIfExpr.getFalseBranch()));
 
+        return sb.toString();
+    }
 
+    public String generate (BinaryOperationPropertyValueExpr binaryOperationPropertyValueExpr) throws IOException{
+        // Get left and right values
+        String leftValue = binaryOperationPropertyValueExpr.getLeft() != null
+                ? generate(binaryOperationPropertyValueExpr.getLeft())
+                : "";
+        String rightValue = binaryOperationPropertyValueExpr.getRight() != null
+                ? generate(binaryOperationPropertyValueExpr.getRight())
+                : "";
+        String op = binaryOperationPropertyValueExpr.getOperation() != null
+                ? generate(binaryOperationPropertyValueExpr.getOperation())
+                : "";
 
+        // Use StringBuilder
+        StringBuilder sb = new StringBuilder();
+        sb.append(leftValue)
+                .append(" ")
+                .append(op)
+                .append(" ")
+                .append(rightValue);
 
+        return sb.toString();
+    }
 
 }
