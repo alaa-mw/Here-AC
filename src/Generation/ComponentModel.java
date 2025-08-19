@@ -7,13 +7,21 @@ import java.util.Objects;
 
 public class ComponentModel {
     // class
-    private List<ComponentFunction> functions = new ArrayList<>();;
+    private List<String> attributes = new ArrayList<>();
+    private List<ComponentFunction> functions = new ArrayList<>();
     // component
     private String render;
     private DomElement domElement ;
     private List<ComponentEvent> events = new ArrayList<>();
 
     // Getters and setters
+    public List<String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<String> attributes) {
+        this.attributes = attributes;
+    }
 
     public List<ComponentFunction> getFunctions() {
         return functions;

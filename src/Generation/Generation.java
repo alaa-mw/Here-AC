@@ -14,6 +14,7 @@ import AST.Constructor.*;
 import AST.DataType.DataType;
 import AST.DataType.ListSuffix;
 import AST.DataType.SingleDataType;
+import AST.DataType.TypeArguments;
 import AST.Expression.BinaryExpression;
 import AST.Expression.Expression;
 import AST.Expression.LiteralOrReferenceExpression;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static Generation.GenerationHelper.*;
+import static Generation.GenerationHelper.skipIdentifier;
 
 public class Generation {
     private FileWriter index_fw;
@@ -449,6 +451,8 @@ public class Generation {
         // Class name (identifier)
         js_fw.write(cls.getIdentifier() + " ");
 
+        currentComponent=cls.getIdentifier();
+        componentMap.put(currentComponent,new ComponentModel());
 //        // Optional heritage (extends)
         if (cls.getClassHeritage() != null) {
             generate(cls.getClassHeritage()); // e.g., "extends MyBaseClass"
@@ -494,89 +498,81 @@ public class Generation {
     private void generate(ConstructorDeclaration cd) throws IOException {
         js_fw.write(cd.getConstructor() + "(");
         if(cd.getConstructorParams() != null){
-            generate(cd.getConstructorParams());
+            String s=generate(cd.getConstructorParams());
+            js_fw.write(s);
         }
         js_fw.write( ") {");
         for (ConstructorBody cb : cd.getConstructorBody()){
-            generate(cb);
+            String s=generate(cb);
+            js_fw.write(s);
         }
         js_fw.write( "}");
     }
 
-    private void generate(ConstructorBody cb) throws IOException {
+    private String generate(ConstructorBody cb) throws IOException {
         if(cb instanceof ConstructorBodyProperty){
-            generate((ConstructorBodyProperty) cb);
+            return generate((ConstructorBodyProperty) cb);
         }
         if(cb instanceof CommonStatement){
-//            generate((CommonStatement) cb);
-            js_fw.write(generate((CommonStatement) cb));
+            return generate((CommonStatement) cb);
         }
-
+        return "";
     }
-    private void generate(ConstructorBodyProperty cp) throws IOException {
+    private String generate(ConstructorBodyProperty cp) throws IOException {
         if(cp instanceof ParameterPropertyAssignment){
-            generate((ParameterPropertyAssignment) cp);
+            return generate((ParameterPropertyAssignment) cp);
         }
         if(cp instanceof MethodBodyProperty){
-            generate((MethodBodyProperty) cp);
+            return generate((MethodBodyProperty) cp);
         }
+        return "";
     }
 
-    private void generate(ParameterPropertyAssignment ppa) throws IOException {
-
+    private String generate(ParameterPropertyAssignment ppa) throws IOException {
+        return "";
     }
 
 
-    private void generate(ConstructorParams cp) throws IOException {
+    private String generate(ConstructorParams cp) throws IOException {
+        StringBuilder sb = new StringBuilder();
         List<ConstructorParam> parameters = cp.getConstructorParam();
+
         for (int i = 0; i < parameters.size(); i++) {
-            js_fw.write(parameters.get(i).getConstructorParamName()); // your own method to generate a parameter
+            sb.append(parameters.get(i).getConstructorParamName()); // append parameter name
             if (i < parameters.size() - 1) {
-                js_fw.write(","); // write comma between parameters
+                sb.append(","); // add comma if not the last one
             }
         }
+
+        return sb.toString();
     }
 
     private void generate(ClassPropertyDeclaration prop) throws IOException {
         StringBuilder line = new StringBuilder("    ");
-
-        // Access modifier (optional — JS doesn't use it, but you may include it for clarity)
-//        if (prop.getAccessModifiers() != null) {
-//            line.append(prop.getAccessModifiers().getModifier()).append(" ");
-//        }
-
         // static
         if (prop.getStatic_() != null) {
             line.append("static ").append(" ");
         }
 
-        // readonly — JS doesn't support directly, so can skip or leave a comment
-        if (prop.getReadonly() != null) {
-            // optional: simulate or comment
-            // line.append("// readonly ");
-        }
-
         // Property name
         if (prop.getIdentifier()!=null){
-            line.append(prop.getIdentifier());
-//            js_fw.write("localStorage.setItem(\""+prop.getIdentifier()+"\", JSON.stringify("+prop.getIdentifier()+"));");
-            //localStorage.setItem("products", JSON.stringify(products));
+            line.append(skipIdentifier(prop.getIdentifier()));
+            componentMap.get(currentComponent).getAttributes().add(skipIdentifier(prop.getIdentifier()));
+//            System.out.println("---------> "+componentMap.get(currentComponent).getAttributes());
         }
 
-        //         AssignDataType
+        // AssignDataType
         if (prop.getAssignDataType() != null) {
             String type=generate(prop.getAssignDataType());
             if (type.equals("null")) {
                 line.append(" = ");
                 line.append(type);
             }
-
         }
 
-//         Assignment
+        // Assignment
         if (prop.getAssigment() != null) {
             line.append(" = ");
-//            line.append(prop.getAssigment().getValue()); // assuming getValue() returns a JS expression as string
             line.append(generate(prop.getAssigment().getPropertyValue()));
         }
 
@@ -595,10 +591,7 @@ public class Generation {
         if (assignDataType.getDataTypes() != null && !assignDataType.getDataTypes().isEmpty()) {
             for (int i = 0; i < assignDataType.getDataTypes().size(); i++) {
                 DataType dt = assignDataType.getDataTypes().get(i);
-                  sb.append(generate(dt));
-//                if (i < assignDataType.getDataTypes().size() - 1) {
-//                    sb.append(" | "); // في حال كان هناك Union types
-//                }
+                sb.append(generate(dt));
             }
         }
 
@@ -614,12 +607,7 @@ public class Generation {
             for (int i = 0; i < dataType.getSingleDataTypeList().size(); i++) {
                 SingleDataType sdt = dataType.getSingleDataTypeList().get(i);
                 String type=generate(sdt);
-
-//                if (type.equals("null")) {
-                    sb.append(type);
-//                }
-
-
+                sb.append(type);
             }
         }
 
@@ -653,11 +641,11 @@ public class Generation {
         if (value == null) return "";
 
         if (value instanceof BinaryOperationPropertyValueExpr) {
-            return generate((BinaryOperationPropertyValueExpr) value); //✔️
+            return generate((BinaryOperationPropertyValueExpr) value);
         } else if (value instanceof BracketedPropertyValueExpr) {
             //return generate((BracketedPropertyValueExpr) value); fix
         } else if (value instanceof ShortIfExpr) {
-            return generate((ShortIfExpr) value);  //✔️
+            return generate((ShortIfExpr) value);
         }
         //  PropertyValueObjects interface extends from PropertyValueObjectExpr interface and there are 11 classes implement from PropertyValueObjects
         else if (value instanceof PropertyValueObjects) {
@@ -705,16 +693,63 @@ public class Generation {
             return generate((LIst) propertyValueObjects);
         }
         if (propertyValueObjects instanceof ArrowFunctionExpr) {
-            return "ArrowFunctionExpr";
-//            return generate((ArrowFunctionExpr) propertyValueObjects);
+            return generate((ArrowFunctionExpr) propertyValueObjects);
         }
         if (propertyValueObjects instanceof ArrowFunctionBlockExpr) {
             return generate((ArrowFunctionBlockExpr) propertyValueObjects);
-//            return generate((ArrowFunction) propertyValueObjects);
+        }
+        if(propertyValueObjects instanceof NewExpression){
+            return generate((NewExpression)propertyValueObjects);
+        }
+        if(propertyValueObjects instanceof SpreadElementExpr){
+            return generate((SpreadElementExpr)propertyValueObjects);
         }
         return " ";
     }
 
+    private String generate(SpreadElementExpr spreadElementExpr) throws IOException{ // ✔
+        if (spreadElementExpr == null) return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append(spreadElementExpr.getSpreadKey());
+        sb.append(generate(spreadElementExpr.getPropertyCall()));
+        return sb.toString();
+    }
+    private String generate(NewExpression newExpression) throws IOException{ // ✔
+        if(newExpression.getTypeArgument()!=null){
+            return generate(newExpression.getTypeArgument());
+        }
+        return " ";
+    }
+
+    private String generate(TypeArguments typeArguments) throws IOException{ // ✔
+        for (DataType dataType :typeArguments.getDataTypes()){
+            return generate(dataType);
+        }
+        return "";
+    }
+
+    public String generate(ArrowFunctionExpr arrowFunctionExpr) throws IOException{
+        if (arrowFunctionExpr == null) return "";
+
+        StringBuilder sb = new StringBuilder();
+
+        // identifier part (like a parameter name)
+        if (arrowFunctionExpr.getIdentifier() != null) {
+            sb.append(arrowFunctionExpr.getIdentifier()).append(" ");
+        }
+
+        // arrow symbol (e.g. "=>")
+        if (arrowFunctionExpr.getArrowKey() != null) {
+            sb.append(arrowFunctionExpr.getArrowKey()).append(" ");
+        }
+
+        // expression (the body of the arrow function)
+        if (arrowFunctionExpr.getExpression() != null) {
+            sb.append(generate(arrowFunctionExpr.getExpression()));
+        }
+
+        return sb.toString();
+    }
     private String generate(LiteralValue literalValue) throws IOException{ // ✔
         if (literalValue == null || literalValue.getValue() == null) {
             return "";
@@ -727,15 +762,15 @@ public class Generation {
         StringBuilder js = new StringBuilder();
 
         // 1. المعامل (identifier)
-//        if (arrowFunctionBlockExpr.getIdentifier() != null) {
-//            js.append(arrowFunctionBlockExpr.getIdentifier());
-//        }
-//        if (arrowFunctionBlockExpr.getArrowKey()!=null){
-//            js.append(arrowFunctionBlockExpr.getArrowKey());
-//        }
+        if (arrowFunctionBlockExpr.getIdentifier() != null) {
+            js.append(arrowFunctionBlockExpr.getIdentifier());
+        }
+        if (arrowFunctionBlockExpr.getArrowKey()!=null){
+            js.append(arrowFunctionBlockExpr.getArrowKey());
+        }
         if (arrowFunctionBlockExpr.getBlock() != null) {
 
-          return generate(arrowFunctionBlockExpr.getBlock());
+            js.append(generate(arrowFunctionBlockExpr.getBlock()));
 
         }
 
@@ -755,10 +790,21 @@ public class Generation {
         List<String> identifiers = propertyWithMethodCall.getIdentifiers();
         if (identifiers != null && !identifiers.isEmpty()) {
             for (String id : identifiers) {
-                if (sb.length() > 0) {
+
+                if (id.equals("route")|| id.equals("snapshot")){
+                    return "##";
+                }
+                if (sb.length() > 0 && skipDot(id)) {
                     sb.append(".");
                 }
-                sb.append(id);
+//                String temp=id;
+////                if (id.equals("products")){
+//////                    temp=id.replace("products","state");
+//////                    System.out.println(temp);
+////                }
+//                sb.append(temp);
+
+                sb.append(skipIdentifier(id));
             }
         }
 
@@ -766,31 +812,49 @@ public class Generation {
         List<MethodCall> methodCalls = propertyWithMethodCall.getMethodCalls();
         if (methodCalls != null && !methodCalls.isEmpty()) {
             for (MethodCall methodCall : methodCalls) {
-                if (sb.length() > 0) {
+                if (sb.length() > 0 && skipDot(methodCall.getMethodCalledName())) {
                     sb.append(".");
                 }
                 sb.append(generate(methodCall)); // returns e.g. `.getName()`
             }
         }
-
         return sb.toString();
     }
 
     public String generate(SimplePropertyCall simplePropertyCall) throws IOException { //✔
         StringBuilder sb = new StringBuilder();
 
+        // check if the first identifier exists in the class
+        boolean exists=false;
+        if (simplePropertyCall.getIdentifiers()!=null && !simplePropertyCall.getIdentifiers().isEmpty()){
+            String firstElement=simplePropertyCall.getIdentifiers().get(0);
+            if (componentMap!=null && componentMap.get(currentComponent)!=null){
+//                            System.out.println("--------------> "+componentMap.get(currentComponent).getAttributes());
+
+                if(componentMap.get(currentComponent).getAttributes().contains(firstElement)){
+                    exists=true;
+                }
+
+            }
+        }
+
         // Start with "this" if present
         if (simplePropertyCall.getThis_() != null) {
-            sb.append("this");
+            if (!exists) // if the variable exists in the class we don`t want to add "this"
+                sb.append("this");
         }
+
 
         // Append each identifier as a property access
         for (String identifier : simplePropertyCall.getIdentifiers()) {
-            sb.append(".").append(identifier);
+            if (sb.length() > 0 && skipDot(identifier)) {
+                sb.append(".");
+            }
+            sb.append(skipIdentifier(identifier));
         }
 
         // Write the line (ending with semicolon only if you're generating a statement)
-//        sb.append("\n");
+        sb.append("\n");
 
         return sb.toString();
     }
@@ -799,13 +863,16 @@ public class Generation {
         StringBuilder sb = new StringBuilder();
 
         // Start with the method name
-        sb.append(methodCall.getMethodCalledName());
+        String s= methodCall.getMethodCalledName();
+
+        sb.append(skipIdentifier(s));
         sb.append("(");
 
         // Generate arguments (if any)
         List<Expression> expressions = methodCall.getExpressions();
         for (int i = 0; i < expressions.size(); i++) {
-            sb.append(generate(expressions.get(i))); // generate(Expression)
+            String expr=generate(expressions.get(i));
+            sb.append(expr); // generate(Expression)
             if (i < expressions.size() - 1) {
                 sb.append(", ");
             }
@@ -818,7 +885,18 @@ public class Generation {
         }
         return sb.toString();
     }
+    public static String extractContent(String input) {
+        // Regex: capture text between first { and last }
+        String regex = "\\{(.*)\\}";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex, java.util.regex.Pattern.DOTALL);
+        java.util.regex.Matcher matcher = pattern.matcher(input);
 
+        if (matcher.find()) {
+            // Trim to remove unwanted newlines/spaces
+            return matcher.group(1).trim();
+        }
+        return input;
+    }
     private String generate(Expression expression) throws IOException {
         if (expression instanceof ParentExpression) {
             return generate((ParentExpression) expression);
@@ -924,15 +1002,16 @@ public class Generation {
 
         List<String> parts = new ArrayList<>();
 
+        // Add spread elements
+        for (SpreadElementExpr spread : lIst.getSpreadElements()) {
+            parts.add( generate(spread)); // assume you have generate(SpreadElementExpr)
+        }
+
         // Add regular elements
         for (PropertyValue element : lIst.getElements()) {
             parts.add(generate(element)); // assume you have generate(PropertyValue)
         }
 
-        // Add spread elements
-        for (SpreadElementExpr spread : lIst.getSpreadElements()) {
-            parts.add("..." + generate(spread)); // assume you have generate(SpreadElementExpr)
-        }
 
         sb.append(String.join(", ", parts));
         sb.append("]");
@@ -947,20 +1026,44 @@ public class Generation {
         if(methodDeclaration.getStatic_() != null){
             js_fw.write(methodDeclaration.getStatic_() + " ");
         }
-        componentMap.get(currentComponent).getFunctions().add(
-                new ComponentFunction(methodDeclaration.getIdentifier(),methodDeclaration.getIdentifier()));
+        js_fw.write("function ");
 
-        js_fw.write(methodDeclaration.getIdentifier() );
-        js_fw.write( "(");
+        String funcName = methodDeclaration.getIdentifier()
+                + currentComponent;
+        js_fw.write(funcName);
+
+        if (hasNgOnInit(funcName)){
+            js_fw.write( "( id ");
+        }
+        else{
+            js_fw.write( "(");
+        }
+
         if(methodDeclaration.getParameterList() != null){
             generate(methodDeclaration.getParameterList());
         }
         js_fw.write(")");
-        js_fw.write( "{");
+        js_fw.write( "{\n");
+        String implement="";
+        StringBuilder sb = new StringBuilder();
         for(MethodBody methodBody : methodDeclaration.getMethodBody()){
-            generate(methodBody);
+            implement= generate(methodBody);
+            sb.append(implement);
+
         }
-        js_fw.write("}");
+
+
+        componentMap.get(currentComponent).getFunctions().add(new ComponentFunction(funcName,sb.toString()));
+//        System.out.println("currentComponent: "+currentComponent);
+//        System.out.println(componentMap.get(currentComponent).getFunctions());
+//        System.out.println("----------------------------------------------");
+//        System.out.println("implement: "+sb.toString()+"\n ----------- \n");
+        js_fw.write(sb.toString());
+        js_fw.write("\n}\n");
+    }
+
+    private boolean hasNgOnInit(String funcName) {
+        return funcName != null && funcName.contains("ngOnInit");
     }
 
     private void  generate(ParameterList pl) throws IOException {
@@ -989,31 +1092,36 @@ public class Generation {
 
 
     }
-    private void  generate(MethodBody mp) throws IOException {
+    private String  generate(MethodBody mp) throws IOException {
         if (mp instanceof ReturnStatement) {
-//            generate((ReturnStatement) mp);
-            String s=generate((ReturnStatement) mp);
-            js_fw.write(s);
+            return generate((ReturnStatement) mp);
         }
         else if (mp instanceof CommonStatement) {
-//            generate((CommonStatement) mp);
-            js_fw.write(generate((CommonStatement) mp));
+            return generate((CommonStatement) mp);
         } else if (mp instanceof MethodBodyProperty) {
-            generate((MethodBodyProperty) mp);
+            return generate((MethodBodyProperty) mp);
         } else if (mp instanceof PropertyCall) {
-            generate(mp) ;
-            js_fw.write(";");
+            return   generate((PropertyCall) mp) ;
         }
+        return "";
     }
 
-    private void  generate(MethodBodyProperty methodP) throws IOException {
-        if(methodP instanceof LocalVariableDeclaration){
-            generate((LocalVariableDeclaration) methodP);
-//            js_fw.write(";");
-        } else {
-            generate((PropertyAssignment)methodP) ;
-            js_fw.write(";");
+    public String generate(PropertyCall propertyCall) throws IOException{
+        if (propertyCall instanceof PropertyWithMethodCall){
+            return generate((PropertyWithMethodCall) propertyCall);
         }
+        if (propertyCall instanceof SimplePropertyCall){
+            return generate((SimplePropertyCall) propertyCall);
+        }
+        return "////////";
+    }
+    private String  generate(MethodBodyProperty methodP) throws IOException {
+        if(methodP instanceof LocalVariableDeclaration){
+            return generate((LocalVariableDeclaration) methodP);
+        } else if(methodP instanceof PropertyAssignment) {
+            return generate((PropertyAssignment)methodP);
+        }
+        return "";
     }
 
     private String generate(LocalVariableDeclaration lvd) throws IOException {
@@ -1029,7 +1137,20 @@ public class Generation {
 
         if (lvd.getAssigment() != null) {
             sb.append(" = ");
-            sb.append(generate(lvd.getAssigment().getPropertyValue()));
+            String s=generate(lvd.getAssigment().getPropertyValue());
+            if (s.equals("##")){
+                return "";
+            }
+            if (s.contains("subscribe")){
+                String temp=extractContent(s);
+                temp.replace("products", "state");
+
+                sb.append(extractContent(s));
+            }
+            else {
+                sb.append(s);
+            }
+
         }
 
         sb.append(";");
@@ -1040,10 +1161,21 @@ public class Generation {
 
         // left-hand side (property call)
         if (propertyAssignment.getPropertyCall() != null) {
-            PropertyCall propertyCall=propertyAssignment.getPropertyCall();
-            if (propertyCall instanceof SimplePropertyCall){
-                sb.append(generate((SimplePropertyCall)propertyCall));
+
+            String s=generate(propertyAssignment.getPropertyCall());
+
+            if (s.contains("subscribe")){
+
+                String temp=extractContent(s);
+                temp= temp.replace("products", "state.products");
+                sb.append(temp);
             }
+            else {
+
+                sb.append(s);
+            }
+
+
 
         }
 
@@ -1054,7 +1186,7 @@ public class Generation {
         }
 
         // ضع ; لأنه statement
-        sb.append(";");
+//        sb.append(";");
 
         return sb.toString();
     }
@@ -1138,7 +1270,7 @@ public class Generation {
     private String generate(ConditionalStatement conditionalS) throws IOException {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("if (")
+        sb.append("\n if (")
                 .append(generate(conditionalS.getExpression()))
                 .append(")");
 
@@ -1255,8 +1387,63 @@ public class Generation {
 
     // ServiceBlock Section
     private void generate(ServiceBlock service) throws IOException {
-        js_fw.write(currentSpace + "<!-- Service Block -->\n");
+//        js_fw.write(currentSpace + "<!-- Service Block -->\n");
+        if (service.getClassDeclaration() != null) {
+            ClassDeclaration classDeclaration = service.getClassDeclaration();
+            js_fw.write(classDeclaration.getClass_() + " " + classDeclaration.getIdentifier() + "{\n");
+            if (classDeclaration.getClassBodies() != null) {
+                for (ClassBody classBody : classDeclaration.getClassBodies()) {
+                    if (classBody instanceof ConstructorDeclaration) {
+                        ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) classBody;
+                        js_fw.write(constructorDeclaration.getConstructor() + "(){\n");
+                        for (ConstructorBody constructorBody : constructorDeclaration.getConstructorBody()) {
+                            if (constructorBody instanceof PropertyAssignment) {
+                                PropertyCall propertyCall = ((PropertyAssignment) constructorBody).getPropertyCall();
+                                if (propertyCall instanceof PropertyWithMethodCall) {
+                                    js_fw.write(generate(propertyCall));
+                                } else if (propertyCall instanceof SimplePropertyCall) {
+                                    js_fw.write(generate(propertyCall));
+                                }
+                            } else if (constructorBody instanceof LocalVariableDeclaration) {
+                            } else if (constructorBody instanceof ParameterPropertyAssignment) {
+                            }
+                        }
+                        js_fw.write("\n}\n");
+                    } else if (classBody instanceof MethodDeclaration) {
+                        generateForService((MethodDeclaration) classBody);
+                    }
+                }
+                js_fw.write("}\n");
+                js_fw.write("const state = new " + service.getClassDeclaration().getIdentifier() + "();");
+            }
+        }
     }
+
+    // Method declaration For Service
+    private void generateForService(MethodDeclaration methodDeclaration) throws  IOException {
+        if(methodDeclaration.getAsync() != null){
+            js_fw.write(methodDeclaration.getAsync() + " ");
+        }
+        if(methodDeclaration.getStatic_() != null){
+            js_fw.write(methodDeclaration.getStatic_() + " ");
+        }
+        js_fw.write(methodDeclaration.getIdentifier() );
+        js_fw.write( "(");
+        if(methodDeclaration.getParameterList() != null){
+            generate(methodDeclaration.getParameterList());
+        }
+        js_fw.write(")");
+        js_fw.write( "{\n");
+        String implement="";
+        StringBuilder sb = new StringBuilder();
+        for(MethodBody methodBody : methodDeclaration.getMethodBody()){
+            implement= generate(methodBody);
+            sb.append(implement);
+        }
+        js_fw.write(sb.toString());
+        js_fw.write("\n}\n");
+    }
+
 
     private void generate(InterfaceDeclaration iface) throws IOException {
         js_fw.write(currentSpace + "<!-- Interface Declaration: " + iface.getIdentifier() + " -->\n");
@@ -1489,12 +1676,16 @@ public class Generation {
     }
     private void generateJsDomElements() throws IOException {
         componentMap.forEach((key, component) -> { // alaa - new
+            DomElement dom = component.getDomElement();
+            if (dom != null) {
+
                 try {
                     js_fw.write("const " + component.getDomElement().getConstant() +
                             " = document.getElementById('" + component.getDomElement().getId() + "');\n");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
         });
     }
     // ================== generate Routes JS ==================== oula :)

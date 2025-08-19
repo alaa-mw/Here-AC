@@ -299,16 +299,32 @@ public class GenerationHelper {
         }
     }
 
+    public static String skipIdentifier(String identifier){
+        String id=identifier;
+        if(identifier.contains("Subject"))
+            id=id.replace("Subject", "");
+        if(identifier.contains("next"))
+            id=id.replace("next","=");
+        if(identifier.contains("value"))
+            id=id.replace("value","");
+        return id;
+    }
+
+    public static boolean skipDot(String identifier){
+        if(identifier.contains("Subject"))
+            return false;
+        if(identifier.contains("next"))
+            return false;
+        if(identifier.contains("value"))
+            return false;
+        return true;
+    }
+    
     public static String init(){
         StringBuilder sb = new StringBuilder();
         sb.append("  renderList();\n" +
                 "  handleRoute(window.location.pathname);");
         return sb.toString();
     }
-
-
-
-
-
 
 }
