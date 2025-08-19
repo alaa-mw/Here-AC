@@ -1,0 +1,97 @@
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+  desc: string;
+}
+
+// Product State Service
+@Injectable({ providedIn: 'root' })
+export class ProductState {
+  private products = new BehaviorSubject<Product[]>([]);
+  products$ = this.products.asObservable();
+
+  constructor() {
+    this.initProducts();
+  }
+
+  private initProducts(): void {
+    const initialProducts: Product[] = [
+    { id: '1',
+      name: 'Product 1 Camera',
+      desc: 'Capture moments with this amazing camera.',
+      image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',
+    },
+    { id: '2',
+      name: 'Product 2 Laptop',
+      desc: 'High performance laptop for all your needs.',
+      image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853',
+    },
+    { id: '3',
+      name: 'Product 3 Wireless Headphones',
+      desc: 'Experience premium sound quality wirelessly.',
+      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+    },
+  ];
+    this.products.next(initialProducts);
+  }
+  addProduct(product: any): void {
+    const newProduct: Product = {
+      ...product,
+      id: Math.random().toString(36).substring(2, 9),
+    };
+    const updatedProducts = [...this.products.value, newProduct];
+    this.products.next(updatedProducts);
+  }
+  updateProduct(updatedProduct: Product): void {
+    const updatedProducts = this.products.value.map(p =>
+      p.id === updatedProduct.id ? updatedProduct : p
+    );
+    this.products.next(updatedProducts);
+  }
+  deleteProduct(id: string): void {
+    const updatedProducts = this.products.value.filter(p => p.id !== id);
+    this.products.next(updatedProducts);
+  }
+}
+}
+
+
+export class AddProductComponent implements OnInit {
+formProduct: any = { name: '', desc: '', image: '' };
+  editingId: string | null = null;
+ ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    this.editingId = id;
+
+      if (id) {
+        this.productState.products$.subscribe(products => {
+          const existingProduct = products.find(p => p.id === id);
+          if (existingProduct) {
+            this.formProduct = existingProduct;
+          }
+        });
+      }else{
+        this.formProduct = { name: '', desc: '', image: '' };
+      }
+  }
+  }
+
+export class ProductDetailsComponent implements OnInit {
+  selectedProduct: Product | undefined;
+
+  constructor(
+    private route: ActivatedRoute,
+    private productState: ProductState,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+       this.productState.products$.subscribe(products => {
+        this.selectedProduct = products.find(p => p.id === id);
+      });
+    }
+  }
+  }
