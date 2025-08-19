@@ -88,7 +88,7 @@ class ComponentFunction {
 
     @Override
     public String toString() {
-        return "ComponentFunction{" +
+        return "\nComponentFunction{" +
                 "name='" + name + '\'' +
                 ", implement='" + implement + '\'' +
                 '}';
@@ -114,7 +114,7 @@ class DomElement {
 
     @Override
     public String toString() {
-        return "DomElement{" +
+        return "\nDomElement{" +
                 "constant='" + constant + '\'' +
                 ", id='" + id + '\'' +
                 '}';
@@ -123,11 +123,13 @@ class DomElement {
 
 class ComponentEvent {
     private String buttonFunction;
+    private String routerLink;
     private String id;
     private String reference;
 
-    public ComponentEvent(String buttonFunction, String id, String reference) {
+    public ComponentEvent(String buttonFunction, String routerLink, String id, String reference) {
         this.buttonFunction = buttonFunction;
+        this.routerLink = routerLink;
         this.id = id;
         this.reference = reference;
     }
@@ -147,12 +149,21 @@ class ComponentEvent {
         this.reference = reference;
     }
 
+    public String getRouterLink() {
+        return routerLink;
+    }
+
+    public void setRouterLink(String routerLink) {
+        this.routerLink = routerLink;
+    }
+
     @Override
     public String toString() {
-        return "ComponentEvent{" +
+        return "\nComponentEvent{" +
                 "buttonFunction='" + buttonFunction + '\'' +
+                ", routerLink='" + routerLink + '\'' +
                 ", id='" + id + '\'' +
-                ", reference=" + reference +
+                ", reference='" + reference + '\'' +
                 '}';
     }
 }
