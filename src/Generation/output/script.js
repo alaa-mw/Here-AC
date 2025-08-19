@@ -1,170 +1,63 @@
-class AppComponent {
+		<!-- Interface Declaration: Product -->
+class ProductState{
+constructor(){
+this.initProducts()
 }
-function renderproductListSection() {
-const template = 
-state.products.map(product => `
-<div class="product-item"  id="product-item" >
-<h3>
-${product.name}
-</h3>
-<div class="product-content" >
-<img src= "${product.image}"  />
-<div class="product-actions" >
-<button id="details-btn"  id="details-btn" data-id="${product.id}" >
- Details
-</button>
-<button id="edit-btn"  id="edit-btn" data-id="${product.id}" >
- Edit
-</button>
-<button id="delete-btn"  id="delete-btn" data-id="${product.id}" >
- Delete
-</button>
-
-</div>
-
-</div>
-
-</div>
-`).join('');
-productListSection.innerHTML = template;
+initProducts(){
+const initialProducts = [{id: '1', name: 'Product 1 Camera', desc: 'Capture moments with this amazing camera.', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32'}, {id: '2', name: 'Product 2 Laptop', desc: 'High performance laptop for all your needs.', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853'}, {id: '3', name: 'Product 3 Wireless Headphones', desc: 'Experience premium sound quality wirelessly.', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e'}];this.products=(initialProducts)
 }
-class ProductListComponent {
-    products$;
-
-constructor(productState,router) {;}
-goToDetails(id){;}
-deleteProduct(event,id){;;;}
-editProduct(event,id){;;}
+addProduct(product){
+const newProduct = {...product
+, id: Math.random().toString(36).substring(2, 9)};const updatedProducts = [...this.products
+, newProduct];this.products=(updatedProducts)
 }
-function renderproductListSection() {
-const template = 
-selectedProduct 
-? `<div>
-<h1>
-${selectedProduct.name}
-</h1>
-<p>
-${selectedProduct.desc}
-</p>
-<img src= "${selectedProduct.image}"  />
+updateProduct(updatedProduct){
+const updatedProducts = this.products.map(p => p.id
+ === updatedProduct.id
+?updatedProduct:p);this.products=(updatedProducts)
+}
+deleteProduct(id){
+const updatedProducts = this.products.filter(p => p.id
+ !== id);this.products=(updatedProducts)
+}
+}
+const state = new ProductState();class AddProductComponent {
+    formProduct = {name: '', desc: '', image: ''};
 
-</div>
-` : `  <p>
- Product not found
-</p>
+    editingId = null;
 
-` 
-productListSection.innerHTML = template;
+function ngOnInitAddProductComponent( id ){
+editingId
+ = id
+ if (id){
+const existingProduct = state.products.find(p => p.id
+ === id);
+
+ if (existingProduct){
+formProduct
+ = existingProduct
+}
+}
+else {
+formProduct
+ = {name: '', desc: '', image: ''}
+}
+
+}
+
 }
 class ProductDetailsComponent {
     selectedProduct = null;
 
 constructor(route,productState,router) {}
-ngOnInit(){if (id){
-const found = this.productState.products$.subscribe({
-this.selectedProduct = products.find(ArrowFunctionExpr);
-}
-);
-}
-}
-}
-function renderaddEditProductSection() {
-const template = 
-`
-<form id="product-form" >
-<div>
-<label>
- Name
-</label>
-<input value="${formProduct.name}" name="name"  />
+function ngOnInitProductDetailsComponent( id ){
 
-</div>
-<div>
-<label>
- Description
-</label>
-<input value="${formProduct.desc}" name="desc"  />
-
-</div>
-<div>
-<label>
- Image URL
-</label>
-<input value="${formProduct.image}" name="image"  />
-
-</div>
-<button id="submit"  id="submit"  type="submit"  type="submit" >
-{{editingId?'Edit Product':'Add Product'}}
-</button>
-<button id="cancel"  id="cancel"  type="button"  type="button" >
- Cancel
-</button>
-
-</form>
-`;
-addEditProductSection.innerHTML = template;
-}
-class AddProductComponent {
-    formProduct = {name: '', desc: '', image: ''};
-
-    editingId = null;
-
-constructor(productState,router,route) {}
-ngOnInit(){;}
-onSubmit(){if (this.editingId){
-;
-}
-else {
-;
-}
-;}
-cancel(){;}
-}
-		<!-- Interface Declaration: Product -->
-		<!-- Service Block -->
-
-function setActiveNav(navId) {
-  document.querySelectorAll('nav a').forEach(x => x.classList.remove('active'));
-  if (navId) document.getElementById(navId).classList.add('active');
- }
-
-// ===== Generated Routing =====
-function handleRoute(path) {
-    history.pushState(null, '', path);
-    const idAddProduct = path.match(/^\/edit\/([^\/]+)$/);
-    const idProductDetails = path.match(/^\/product\/([^\/]+)$/);
-    
-    if (path.includes('/add')) {
-        ngOnInit(null);
-        renderForm();
-        showSection(formSection);
-        setActiveNav('nav-add');
-    }
-    else if (path.includes('/edit')) {
-        ngOnInit(idAddProduct[1]);
-        renderForm();
-        showSection(formSection);
-    }
-    else if (path.includes('/product')) {
-        ngOnInit(idProductDetails[1]);
-        renderDetails();
-        showSection(detailsSection);
-    }
-    else if (path.includes('/')) {
-        ngOnInit(null);
-        renderList();
-        showSection(listSection);
-        setActiveNav('nav-list');
-    }
+ if (id){
+selectedProduct
+ = state.products.find(p => p.id
+ === id)
 }
 
-function showSection(section) {
-  [formSection, detailsSection, listSection].forEach(s => s.style.display = 'none');
-  section.style.display = 'block';
 }
 
- // HANDLE browser back/forward buttons
-  window.addEventListener('popstate', () => {
-    handleRoute(window.location.pathname);
-  }); 
-const addEditProductSection = document.getElementById('add-edit-product-section');
+}
