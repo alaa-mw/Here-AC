@@ -20,9 +20,9 @@ public  class TempFiller {
         productList.setRender("renderList");
         productList.setDomElement( new DomElement("listSection", "product-list-section") );
 
-        productList.getEvents().add(new ComponentEvent("goToDetails", "details-btn", true));
-        productList.getEvents().add(new ComponentEvent("editProduct", "edit-btn", true));
-        productList.getEvents().add(new ComponentEvent("deleteProduct", "delete-btn", true));
+        productList.getEvents().add(new ComponentEvent("goToDetails", "details-btn", "true"));
+        productList.getEvents().add(new ComponentEvent("editProduct", "edit-btn", "true"));
+        productList.getEvents().add(new ComponentEvent("deleteProduct", "delete-btn", "true"));
 
         map.put("ProductListComponent", productList);
 
@@ -40,8 +40,8 @@ public  class TempFiller {
         addProduct.setRender("renderForm");
         addProduct.setDomElement(new DomElement("formSection", "add-edit-product-section"));
 
-        addProduct.getEvents().add(new ComponentEvent("onSubmit", "submit", false));
-        addProduct.getEvents().add(new ComponentEvent("cancel", "cancel", false));
+        addProduct.getEvents().add(new ComponentEvent("onSubmit", "submit", "false"));
+        addProduct.getEvents().add(new ComponentEvent("cancel", "cancel", "false"));
 
         map.put("AddProductComponent", addProduct);
 

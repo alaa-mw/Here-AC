@@ -124,12 +124,12 @@ class DomElement {
 class ComponentEvent {
     private String buttonFunction;
     private String id;
-    private boolean dataId;
+    private String reference;
 
-    public ComponentEvent(String buttonFunction, String id, boolean dataId) {
+    public ComponentEvent(String buttonFunction, String id, String reference) {
         this.buttonFunction = buttonFunction;
         this.id = id;
-        this.dataId = dataId;
+        this.reference = reference;
     }
 
     // Getters and setters
@@ -139,15 +139,20 @@ class ComponentEvent {
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
-    public boolean isDataId() { return dataId; }
-    public void setDataId(boolean dataId) { this.dataId = dataId; }
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
 
     @Override
     public String toString() {
         return "ComponentEvent{" +
                 "buttonFunction='" + buttonFunction + '\'' +
                 ", id='" + id + '\'' +
-                ", dataId=" + dataId +
+                ", reference=" + reference +
                 '}';
     }
 }

@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.misc.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -160,6 +161,110 @@ public class GenerationHelper {
 
         return sb.toString();
     }
+
+    public static String parseMethodName(String methodCall) {
+        //System.out.println(methodCall);
+        Pattern pattern = Pattern.compile("^(\\w+)\\s*\\(");
+        Matcher matcher = pattern.matcher(methodCall.trim());
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            throw new IllegalArgumentException("Invalid method call format: " + methodCall);
+        }
+    }
+
+    public  static String eventListenerShape(Map<String,ComponentModel> componentMap){
+        String event = "input";
+        String pointer = "e";
+
+        StringBuilder sb = new StringBuilder();
+
+        for (Map.Entry<String, ComponentModel> entry : componentMap.entrySet()) {
+            ComponentModel model = entry.getValue();
+            List<ComponentEvent> events = model.getEvents();
+            for (ComponentEvent eventModel : events) {
+                if(eventModel.getButtonFunction() == null && eventModel.getId() == null){
+                    sb.append(eventModel.getReference())
+                            .append(".addEventListener('")
+                            .append(event)
+                            .append("', ")
+                            .append(pointer)
+                            .append(" => {\n");
+                    sb.append("\t").append("formProduct[e.target] = e.target.value;").append("\n");
+                    sb.append("  }\n"); // نهاية if
+                    sb.append("});\n\n");
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public static String createEventListener(Map<String, ComponentModel> componentMap) {
+
+        String event = "click";
+        String pointer = "e";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n\n").append("// ===== Generated Event Listener =====").append("\n\n");
+
+        for (Map.Entry<String, ComponentModel> entry : componentMap.entrySet()) {
+            ComponentModel model = entry.getValue();
+
+            List<ComponentEvent> events = model.getEvents();
+
+            for (ComponentEvent eventModel : events) {
+
+                // ✅ تحقق من القيم قبل توليد الكود
+                if (eventModel.getButtonFunction() == null || eventModel.getId() == null) {
+                    continue; // تخطي هذا الحدث ولا تكتب له كود
+                }
+
+                sb.append(eventModel.getReference())
+                        .append(".addEventListener('")
+                        .append(event)
+                        .append("', ")
+                        .append(pointer)
+                        .append(" => {\n");
+                sb.append("  if (e.target.id === '").append(eventModel.getId()).append("') {\n");
+
+                String _implements = findImplementByName(model.getFunctions(), eventModel.getButtonFunction());
+                sb.append("\t").append(_implements).append("\n");
+
+                sb.append("  }\n"); // نهاية if
+                sb.append("});\n\n"); // نهاية addEventListener
+            }
+        }
+        return sb.toString();
+    }
+
+
+    public static String findImplementByName(List<ComponentFunction> functions, String methodName) {
+        if (functions == null || methodName == null) {
+            return null;
+        }
+
+        for (ComponentFunction func : functions) {
+            if (func != null && methodName.equals(func.getName())) {
+                return func.getImplement();
+            }
+        }
+        return null; // no function founded
+    }
+
+
+    public  static void test(Map<String, ComponentModel> myMap){
+        for (Map.Entry<String, ComponentModel> entry : myMap.entrySet()) {
+            String jsConst = myMap.get(entry.getKey()).getDomElement().getConstant();
+            ComponentModel model = entry.getValue();
+
+            System.out.println("===== test ======\n" + jsConst + "\n methods : " + model.getFunctions() + "\n event " + model.getEvents() );
+
+        }
+    }
+
+
+
 
 
 

@@ -163,4 +163,8 @@ function showSection(section) {
   section.style.display = 'block';
 }
 
+ // HANDLE browser back/forward buttons
+  window.addEventListener('popstate', () => {
+    handleRoute(window.location.pathname);
+  }); 
 const addEditProductSection = document.getElementById('add-edit-product-section');

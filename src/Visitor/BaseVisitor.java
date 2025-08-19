@@ -1922,6 +1922,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return twoWayBinding ;
     }
 
+
     @Override
     public EventBinding visitEventBinding(AngularParser.EventBindingContext ctx){
         EventBinding eventBinding = new EventBinding();
@@ -1929,7 +1930,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             eventBinding.setEventName(ctx.IDENTIFIER().getText());
         }
         if(ctx.IDENTIFIER() != null){
-            eventBinding.setEventValue(ctx.IDENTIFIER().getText());
+            eventBinding.setEventValue(ctx.STRING_LITERAL().getText()); //fix binding
         }
         return eventBinding;
     }

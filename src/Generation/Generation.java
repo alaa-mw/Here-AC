@@ -92,6 +92,10 @@ public class Generation {
             generateBody(program);
             generateScriptSection(program);
             generateFooter();
+            // event
+            //System.out.println(createEventListener(componentMap));
+            //js_fw.write(createEventListener(componentMap));
+            //js_fw.write(eventListenerShape(componentMap));
 
             index_fw.flush();
             index_fw.close();
@@ -929,6 +933,9 @@ public class Generation {
         if(methodDeclaration.getStatic_() != null){
             js_fw.write(methodDeclaration.getStatic_() + " ");
         }
+        componentMap.get(currentComponent).getFunctions().add(
+                new ComponentFunction(methodDeclaration.getIdentifier(),methodDeclaration.getIdentifier()));
+
         js_fw.write(methodDeclaration.getIdentifier() );
         js_fw.write( "(");
         if(methodDeclaration.getParameterList() != null){
@@ -1323,6 +1330,63 @@ public class Generation {
         }
         js_fw.write(">\n");
     }
+//private void generateJs(OpenTag openTag) throws IOException {
+//    js_fw.write("<" + openTag.getIdentifier());
+//    BasicAttribute tempBasic = null;
+//    ActionAttribute tempAction = null;
+//    String jsConst = componentMap.get(currentComponent).getDomElement().getConstant();
+//
+//    if (openTag.getHtmlAttributeArray() != null) {
+//        for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
+//            if (htmlAttribute instanceof BasicAttribute ){
+//                if(Objects.equals(openTag.getIdentifier(), "button")){
+//                    tempBasic = (BasicAttribute) htmlAttribute ;
+//                }
+//                generateJsEvent((BasicAttribute) htmlAttribute);
+//
+//                generateJs((BasicAttribute) htmlAttribute);
+//                // componentMap.get(currentComponent).getEvents().add(new ComponentEvent())
+//
+//            } else if (htmlAttribute instanceof ObjectExpression ){
+//                generateJs((ObjectExpression) htmlAttribute);
+//
+//            } else if (htmlAttribute instanceof ActionAttribute) {
+//                if(Objects.equals(openTag.getIdentifier(), "button")){
+//                    tempAction = (ActionAttribute) htmlAttribute ;
+//                }
+//                generateJs((ActionAttribute) htmlAttribute);
+//
+//            } else if (htmlAttribute instanceof  EventBinding) {
+//                String methodName = ((EventBinding) htmlAttribute).getEventValue();
+//                System.out.println(methodName+"====");
+//                if(Objects.equals(((EventBinding) htmlAttribute).getEventName(), "ngSubmit")){
+//                    componentMap.get(currentComponent)
+//                            .getEvents()
+//                            .add(new ComponentEvent(parseMethodName(methodName.replace("\"", "")), "submit", componentMap.get(currentComponent).getDomElement().getConstant()));
+//                }
+//            }
+//        }
+//        if(Objects.equals(openTag.getIdentifier(), "button")){
+//            String id = null;
+//            String methodName = null;
+//            if(tempBasic != null ){
+//                id = tempBasic.getStringLiteral() ;
+//                id = id.replace("\"", "");
+//            }
+//            if(tempAction != null) {
+//                methodName = parseMethodName(tempAction.getStringLiteral().replace("\"", ""));
+//
+//                componentMap.get(currentComponent).getEvents().add(new ComponentEvent(methodName, id, jsConst));
+//            }
+//
+//        } else if (Objects.equals(openTag.getIdentifier(), "form")) {
+//            componentMap.get(currentComponent).getEvents().add(new ComponentEvent(null, null, jsConst));
+//
+//        }
+//
+//    }
+//    js_fw.write(">\n");
+//}
 
     // Generates a self-closing tag
     private void generateJs(SelfClosingTag selfClosingTag) throws IOException {
@@ -1354,7 +1418,7 @@ public class Generation {
 
     }
 
-    public void generateJsEvent(BasicAttribute basicAttribute, String tagName) throws IOException {
+    public void generateJsEvent(BasicAttribute basicAttribute,String tagName) throws IOException {
         String key = basicAttribute.getIdentifier() != null ?
                 basicAttribute.getIdentifier() :
                 basicAttribute.getC_lass();
@@ -1362,9 +1426,9 @@ public class Generation {
         String withoutQuotes = value.replace("\"", "");
 
         js_fw.write(" " + key + "=\"" + withoutQuotes + "\" ");
-        if ("id".equals(key) ) {
-            componentMap.get(currentComponent).getEvents().add(new ComponentEvent(tagName,key,true));
-        }
+//        if ("id".equals(key) ) {
+//            componentMap.get(currentComponent).getEvents().add(new ComponentEvent(tagName,key,true));
+//        }
     }
     private void generateJs(ImageAttribute imageAttribute) throws IOException {
       js_fw.write(" " +
@@ -1539,6 +1603,11 @@ public class Generation {
 
         //طباعة تابع showSection
         js_fw.write(PrintShowSection(itemShowSection));
+        // Handle back/forward event
+        js_fw.write(" // HANDLE browser back/forward buttons\n" +
+                "  window.addEventListener('popstate', () => {\n" +
+                "    handleRoute(window.location.pathname);\n" +
+                "  }); \n");
     }
 
 //================== temp
