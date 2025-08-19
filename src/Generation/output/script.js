@@ -1,3 +1,4 @@
+
 		<!-- Interface Declaration: Product -->
 class ProductState{
 constructor(){

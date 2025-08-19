@@ -55,6 +55,7 @@ public class Generation {
     private FileWriter styles_fw;
     private FileWriter js_fw;
     private String currentSpace = "";
+    private String currentSpaceJs = "";
 
     /*
         شرح مهم:
@@ -156,8 +157,13 @@ public class Generation {
         index_fw.write("<script src=\"script.js\"></script>\n");
         index_fw.write("</html>\n");
 
-        generateJsDomElements(); // alaa
+        // in last
+        generateJsDomElements();
         System.out.println(componentMap);
+        js_fw.write(createEventListener(componentMap));
+        js_fw.write(createNavEventListener(componentMap));
+        js_fw.write(eventListenerShape(componentMap));
+        js_fw.write(init());
     }
 
     // ======================= our code gen =============================
@@ -224,11 +230,18 @@ public class Generation {
 
     // Generates an open tag, converting Angular attributes to standard HTML
     private void generate(OpenTag openTag) throws IOException {
+        BasicAttribute idBasic = null;
+        BasicAttribute linkBasic = null;
+
         index_fw.write(currentSpace + "<" + openTag.getIdentifier());
 
         if (openTag.getHtmlAttributeArray() != null) {
             for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
                 if (htmlAttribute instanceof BasicAttribute) {
+                    if (Objects.equals(((BasicAttribute) htmlAttribute).getIdentifier(), "id"))
+                        idBasic = (BasicAttribute) htmlAttribute;
+                    if (Objects.equals(((BasicAttribute) htmlAttribute).getIdentifier(), "routerLink"))
+                        linkBasic = (BasicAttribute) htmlAttribute;
                     generate((BasicAttribute) htmlAttribute);
                 } else if (htmlAttribute instanceof HtmlBinding) {
                     generate((HtmlBinding) htmlAttribute);
@@ -236,6 +249,7 @@ public class Generation {
             }
         }
         index_fw.write(">\n");
+        if( linkBasic!=null && idBasic!=null ) generateJsEvent(linkBasic, idBasic,null);
     }
 
     // Generates a self-closing tag
@@ -1483,7 +1497,10 @@ public class Generation {
 
             if (htmlElement.getHtmlContentBody() != null) {
                 for (HtmlContentBody htmlContentBody : htmlElement.getHtmlContentBody()) {
+                    String savedSpace = currentSpaceJs;
+                    currentSpaceJs += "\t";
                     generateJs(htmlContentBody);
+                    currentSpaceJs = savedSpace;
                 }
             }
             js_fw.write("\n");
@@ -1492,92 +1509,48 @@ public class Generation {
     }
 
     private void generateJs(OpenTag openTag) throws IOException {
+        BasicAttribute tempBasic = null;
+        ActionAttribute tempAction = null;
+
+        EventBinding tempEvent = null;
+        String jsConst = componentMap.get(currentComponent).getDomElement().getConstant();
 
         if(Objects.equals(openTag.getIdentifier(), "ng-template") ) return;
 
-        js_fw.write("<" + openTag.getIdentifier());
+        js_fw.write(currentSpaceJs +"<" + openTag.getIdentifier());
+
 
         if (openTag.getHtmlAttributeArray() != null) {
             for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
                 if (htmlAttribute instanceof BasicAttribute ){
-                    if(Objects.equals(openTag.getIdentifier(), "button"))
-                        generateJsEvent((BasicAttribute) htmlAttribute ,openTag.getIdentifier());
+                    if(Objects.equals(((BasicAttribute) htmlAttribute).getIdentifier(), "id"))
+                        tempBasic = (BasicAttribute) htmlAttribute ;
                     generateJs((BasicAttribute) htmlAttribute);
 
                 } else if (htmlAttribute instanceof ObjectExpression ){
                     generateJs((ObjectExpression) htmlAttribute);
 
                 } else if (htmlAttribute instanceof ActionAttribute) {
+                    tempAction = (ActionAttribute) htmlAttribute ;
                     generateJs((ActionAttribute) htmlAttribute);
 
                } else if (htmlAttribute instanceof HtmlBinding) {
+                    if(htmlAttribute instanceof EventBinding)
+                        tempEvent = (EventBinding) htmlAttribute;
                     generateJs((HtmlBinding)htmlAttribute);
                 }
             }
         }
         js_fw.write(">\n");
+
+        // == events
+        if( tempBasic != null && tempAction != null ) generateJsEvent(tempBasic,tempAction,jsConst);
+        if( tempEvent != null) generateJsEvent(tempEvent,jsConst);
     }
-//private void generateJs(OpenTag openTag) throws IOException {
-//    js_fw.write("<" + openTag.getIdentifier());
-//    BasicAttribute tempBasic = null;
-//    ActionAttribute tempAction = null;
-//    String jsConst = componentMap.get(currentComponent).getDomElement().getConstant();
-//
-//    if (openTag.getHtmlAttributeArray() != null) {
-//        for (HtmlAttribute htmlAttribute : openTag.getHtmlAttributeArray()) {
-//            if (htmlAttribute instanceof BasicAttribute ){
-//                if(Objects.equals(openTag.getIdentifier(), "button")){
-//                    tempBasic = (BasicAttribute) htmlAttribute ;
-//                }
-//                generateJsEvent((BasicAttribute) htmlAttribute);
-//
-//                generateJs((BasicAttribute) htmlAttribute);
-//                // componentMap.get(currentComponent).getEvents().add(new ComponentEvent())
-//
-//            } else if (htmlAttribute instanceof ObjectExpression ){
-//                generateJs((ObjectExpression) htmlAttribute);
-//
-//            } else if (htmlAttribute instanceof ActionAttribute) {
-//                if(Objects.equals(openTag.getIdentifier(), "button")){
-//                    tempAction = (ActionAttribute) htmlAttribute ;
-//                }
-//                generateJs((ActionAttribute) htmlAttribute);
-//
-//            } else if (htmlAttribute instanceof  EventBinding) {
-//                String methodName = ((EventBinding) htmlAttribute).getEventValue();
-//                System.out.println(methodName+"====");
-//                if(Objects.equals(((EventBinding) htmlAttribute).getEventName(), "ngSubmit")){
-//                    componentMap.get(currentComponent)
-//                            .getEvents()
-//                            .add(new ComponentEvent(parseMethodName(methodName.replace("\"", "")), "submit", componentMap.get(currentComponent).getDomElement().getConstant()));
-//                }
-//            }
-//        }
-//        if(Objects.equals(openTag.getIdentifier(), "button")){
-//            String id = null;
-//            String methodName = null;
-//            if(tempBasic != null ){
-//                id = tempBasic.getStringLiteral() ;
-//                id = id.replace("\"", "");
-//            }
-//            if(tempAction != null) {
-//                methodName = parseMethodName(tempAction.getStringLiteral().replace("\"", ""));
-//
-//                componentMap.get(currentComponent).getEvents().add(new ComponentEvent(methodName, id, jsConst));
-//            }
-//
-//        } else if (Objects.equals(openTag.getIdentifier(), "form")) {
-//            componentMap.get(currentComponent).getEvents().add(new ComponentEvent(null, null, jsConst));
-//
-//        }
-//
-//    }
-//    js_fw.write(">\n");
-//}
 
     // Generates a self-closing tag
     private void generateJs(SelfClosingTag selfClosingTag) throws IOException {
-        js_fw.write( "<" + selfClosingTag.getIdentifier());
+        js_fw.write( currentSpaceJs+"<" + selfClosingTag.getIdentifier());
 
         for (HtmlAttribute htmlAttribute : selfClosingTag.getHtmlAttributes()) {
             if (htmlAttribute instanceof BasicAttribute ){
@@ -1605,17 +1578,31 @@ public class Generation {
 
     }
 
-    public void generateJsEvent(BasicAttribute basicAttribute,String tagName) throws IOException {
-        String key = basicAttribute.getIdentifier() != null ?
-                basicAttribute.getIdentifier() :
-                basicAttribute.getC_lass();
-        String value= basicAttribute.getStringLiteral();
-        String withoutQuotes = value.replace("\"", "");
+    public void generateJsEvent(BasicAttribute linkBasic,BasicAttribute idBasic, String jsConst) throws IOException {
+        String id = stripQuotes(idBasic.getStringLiteral());
+        String routerLink = stripQuotes(linkBasic.getStringLiteral());
 
-        js_fw.write(" " + key + "=\"" + withoutQuotes + "\" ");
-//        if ("id".equals(key) ) {
-//            componentMap.get(currentComponent).getEvents().add(new ComponentEvent(tagName,key,true));
-//        }
+        componentMap.get(currentComponent).getEvents().add(
+                new ComponentEvent(null,routerLink, id, jsConst));
+
+    }
+    public void generateJsEvent(BasicAttribute basicAttribute,ActionAttribute actionAttribute, String jsConst) throws IOException {
+        String id = stripQuotes(basicAttribute.getStringLiteral());
+        Pair<String, List<String>> result= parseMethodCall(stripQuotes(actionAttribute.getStringLiteral()));
+        String buttonFunction = result.a;
+
+      componentMap.get(currentComponent).getEvents().add(
+              new ComponentEvent(buttonFunction,null, id, jsConst));
+
+    }
+    public void generateJsEvent(EventBinding eventBinding, String jsConst) throws IOException {
+        String id = "submit";
+        Pair<String, List<String>> result= parseMethodCall(stripQuotes(eventBinding.getEventValue()));
+        String buttonFunction = result.a;
+
+        componentMap.get(currentComponent).getEvents().add(
+                new ComponentEvent(buttonFunction,null, id, jsConst));
+
     }
     private void generateJs(ImageAttribute imageAttribute) throws IOException {
       js_fw.write(" " +
@@ -1644,11 +1631,11 @@ public class Generation {
     // Generates a close tag
     private void generateJs(CloseTag closeTag) throws IOException {
         if(Objects.equals(closeTag.getCloseTagName(), "ng-template") ) return;
-        js_fw.write( "</" + closeTag.getCloseTagName() + ">\n");
+        js_fw.write( currentSpaceJs +"</" + closeTag.getCloseTagName() + ">\n");
     }
     private void generateJs(HtmlContentBody htmlContentBody) throws IOException {
         if (htmlContentBody.getHtmlIdentifier() != null) {
-            js_fw.write( " " + htmlContentBody.getHtmlIdentifier() );
+            js_fw.write( currentSpaceJs + htmlContentBody.getHtmlIdentifier() );
 
         } else if (htmlContentBody.getHtmlElement() != null) {
             generateJs(htmlContentBody.getHtmlElement());
@@ -1802,39 +1789,39 @@ public class Generation {
     }
 
 //================== temp
-    private String generate(ShortIfExpr shortIfExpr) throws IOException{ // ✔️
-        if (shortIfExpr == null) return "";
-        StringBuilder sb = new StringBuilder();
-        sb.append(generate(shortIfExpr.getCondition()))
-                .append(shortIfExpr.getQuestionToken())
-                .append(generate(shortIfExpr.getTrueBranch()))
-                .append(shortIfExpr.getDotDotToken())
-                .append(generate(shortIfExpr.getFalseBranch()));
-
-        return sb.toString();
-    }
-
-    public String generate (BinaryOperationPropertyValueExpr binaryOperationPropertyValueExpr) throws IOException{
-        // Get left and right values
-        String leftValue = binaryOperationPropertyValueExpr.getLeft() != null
-                ? generate(binaryOperationPropertyValueExpr.getLeft())
-                : "";
-        String rightValue = binaryOperationPropertyValueExpr.getRight() != null
-                ? generate(binaryOperationPropertyValueExpr.getRight())
-                : "";
-        String op = binaryOperationPropertyValueExpr.getOperation() != null
-                ? generate(binaryOperationPropertyValueExpr.getOperation())
-                : "";
-
-        // Use StringBuilder
-        StringBuilder sb = new StringBuilder();
-        sb.append(leftValue)
-                .append(" ")
-                .append(op)
-                .append(" ")
-                .append(rightValue);
-
-        return sb.toString();
-    }
+//     private String generate(ShortIfExpr shortIfExpr) throws IOException{ // ✔️
+//         if (shortIfExpr == null) return "";
+//         StringBuilder sb = new StringBuilder();
+//         sb.append(generate(shortIfExpr.getCondition()))
+//                 .append(shortIfExpr.getQuestionToken())
+//                 .append(generate(shortIfExpr.getTrueBranch()))
+//                 .append(shortIfExpr.getDotDotToken())
+//                 .append(generate(shortIfExpr.getFalseBranch()));
+//
+//         return sb.toString();
+//     }
+//
+//     public String generate (BinaryOperationPropertyValueExpr binaryOperationPropertyValueExpr) throws IOException{
+//         // Get left and right values
+//         String leftValue = binaryOperationPropertyValueExpr.getLeft() != null
+//                 ? generate(binaryOperationPropertyValueExpr.getLeft())
+//                 : "";
+//         String rightValue = binaryOperationPropertyValueExpr.getRight() != null
+//                 ? generate(binaryOperationPropertyValueExpr.getRight())
+//                 : "";
+//         String op = binaryOperationPropertyValueExpr.getOperation() != null
+//                 ? generate(binaryOperationPropertyValueExpr.getOperation())
+//                 : "";
+//
+//         // Use StringBuilder
+//         StringBuilder sb = new StringBuilder();
+//         sb.append(leftValue)
+//                 .append(" ")
+//                 .append(op)
+//                 .append(" ")
+//                 .append(rightValue);
+//
+//         return sb.toString();
+//     }
 
 }

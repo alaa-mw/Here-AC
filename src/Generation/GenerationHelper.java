@@ -238,7 +238,43 @@ public class GenerationHelper {
         return sb.toString();
     }
 
+    public static String createNavEventListener(Map<String, ComponentModel> componentMap) {
 
+        String event = "click";
+        String pointer = "e";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n\n").append("// ===== Generated Event Listener =====").append("\n\n");
+
+        for (Map.Entry<String, ComponentModel> entry : componentMap.entrySet()) {
+            ComponentModel model = entry.getValue();
+
+            List<ComponentEvent> events = model.getEvents();
+
+            for (ComponentEvent eventModel : events) {
+
+                // ✅ تحقق من القيم قبل توليد الكود
+                if (eventModel.getRouterLink() == null) {
+                    continue; // تخطي هذا الحدث ولا تكتب له كود
+                }
+
+                sb.append("document")
+                        .append(".getElementById('")
+                        .append(eventModel.getId())
+                        .append("')")
+                        .append(".addEventListener('")
+                        .append(event)
+                        .append("', ")
+                        .append(pointer)
+                        .append(" => {\n")
+                        .append("   e.preventDefault();\n")
+                        .append("   handleRoute('").append(eventModel.getRouterLink()).append("');\n");
+
+                sb.append("});\n\n"); // نهاية addEventListener
+            }
+        }
+        return sb.toString();
+    }
     public static String findImplementByName(List<ComponentFunction> functions, String methodName) {
         if (functions == null || methodName == null) {
             return null;
@@ -283,10 +319,12 @@ public class GenerationHelper {
             return false;
         return true;
     }
-
-
-
-
-
+    
+    public static String init(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("  renderList();\n" +
+                "  handleRoute(window.location.pathname);");
+        return sb.toString();
+    }
 
 }
