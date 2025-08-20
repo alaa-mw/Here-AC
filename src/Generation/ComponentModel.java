@@ -11,7 +11,7 @@ public class ComponentModel {
     private List<ComponentFunction> functions = new ArrayList<>();
     // component
     private String render;
-    private DomElement domElement ;
+    private DomElement domElement = new DomElement(); // تهيئة
     private List<ComponentEvent> events = new ArrayList<>();
 
     // Getters and setters
@@ -106,6 +106,9 @@ class ComponentFunction {
 class DomElement {
     private String constant;
     private String id;
+
+    public DomElement() {
+    }
 
     public DomElement(String constant, String id) {
         this.constant = constant;

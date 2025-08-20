@@ -77,9 +77,9 @@ public class Generation {
 
     private Map<String, ComponentModel> componentMap = new HashMap<>(); // for store
 
-    Map<String, ComponentModel> componentTempMap = TempFiller.getComponentModels();
+//    Map<String, ComponentModel> componentTempMap = TempFiller.getComponentModels();
 
-    String currentComponent = "ProductListComponent";
+    String currentComponent ;
     public void generate(Program program) {
 //        System.out.println(componentTempMap);
         File dir = new File("src/Generation");
@@ -145,8 +145,6 @@ public class Generation {
             } else if (statement instanceof RoutesDeclaration) {
                 generateRoutesJS((RoutesDeclaration) statement);
             }
-
-
         }
 
 //        js_fw.write("</script>\n");
@@ -168,11 +166,12 @@ public class Generation {
 
     // ======================= our code gen =============================
     private void generate(ComponentBlock componentBlock) throws IOException {
-        generate(componentBlock.getComponentDeclaration()); // alaa
 
         for (ClassDeclaration classDeclaration : componentBlock.getClassDeclarations()) {
             generate(classDeclaration);
         }
+
+        generate(componentBlock.getComponentDeclaration()); // alaa
     }
 
     private void generate(ComponentDeclaration componentDeclaration) throws IOException {
@@ -209,6 +208,9 @@ public class Generation {
                 generateJsInnerHtml(htmlElement);
             } else if (hasNgIf(htmlElement)) {
                 generateJsInnerHtml(htmlElement);
+
+                generate(htmlElement.getOpenTag());
+                generate(htmlElement.getCloseTag());
             } else if (hasEventBinding(htmlElement)) {
                 generateJsInnerHtml(htmlElement);
             } else{
@@ -289,9 +291,9 @@ public class Generation {
 
         // لو المفتاح id خزّن في idMap
         if ("id".equals(key)) {
-            if(componentMap.get(currentComponent) == null)
-                componentMap.put(currentComponent,new ComponentModel()); // note:  must be put before in class pass , delete later
-
+//            if(componentMap.get(currentComponent) == null)
+//                componentMap.put(currentComponent,new ComponentModel()); // note:  must be put before in class pass , delete later
+            System.out.println(componentMap);
             componentMap.get(currentComponent).setDomElement( // alaa - new
                     new DomElement(convertKebabToCamel(withoutQuotes),withoutQuotes)
             );
@@ -453,6 +455,7 @@ public class Generation {
 
         currentComponent=cls.getIdentifier();
         componentMap.put(currentComponent,new ComponentModel());
+//        System.out.println("class "+ componentMap);
 //        // Optional heritage (extends)
         if (cls.getClassHeritage() != null) {
             generate(cls.getClassHeritage()); // e.g., "extends MyBaseClass"
@@ -653,6 +656,40 @@ public class Generation {
         }
 
         return "/* unsupported value */";
+    }
+
+    public String generate (BinaryOperationPropertyValueExpr binaryOperationPropertyValueExpr) throws IOException{
+        // Get left and right values
+        String leftValue = binaryOperationPropertyValueExpr.getLeft() != null
+                ? generate(binaryOperationPropertyValueExpr.getLeft())
+                : "";
+        String rightValue = binaryOperationPropertyValueExpr.getRight() != null
+                ? generate(binaryOperationPropertyValueExpr.getRight())
+                : "";
+        String op = binaryOperationPropertyValueExpr.getOperation() != null
+                ? generate(binaryOperationPropertyValueExpr.getOperation())
+                : "";
+
+        // Use StringBuilder
+        StringBuilder sb = new StringBuilder();
+        sb.append(leftValue)
+                .append(" ")
+                .append(op)
+                .append(" ")
+                .append(rightValue);
+
+        return sb.toString();
+    }
+    private String generate(ShortIfExpr shortIfExpr) throws IOException{
+        if (shortIfExpr == null) return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append(generate(shortIfExpr.getCondition()))
+                .append(shortIfExpr.getQuestionToken())
+                .append(generate(shortIfExpr.getTrueBranch()))
+                .append(shortIfExpr.getDotDotToken())
+                .append(generate(shortIfExpr.getFalseBranch()));
+
+        return sb.toString();
     }
 
     private String generate(PropertyValueObjects propertyValueObjects) throws IOException {
@@ -1446,15 +1483,17 @@ public class Generation {
 
 
     private void generate(InterfaceDeclaration iface) throws IOException {
-        js_fw.write(currentSpace + "<!-- Interface Declaration: " + iface.getIdentifier() + " -->\n");
+//        js_fw.write(currentSpace + "<!-- Interface Declaration: " + iface.getIdentifier() + " -->\n");
     }
 
 
     //=================== generate js (inner html) =========== // alaa
     private void generateJsInnerHtml(HtmlElement htmlElement) throws IOException {
 
+        ComponentModel currentModel = componentMap.get(currentComponent);
         String jsConst = componentMap.get(currentComponent).getDomElement().getConstant();
-        String render = "render"+jsConst;
+
+        String render = "render"+currentComponent;
         componentMap.get(currentComponent).setRender(render);
         js_fw.write("function "+render+"() {\n");
 
@@ -1729,7 +1768,7 @@ public class Generation {
             String rawPath = stripQuotes(routeObj.getRouteProperty().getPathValue());
             String componentName = routeObj.getRouteProperty().getComponentClassName();
 
-            ComponentModel comp = componentTempMap.get(componentName);
+            ComponentModel comp = componentMap.get(componentName);
             if (comp == null) continue;
 
             String ngOnInit = comp.getNgOnInitFunction();
@@ -1787,41 +1826,5 @@ public class Generation {
                 "    handleRoute(window.location.pathname);\n" +
                 "  }); \n");
     }
-
-//================== temp
-//     private String generate(ShortIfExpr shortIfExpr) throws IOException{ // ✔️
-//         if (shortIfExpr == null) return "";
-//         StringBuilder sb = new StringBuilder();
-//         sb.append(generate(shortIfExpr.getCondition()))
-//                 .append(shortIfExpr.getQuestionToken())
-//                 .append(generate(shortIfExpr.getTrueBranch()))
-//                 .append(shortIfExpr.getDotDotToken())
-//                 .append(generate(shortIfExpr.getFalseBranch()));
-//
-//         return sb.toString();
-//     }
-//
-//     public String generate (BinaryOperationPropertyValueExpr binaryOperationPropertyValueExpr) throws IOException{
-//         // Get left and right values
-//         String leftValue = binaryOperationPropertyValueExpr.getLeft() != null
-//                 ? generate(binaryOperationPropertyValueExpr.getLeft())
-//                 : "";
-//         String rightValue = binaryOperationPropertyValueExpr.getRight() != null
-//                 ? generate(binaryOperationPropertyValueExpr.getRight())
-//                 : "";
-//         String op = binaryOperationPropertyValueExpr.getOperation() != null
-//                 ? generate(binaryOperationPropertyValueExpr.getOperation())
-//                 : "";
-//
-//         // Use StringBuilder
-//         StringBuilder sb = new StringBuilder();
-//         sb.append(leftValue)
-//                 .append(" ")
-//                 .append(op)
-//                 .append(" ")
-//                 .append(rightValue);
-//
-//         return sb.toString();
-//     }
 
 }

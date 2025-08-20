@@ -281,7 +281,7 @@ public class GenerationHelper {
         }
 
         for (ComponentFunction func : functions) {
-            if (func != null && methodName.equals(func.getName())) {
+            if (func.getName().startsWith(methodName)) {
                 return func.getImplement();
             }
         }
@@ -322,7 +322,7 @@ public class GenerationHelper {
     
     public static String init(){
         StringBuilder sb = new StringBuilder();
-        sb.append("  renderList();\n" +
+        sb.append("  renderProductListComponent();\n" +
                 "  handleRoute(window.location.pathname);");
         return sb.toString();
     }

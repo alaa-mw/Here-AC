@@ -136,7 +136,6 @@ export class ProductState {
   `,
   styles: [`
     .product-list {
-    flex: 1;
     padding: 12px;
     max-width: 40%;
     }
@@ -332,24 +331,21 @@ export class AddProductComponent implements OnInit {
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void { //***
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.editingId = id;
-        this.productState.products$.subscribe(products => {
-          const existingProduct = products.find(p => p.id === id);
-          if (existingProduct) {
-            this.formProduct = {
-              name: existingProduct.name,
-              desc: existingProduct.desc,
-              image: existingProduct.image
-            };
-          }
-        });
-      }
-    });
-  }
+  ngOnInit(): void {
+      const id = this.route.snapshot.paramMap.get('id');
+      this.editingId = id;
+
+        if (id) {
+          this.productState.products$.subscribe(products => {
+            const existingProduct = products.find(p => p.id === id);
+            if (existingProduct) {
+              this.formProduct = existingProduct;
+            }
+          });
+        }else{
+          this.formProduct = { name: '', desc: '', image: '' };
+        }
+    }
 
   onSubmit(): void {
     if (this.editingId) {

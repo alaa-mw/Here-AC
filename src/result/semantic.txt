@@ -1,2 +1,4 @@
 Semantic Check :
-Error at line 9 : Missed Service Import 
+Invalid HTML binding: product
+Invalid HTML binding: name
+Invalid HTML binding: desc
