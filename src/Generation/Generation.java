@@ -838,6 +838,7 @@ public class Generation {
                 if (id.equals("route")|| id.equals("snapshot")){
                     return "##";
                 }
+
 //                if (sb.length() > 0 && !id.contains("value")) {
                 if (sb.length() > 0 && skipDot(id)) {
                     sb.append(".");
@@ -848,8 +849,14 @@ public class Generation {
 //                    System.out.println(temp);
 //                }
 //                sb.append(id);
+                if (id.equals("router")){
+                    sb.delete(0, sb.length());
+                    sb.append(id.replace("router","handleRoute"));
+                }
+                else{
+                    sb.append(skipIdentifier(id));
+                }
 
-                sb.append(skipIdentifier(id));
             }
         }
 
@@ -860,7 +867,16 @@ public class Generation {
                 if (sb.length() > 0 && skipDot(methodCall.getMethodCalledName())) {
                     sb.append(".");
                 }
-                sb.append(generate(methodCall)); // returns e.g. `.getName()`
+                String s=generate(methodCall);
+
+                if (s.contains("navigate")){
+                System.out.println("\n\n\n\n\n\n\n\n");
+                    System.out.println(s);
+                System.out.println(convertNavigate(s));
+                System.out.println("\n\n\n\n\n\n\n\n");
+                    sb.append(convertNavigate(s)); // returns e.g. `.getName()`
+                }
+                else sb.append(s);
             }
         }
         return sb.toString();
@@ -910,9 +926,14 @@ public class Generation {
 
         // Start with the method name
         String s= methodCall.getMethodCalledName();
-
+//        if (s.equals("navigate")){
+//            sb.append("handleRoute(`");
+//        }
+//        else {
         sb.append(skipIdentifier(s));
         sb.append("(");
+
+//        }
 
         // Generate arguments (if any)
         List<Expression> expressions = methodCall.getExpressions();
@@ -1727,12 +1748,13 @@ public class Generation {
             js_fw.write("}");
         }if (propertyValue instanceof ShortIfExpr) {
             // Output the identifier as plain text
-            js_fw.write("{{");
+            js_fw.write("${");
             String out = generate((ShortIfExpr) propertyValue);
             js_fw.write(out);
-            js_fw.write("}}");
+            js_fw.write("}");
         }
     }
+
     private void generateJs(PropertyCall propertyCall) throws IOException {
         boolean first = true;
         if (propertyCall instanceof SimplePropertyCall) {

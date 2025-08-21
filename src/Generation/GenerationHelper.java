@@ -286,7 +286,7 @@ public class GenerationHelper {
                 String implement = func.getImplement();
 
                 if (implement != null) {
-                    implement = implement.replace("this.router.navigate([\'","handleRoute(`").replace("\', id])","/${id}`)").replace("\'])","`)");
+//                    implement = implement.replace("this.router.navigate([\'","handleRoute(`").replace("\', id])","/${id}`)").replace("\'])","`)");
                     implement = implement.replace("stopPropagation();", "preventDefault();");
 //                    implement = implement.replace("this.productState", "productState");
 
@@ -329,6 +329,8 @@ public class GenerationHelper {
             return false;
         if(identifier.contains("value"))
             return false;
+        if(identifier.contains("navigate"))
+            return false;
         return true;
     }
     
@@ -349,6 +351,44 @@ public class GenerationHelper {
 
         // ensure first character is lowercase
         return str.substring(0, 1).toLowerCase() + str.substring(1);
+    }
+
+    public static String convertNavigate(String s) {
+        if (!s.contains("navigate")) {
+            return s; // إذا ما فيه navigate رجعه كما هو
+        }
+
+        // احذف "navigate(" و")"
+        s = s.replace("navigate(", "")
+                .replace(")", "")
+                .trim();
+
+        // الآن s يشبه: ['/product', id] أو ['/']
+        if (s.startsWith("['/")) {
+            s = s.replace("[", "").replace("]", "").trim();
+
+            String[] parts = s.split(",");
+
+            if (parts.length > 1) {
+                // path ومعه متغيرات
+                String path = parts[0].trim().replace("'", "").replace("\"", "");
+                StringBuilder result = new StringBuilder("(`" + path);
+
+                // أضف كل الباراميترات المتبقية
+                for (int i = 1; i < parts.length; i++) {
+                    String param = parts[i].trim();
+                    result.append("/${").append(param).append("}");
+                }
+                result.append("`)");
+                return result.toString();
+            } else {
+                // فقط path بدون متغير
+                String path = parts[0].trim().replace("'", "").replace("\"", "");
+                return "('" + path + "')";
+            }
+        }
+
+        return s; // fallback
     }
 
 
