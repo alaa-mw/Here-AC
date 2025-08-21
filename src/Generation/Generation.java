@@ -876,6 +876,10 @@ public class Generation {
                 System.out.println("\n\n\n\n\n\n\n\n");
                     sb.append(convertNavigate(s)); // returns e.g. `.getName()`
                 }
+                else if(s.contains("stopPropagation")){
+                 sb.append(s.replace("stopPropagation","preventDefault"));
+                }
+
                 else sb.append(s);
             }
         }
@@ -1639,6 +1643,7 @@ public class Generation {
         // == events
         if( tempBasic != null && tempAction != null ) generateJsEvent(tempBasic,tempAction,jsConst);
         if( tempEvent != null) generateJsEvent(tempEvent,jsConst);
+        if(Objects.equals(openTag.getIdentifier(), "form")) generateJsEvent(jsConst);
     }
 
     // Generates a self-closing tag
@@ -1697,6 +1702,12 @@ public class Generation {
                 new ComponentEvent(buttonFunction,null, id, jsConst));
 
     }
+
+    public void generateJsEvent(String jsConst) throws IOException {
+        componentMap.get(currentComponent).getEvents().add(
+                new ComponentEvent(null,null, null, jsConst));
+    }
+
     private void generateJs(ImageAttribute imageAttribute) throws IOException {
       js_fw.write(" " +
               imageAttribute.getImageSrc()

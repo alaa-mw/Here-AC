@@ -28,11 +28,11 @@ handleRoute(`/product/${id}`);
 }
 
 function deleteProductProductListComponent(event,id){
-event.stopPropagation();productState.deleteProduct(id);handleRoute('/');
+event.preventDefault();productState.deleteProduct(id);handleRoute('/');
 }
 
 function editProductProductListComponent(event,id){
-event.stopPropagation();handleRoute(`/edit/${id}`);
+event.preventDefault();handleRoute(`/edit/${id}`);
 }
 
 function renderProductListComponent() {
@@ -120,8 +120,8 @@ formProduct
 
 }
 
-function onSubmitAddProductComponent(){
-
+function onSubmitAddProductComponent(event){
+event.preventDefault();
  if (editingId
 ){
 productState.updateProduct({id: editingId
@@ -226,14 +226,11 @@ const productDetailsSection = document.getElementById('product-details-section')
 
 
 // ===== Generated Event Listener =====
-addEditProductSection.addEventListener("input", (e) => {
-  formProduct[e.target.name] = e.target.value;
-});
 
-addEditProductSection.addEventListener('click', e => {
-const id = e.target.dataset.id; 
-  if (e.target.id === 'submit') {
-  e.preventDefault();
+addEditProductSection.addEventListener('click', event => {
+const id = event.target.dataset.id; 
+  if (event.target.id === 'submit') {
+	event.preventDefault();
  if (editingId
 ){
 productState.updateProduct({id: editingId
@@ -248,30 +245,30 @@ handleRoute('/');
   }
 });
 
-addEditProductSection.addEventListener('click', e => {
-const id = e.target.dataset.id; 
-  if (e.target.id === 'cancel') {
+addEditProductSection.addEventListener('click', event => {
+const id = event.target.dataset.id; 
+  if (event.target.id === 'cancel') {
 	handleRoute('/');
   }
 });
 
-productListSection.addEventListener('click', e => {
-const id = e.target.dataset.id; 
-  if (e.target.id === 'details-btn') {
+productListSection.addEventListener('click', event => {
+const id = event.target.dataset.id; 
+  if (event.target.id === 'details-btn') {
 	handleRoute(`/product/${id}`);
   }
 });
 
-productListSection.addEventListener('click', e => {
-const id = e.target.dataset.id; 
-  if (e.target.id === 'edit-btn') {
+productListSection.addEventListener('click', event => {
+const id = event.target.dataset.id; 
+  if (event.target.id === 'edit-btn') {
 	event.preventDefault();handleRoute(`/edit/${id}`);
   }
 });
 
-productListSection.addEventListener('click', e => {
-const id = e.target.dataset.id; 
-  if (e.target.id === 'delete-btn') {
+productListSection.addEventListener('click', event => {
+const id = event.target.dataset.id; 
+  if (event.target.id === 'delete-btn') {
 	event.preventDefault();productState.deleteProduct(id);handleRoute('/');
   }
 });
@@ -280,14 +277,18 @@ const id = e.target.dataset.id;
 
 // ===== Generated Event Listener =====
 
-document.getElementById('nav-list').addEventListener('click', e => {
-   e.preventDefault();
+document.getElementById('nav-list').addEventListener('click', event => {
+	event.preventDefault();
    handleRoute('/');
 });
 
-document.getElementById('nav-add').addEventListener('click', e => {
-   e.preventDefault();
+document.getElementById('nav-add').addEventListener('click', event => {
+	event.preventDefault();
    handleRoute('/add');
+});
+
+addEditProductSection.addEventListener('input', event => {
+	formProduct[event.target.name] = event.target.value;
 });
 
   renderProductListComponent();

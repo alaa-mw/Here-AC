@@ -176,7 +176,7 @@ public class GenerationHelper {
 
     public  static String eventListenerShape(Map<String,ComponentModel> componentMap){
         String event = "input";
-        String pointer = "e";
+        String pointer = "event";
 
         StringBuilder sb = new StringBuilder();
 
@@ -184,15 +184,14 @@ public class GenerationHelper {
             ComponentModel model = entry.getValue();
             List<ComponentEvent> events = model.getEvents();
             for (ComponentEvent eventModel : events) {
-                if(eventModel.getButtonFunction() == null && eventModel.getId() == null){
+                if(eventModel.getId() == null){
                     sb.append(eventModel.getReference())
                             .append(".addEventListener('")
                             .append(event)
                             .append("', ")
                             .append(pointer)
                             .append(" => {\n");
-                    sb.append("\t").append("formProduct[e.target] = e.target.value;").append("\n");
-                    sb.append("  }\n"); // نهاية if
+                    sb.append("\t").append("formProduct[event.target.name] = event.target.value;").append("\n");
                     sb.append("});\n\n");
                 }
             }
@@ -203,7 +202,7 @@ public class GenerationHelper {
     public static String createEventListener(Map<String, ComponentModel> componentMap) {
 
         String event = "click";
-        String pointer = "e";
+        String pointer = "event";
 
         StringBuilder sb = new StringBuilder();
         sb.append("\n\n").append("// ===== Generated Event Listener =====").append("\n\n");
@@ -226,8 +225,8 @@ public class GenerationHelper {
                         .append("', ")
                         .append(pointer)
                         .append(" => {\n");
-                sb.append("const id = e.target.dataset.id; \n"); //M&B new
-                sb.append("  if (e.target.id === '").append(eventModel.getId()).append("') {\n");
+                sb.append("const id = ").append(pointer).append(".target.dataset.id; \n"); //M&B new
+                sb.append("  if (").append(pointer).append(".target.id === '").append(eventModel.getId()).append("') {\n");
 
                 String _implements = findImplementByName(model.getFunctions(), eventModel.getButtonFunction());
                 sb.append("\t").append(_implements).append("\n");
@@ -242,7 +241,7 @@ public class GenerationHelper {
     public static String createNavEventListener(Map<String, ComponentModel> componentMap) {
 
         String event = "click";
-        String pointer = "e";
+        String pointer = "event";
 
         StringBuilder sb = new StringBuilder();
         sb.append("\n\n").append("// ===== Generated Event Listener =====").append("\n\n");
@@ -268,7 +267,7 @@ public class GenerationHelper {
                         .append("', ")
                         .append(pointer)
                         .append(" => {\n")
-                        .append("   e.preventDefault();\n")
+                        .append("\t").append(pointer).append(".preventDefault();\n")
                         .append("   handleRoute('").append(eventModel.getRouterLink()).append("');\n");
 
                 sb.append("});\n\n"); // نهاية addEventListener
@@ -283,17 +282,8 @@ public class GenerationHelper {
 
         for (ComponentFunction func : functions) {
             if (func.getName().startsWith(methodName)) {
-                String implement = func.getImplement();
 
-                if (implement != null) {
-//                    implement = implement.replace("this.router.navigate([\'","handleRoute(`").replace("\', id])","/${id}`)").replace("\'])","`)");
-                    implement = implement.replace("stopPropagation();", "preventDefault();");
-//                    implement = implement.replace("this.productState", "productState");
-
-
-                }
-
-                return implement;
+                return func.getImplement();
             }
         }
         return null; // no function found

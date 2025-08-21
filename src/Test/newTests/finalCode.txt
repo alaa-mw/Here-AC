@@ -270,7 +270,7 @@ export class ProductDetailsComponent implements OnInit {
   template: `
     <div class="add-product-form" id="add-edit-product-section">
       <h2>Product Form</h2>
-      <form (ngSubmit)="onSubmit()"  id="product-form">
+      <form (ngSubmit)="onSubmit($event)"  id="product-form">
         <div>
           <label>Name</label>
           <input [(ngModel)]="formProduct.name" name="name" required />
@@ -347,7 +347,8 @@ export class AddProductComponent implements OnInit {
         }
     }
 
-  onSubmit(): void {
+  onSubmit(event : Event): void {
+     event.stopPropagation();
     if (this.editingId) {
       this.productState.updateProduct({
         id: this.editingId,
