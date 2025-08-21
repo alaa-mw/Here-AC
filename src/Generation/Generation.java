@@ -126,6 +126,9 @@ public class Generation {
 
         currentSpace = "\t\t";
         for (Statement statement : program.getStatements()) {
+            if (statement instanceof ServiceBlock) {
+                generate((ServiceBlock) statement);
+            }
             if (statement instanceof ComponentBlock) {
                 generate((ComponentBlock) statement);
             }
@@ -136,10 +139,9 @@ public class Generation {
 //        js_fw.write("\n<script>\n");
 
         for (Statement statement : program.getStatements()) {
+
             if (statement instanceof ClassDeclaration) {
                 generate((ClassDeclaration) statement);
-            } else if (statement instanceof ServiceBlock) {
-                generate((ServiceBlock) statement);
             } else if (statement instanceof InterfaceDeclaration) {
                 generate((InterfaceDeclaration) statement);
             } else if (statement instanceof RoutesDeclaration) {
@@ -207,9 +209,10 @@ public class Generation {
             if(hasNgFor(htmlElement)){
                 generateJsInnerHtml(htmlElement);
             } else if (hasNgIf(htmlElement)) {
+                generate(htmlElement.getOpenTag());
                 generateJsInnerHtml(htmlElement);
 
-                generate(htmlElement.getOpenTag());
+//                generate(htmlElement.getOpenTag());
                 generate(htmlElement.getCloseTag());
             } else if (hasEventBinding(htmlElement)) {
                 generateJsInnerHtml(htmlElement);
@@ -290,14 +293,14 @@ public class Generation {
             index_fw.write(" " + key + "=\"" + value + "\"");
 
         // لو المفتاح id خزّن في idMap
+
         if ("id".equals(key)) {
 //            if(componentMap.get(currentComponent) == null)
 //                componentMap.put(currentComponent,new ComponentModel()); // note:  must be put before in class pass , delete later
-            System.out.println(componentMap);
+//            System.out.println(componentMap);
             componentMap.get(currentComponent).setDomElement( // alaa - new
                     new DomElement(convertKebabToCamel(withoutQuotes),withoutQuotes)
             );
-            System.out.println(componentMap.get(currentComponent).getDomElement());
         }
 
     }
@@ -447,20 +450,20 @@ public class Generation {
 //            index_fw.write(cls.getAbstract_() + " ");
 //        }
 
-        // 'class' keyword (always present)
-        js_fw.write(cls.getClass_() + " ");
-
-        // Class name (identifier)
-        js_fw.write(cls.getIdentifier() + " ");
+//        // 'class' keyword (always present)
+//        js_fw.write(cls.getClass_() + " ");
+//
+//        // Class name (identifier)
+//        js_fw.write(cls.getIdentifier() + " ");
 
         currentComponent=cls.getIdentifier();
         componentMap.put(currentComponent,new ComponentModel());
 //        System.out.println("class "+ componentMap);
 //        // Optional heritage (extends)
-        if (cls.getClassHeritage() != null) {
-            generate(cls.getClassHeritage()); // e.g., "extends MyBaseClass"
-            js_fw.write(" ");
-        }
+//        if (cls.getClassHeritage() != null) {
+//            generate(cls.getClassHeritage()); // e.g., "extends MyBaseClass"
+//            js_fw.write(" ");
+//        }
 //
 //        // Optional implementation (implements)
 //        if (cls.getClassImplement() != null) {
@@ -469,7 +472,7 @@ public class Generation {
 //        }
 
         // Open class block
-        js_fw.write("{\n");
+//        js_fw.write("{\n");
 
         // Generate class body
         for (ClassBody body : cls.getClassBody()) {
@@ -478,7 +481,7 @@ public class Generation {
         }
 
         // Close class block
-        js_fw.write("}\n");
+//        js_fw.write("}\n");
     }
 
     private void generate(ClassHeritage heritage) throws IOException {
@@ -492,7 +495,7 @@ public class Generation {
             generate((ClassPropertyDeclaration) body);
         }
         else if (body instanceof ConstructorDeclaration) {
-            generate((ConstructorDeclaration) body);
+//            generate((ConstructorDeclaration) body);
         } else if (body instanceof MethodDeclaration) {
             generate((MethodDeclaration) body);
         }
@@ -559,10 +562,14 @@ public class Generation {
 
         // Property name
         if (prop.getIdentifier()!=null){
-            line.append(skipIdentifier(prop.getIdentifier()));
-            componentMap.get(currentComponent).getAttributes().add(skipIdentifier(prop.getIdentifier()));
+            if (skipDot(prop.getIdentifier())){
+
+                line.append("let "+replace$(skipIdentifier(prop.getIdentifier())));
+                componentMap.get(currentComponent).getAttributes().add(skipIdentifier(prop.getIdentifier()));
+            }
 //            System.out.println("---------> "+componentMap.get(currentComponent).getAttributes());
         }
+
 
         // AssignDataType
         if (prop.getAssignDataType() != null) {
@@ -819,9 +826,9 @@ public class Generation {
         StringBuilder sb = new StringBuilder();
 
         // Start with "this" if present
-        if (propertyWithMethodCall.getThis_() != null) {
+        if ((propertyWithMethodCall.getThis_() != null && propertyWithMethodCall.getIdentifiers().isEmpty())||(propertyWithMethodCall.getThis_() != null && !propertyWithMethodCall.getIdentifiers().isEmpty() && componentMap.get("state")!=null &&componentMap.get("state").getService()!=null &&!propertyWithMethodCall.getIdentifiers().get(0).equals(componentMap.get("state").getService()))) {
             sb.append(propertyWithMethodCall.getThis_());
-        }
+     }
 
         // Append property identifiers (dot-separated)
         List<String> identifiers = propertyWithMethodCall.getIdentifiers();
@@ -831,15 +838,16 @@ public class Generation {
                 if (id.equals("route")|| id.equals("snapshot")){
                     return "##";
                 }
+//                if (sb.length() > 0 && !id.contains("value")) {
                 if (sb.length() > 0 && skipDot(id)) {
                     sb.append(".");
                 }
 //                String temp=id;
-////                if (id.equals("products")){
-//////                    temp=id.replace("products","state");
-//////                    System.out.println(temp);
-////                }
-//                sb.append(temp);
+//                if (id.equals("products")){
+//                    temp=id.replace("products","state");
+//                    System.out.println(temp);
+//                }
+//                sb.append(id);
 
                 sb.append(skipIdentifier(id));
             }
@@ -884,7 +892,8 @@ public class Generation {
 
         // Append each identifier as a property access
         for (String identifier : simplePropertyCall.getIdentifiers()) {
-            if (sb.length() > 0 && skipDot(identifier)) {
+//            if (sb.length() > 0  && !identifier.contains("value")) {
+              if (sb.length() > 0  && skipDot(identifier)) {
                 sb.append(".");
             }
             sb.append(skipIdentifier(identifier));
@@ -1180,7 +1189,8 @@ public class Generation {
             }
             if (s.contains("subscribe")){
                 String temp=extractContent(s);
-                temp.replace("products", "state");
+                String object= componentMap.get("state").getService(); // B&M new
+                temp.replace("products", object);
 
                 sb.append(extractContent(s));
             }
@@ -1204,7 +1214,19 @@ public class Generation {
             if (s.contains("subscribe")){
 
                 String temp=extractContent(s);
-                temp= temp.replace("products", "state.products");
+                String object="";
+//                if ( componentMap.get("state") ==null){
+//                    System.out.println("\n\n\n\nLEADERRRRRRRRR222"+object+"\n\n\n\n");
+//                }
+                if ( componentMap.get("state") !=null){
+
+                 object= componentMap.get("state").getService(); // B&M new
+
+
+                }
+//                System.out.println("\n\n\n\n"+temp+"\n\n\n\n");
+                temp= temp.replace("products", object+".products");
+//                temp= temp.replace("products", "state.products");
                 sb.append(temp);
             }
             else {
@@ -1223,7 +1245,7 @@ public class Generation {
         }
 
         // ضع ; لأنه statement
-//        sb.append(";");
+        sb.append(";");
 
         return sb.toString();
     }
@@ -1425,6 +1447,10 @@ public class Generation {
     // ServiceBlock Section
     private void generate(ServiceBlock service) throws IOException {
 //        js_fw.write(currentSpace + "<!-- Service Block -->\n");
+
+        String s=convertKebabToCamel2(service.getClassDeclaration().getIdentifier());
+        componentMap.put("state",new ComponentModel());
+        componentMap.get("state").setService(s);
         if (service.getClassDeclaration() != null) {
             ClassDeclaration classDeclaration = service.getClassDeclaration();
             js_fw.write(classDeclaration.getClass_() + " " + classDeclaration.getIdentifier() + "{\n");
@@ -1451,7 +1477,9 @@ public class Generation {
                     }
                 }
                 js_fw.write("}\n");
-                js_fw.write("const state = new " + service.getClassDeclaration().getIdentifier() + "();");
+                js_fw.write("const "+ s +" = new " + service.getClassDeclaration().getIdentifier() + "();");
+
+                System.out.println("----------------------->########################## "+componentMap.get("state").getService());
             }
         }
     }
@@ -1492,7 +1520,6 @@ public class Generation {
 
         ComponentModel currentModel = componentMap.get(currentComponent);
         String jsConst = componentMap.get(currentComponent).getDomElement().getConstant();
-
         String render = "render"+currentComponent;
         componentMap.get(currentComponent).setRender(render);
         js_fw.write("function "+render+"() {\n");
@@ -1500,14 +1527,20 @@ public class Generation {
         js_fw.write("const template = \n");
 
         generateJsInnerShape(htmlElement);
-
+        if (jsConst!=null)
         js_fw.write(jsConst+".innerHTML = template;\n");
         js_fw.write("}\n");
     }
 
     public void generateJsInnerShape(HtmlElement htmlElement) throws IOException { // alaa
         if(hasNgFor(htmlElement)){
-            js_fw.write("state.products.map(product => `\n"); // handle later
+            String object="";
+            if ( componentMap.get("state") !=null){
+
+                object= componentMap.get("state").getService(); // B&M new
+            }
+
+            js_fw.write(object+".products.map(product => `\n"); // handle later
             generateJs(htmlElement);
             js_fw.write("`).join('');\n");
 
@@ -1716,8 +1749,8 @@ public class Generation {
     private void generateJsDomElements() throws IOException {
         componentMap.forEach((key, component) -> { // alaa - new
             DomElement dom = component.getDomElement();
-            if (dom != null) {
-
+//            if (dom != null) {
+            if (dom.getConstant() != null) {
                 try {
                     js_fw.write("const " + component.getDomElement().getConstant() +
                             " = document.getElementById('" + component.getDomElement().getId() + "');\n");

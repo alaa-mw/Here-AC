@@ -37,9 +37,9 @@ Symbol Table
       }
     }
     class ProductDetailsComponent symbols: [{name='__implements__', value='OnInit', type='implements'}, {name='selectedProduct', value='null', type='Product'}]{
-      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}, {name='found', value='=this.productState.products$.subscribe(products=>{this.selectedProduct=products.find(p=>p.id===id);})', type=''}]{
+      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}]{
       }
-      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}, {name='found', value='=this.productState.products$.subscribe(products=>{this.selectedProduct=products.find(p=>p.id===id);})', type=''}]{
+      method ngOnInit symbols: [{name='id', value='=this.route.snapshot.paramMap.get('id')', type=''}]{
       }
     }
     class AddProductComponent symbols: [{name='__implements__', value='OnInit', type='implements'}, {name='formProduct', value='null', type='any'}, {name='editingId', value='null', type='string'}]{

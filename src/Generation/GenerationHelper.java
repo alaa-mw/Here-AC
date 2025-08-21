@@ -226,6 +226,7 @@ public class GenerationHelper {
                         .append("', ")
                         .append(pointer)
                         .append(" => {\n");
+                sb.append("const id = e.target.dataset.id; \n"); //M&B new
                 sb.append("  if (e.target.id === '").append(eventModel.getId()).append("') {\n");
 
                 String _implements = findImplementByName(model.getFunctions(), eventModel.getButtonFunction());
@@ -282,11 +283,22 @@ public class GenerationHelper {
 
         for (ComponentFunction func : functions) {
             if (func.getName().startsWith(methodName)) {
-                return func.getImplement();
+                String implement = func.getImplement();
+
+                if (implement != null) {
+                    implement = implement.replace("this.router.navigate([\'","handleRoute(`").replace("\', id])","/${id}`)").replace("\'])","`)");
+                    implement = implement.replace("stopPropagation();", "preventDefault();");
+//                    implement = implement.replace("this.productState", "productState");
+
+
+                }
+
+                return implement;
             }
         }
-        return null; // no function founded
+        return null; // no function found
     }
+
 
 
     public  static void test(Map<String, ComponentModel> myMap){
@@ -311,8 +323,8 @@ public class GenerationHelper {
     }
 
     public static boolean skipDot(String identifier){
-        if(identifier.contains("Subject"))
-            return false;
+//        if(identifier.contains("Subject"))
+//            return false;
         if(identifier.contains("next"))
             return false;
         if(identifier.contains("value"))
@@ -326,5 +338,18 @@ public class GenerationHelper {
                 "  handleRoute(window.location.pathname);");
         return sb.toString();
     }
+    public static String replace$(String identifier){
+        return identifier.replace("$"," ");
+    }
+
+    public static String convertKebabToCamel2(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+
+        // ensure first character is lowercase
+        return str.substring(0, 1).toLowerCase() + str.substring(1);
+    }
+
 
 }

@@ -10,6 +10,7 @@ public class ComponentModel {
     private List<String> attributes = new ArrayList<>();
     private List<ComponentFunction> functions = new ArrayList<>();
     // component
+    private String service =""; // M&B
     private String render;
     private DomElement domElement = new DomElement(); // تهيئة
     private List<ComponentEvent> events = new ArrayList<>();
@@ -53,6 +54,14 @@ public class ComponentModel {
 
     public void setEvents(List<ComponentEvent> events) {
         this.events = events;
+    }
+
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
     }
 
     public String getNgOnInitFunction() {
