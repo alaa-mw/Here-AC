@@ -992,12 +992,13 @@ public class BaseVisitor extends AngularParserBaseVisitor {
             for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
                 simplePropertyCall.addToIdentifiers(ctx.IDENTIFIER(i).getText());
                 if (i < ctx.IDENTIFIER().size() - 1) {
-                    String msg = propertySymbolTable.ReadProperties(ctx.IDENTIFIER(i).getText(), ctx.start.getLine());
-                    if (msg != null) {
-                        SemanticError.Errors.add(msg);
-                    }
+                   try {
+                    propertySymbolTable.ReadProperties(ctx.IDENTIFIER(i).getText(), ctx.start.getLine());
+                   } catch (RuntimeException e) {
+                       SemanticError.Errors.add(e.getMessage());
+                   }
                 }
-                ;// alaa-check
+                // alaa-check
             }
         }
         return simplePropertyCall;

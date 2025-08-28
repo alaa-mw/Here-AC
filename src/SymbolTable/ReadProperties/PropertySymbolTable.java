@@ -26,7 +26,7 @@ public class PropertySymbolTable {
     }
 
 
-    public String ReadProperties(String identifierCalled, int line) {
+    public void ReadProperties(String identifierCalled, int line) {
 
         // البحث عن المعرف الحالي في PropertyMap
         Property property = propertyMap.get(identifierCalled);
@@ -37,16 +37,26 @@ public class PropertySymbolTable {
             String value = property.getValue() == null ? "undefined" :
                     ("null".equals(property.getValue()) ? "null" : property.getValue());
 
+//            if (value.contains("null") || value.contains("undefined")) {
+//                String errorMsg = String.format(
+//                        "Cannot read properties of %s (reading '%s') at line %s. " ,
+//                        value ,identifierCalled, line
+//                );
+//                return errorMsg;
+//
+//            }
             if (value.contains("null") || value.contains("undefined")) {
                 String errorMsg = String.format(
-                        "Cannot read properties of %s (reading '%s') at line %s. " ,
-                        value ,identifierCalled, line
+                        "Cannot read properties of %s (reading '%s') at line %s.",
+                        value, identifierCalled, line
                 );
-                return errorMsg;
+//                //store
+//                errorHandler.logError(errorMsg);
+                throw new RuntimeException(errorMsg);
 
             }
         }
-        return null;
+//        return null;
     }
 
 
