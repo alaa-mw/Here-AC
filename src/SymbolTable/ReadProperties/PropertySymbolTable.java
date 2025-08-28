@@ -37,26 +37,15 @@ public class PropertySymbolTable {
             String value = property.getValue() == null ? "undefined" :
                     ("null".equals(property.getValue()) ? "null" : property.getValue());
 
-//            if (value.contains("null") || value.contains("undefined")) {
-//                String errorMsg = String.format(
-//                        "Cannot read properties of %s (reading '%s') at line %s. " ,
-//                        value ,identifierCalled, line
-//                );
-//                return errorMsg;
-//
-//            }
             if (value.contains("null") || value.contains("undefined")) {
                 String errorMsg = String.format(
-                        "Cannot read properties of %s (reading '%s') at line %s.",
+                        "Cannot read properties of %s (reading '%s') at line %s. ",
                         value, identifierCalled, line
                 );
-//                //store
-//                errorHandler.logError(errorMsg);
                 throw new RuntimeException(errorMsg);
 
             }
         }
-//        return null;
     }
 
 

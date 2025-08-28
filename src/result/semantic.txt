@@ -2,7 +2,7 @@ Semantic Check :
 Duplicate Property 'desc' in Interface@ Product at line 8
 Error at line 22 : Missed Service Import 
 Duplicate property 'product' in class AppComponent at line 90
-Cannot read properties of null (reading 'userData') at line 114.
+Cannot read properties of null (reading 'userData') at line 114. 
 Class 'AppComponent' is missing member 'desc' from interface 'Product' at line 79
 Class 'AppComponent' is missing member 'method' from interface 'Product' at line 79
 Class 'AppComponent' is missing member 'handler' from interface 'Product' at line 79
