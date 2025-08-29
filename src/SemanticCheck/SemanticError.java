@@ -82,26 +82,22 @@ public class SemanticError {
 
     public void classImportNotFound() {
         List<Symbol> symbolTable = importST.getSymbolTable();
-        Map<String, Integer> importArgClasses = new HashMap<>();
-        Map<String, Integer> firstLineOccurrence = new HashMap<>();
+
+        Set<String> importedClasses = new HashSet<>();
+        for (Symbol symbol : symbolTable) {
+            if ("ImportClassName".equals(symbol.getType())) {
+                importedClasses.add(symbol.getName());
+            }
+        }
 
         for (Symbol symbol : symbolTable) {
             if ("importArgClass".equals(symbol.getType())) {
-                importArgClasses.put(symbol.getName(), 0);
-                firstLineOccurrence.put(symbol.getName(), symbol.getLine());
-            }
-        }
-        for (Symbol symbol : symbolTable) {
-            String name = symbol.getName();
-            if (importArgClasses.containsKey(name)) {
-                importArgClasses.put(name, importArgClasses.get(name) + 1);
-
-            }
-        }
-        for (Map.Entry<String, Integer> entry : importArgClasses.entrySet()) {
-            if (entry.getValue() == 1) {
-                int line = firstLineOccurrence.get(entry.getKey());
-                Errors.add("Error at line " + line + " : " + "Missing Class (" + entry.getKey() + ") in imports Component Args");
+                String className = symbol.getName();
+                if (!importedClasses.contains(className)) {
+                    Errors.add("Error at line " + symbol.getLine() +
+                            " : Missing Class (" + className +
+                            ") in imports Component Args");
+                }
             }
         }
     }
