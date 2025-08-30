@@ -1,2 +1,12 @@
 Semantic Check :
+<<<<<<< HEAD
 Duplicate property 'count' in class AppComponent at line 21
+=======
+Invalid HTML binding: product
+Invalid HTML binding: name
+Invalid HTML binding: desc
+Error at line 8 : Missing Class (CommonModule) in imports Component Args
+Error at line 114 : Missing Class (CommonModule) in imports Component Args
+Error at line 218 : Missing Class (CommonModule) in imports Component Args
+Error at line 267 : Missing Class (CommonModule) in imports Component Args
+>>>>>>> 7284347ffc6a1bc73ae93cb6035be3e0fadf8b72
