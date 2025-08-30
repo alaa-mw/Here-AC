@@ -1,2 +1,2 @@
 Semantic Check :
-Duplicate property 'count' in class AppComponent at line 21
+No Error Added

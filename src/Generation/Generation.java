@@ -1236,6 +1236,7 @@ public class Generation {
 
             String s=generate(propertyAssignment.getPropertyCall());
 
+
             if (s.contains("subscribe")){
 
                 String temp=extractContent(s);

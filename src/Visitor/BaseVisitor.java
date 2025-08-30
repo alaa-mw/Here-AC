@@ -274,6 +274,23 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 if (value instanceof LiteralExpr) {
                     globalMissedHTMLSymbolTable.addChild(propName, new MissedHTMLSymbolTable(propName));
                 }
+                if(value instanceof NewExpression){
+                    TypeArguments typeArguments= ((NewExpression) value).getTypeArgument();
+
+                    DataType dataType=typeArguments.getDataTypes().get(0);
+                    if (dataType!=null){
+                        SingleDataType singleDataType=dataType.getSingleDataTypeList().get(0);
+                        Type type=singleDataType.getType();
+                        if (type!=null){
+                            if (type instanceof ClassType){
+                                String DataType=type.getType();
+                                List<String> stringList=globalMissedHTMLSymbolTable.getListFromKey(DataType);
+                                globalMissedHTMLSymbolTable.addListToKey(name,stringList);
+                                globalMissedHTMLSymbolTable.printChildren2();
+                            }
+                        }
+                    }
+                }
 
                 //#####
                 AssignDataType assignDataType=((ClassPropertyDeclaration) body).getAssignDataType();
@@ -295,7 +312,12 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                         }
                     }
                 }
+                if (value instanceof PropertyWithMethodCall) {
+                    String var= ((PropertyWithMethodCall) value).getIdentifiers().get(0);
+                    List<String> stringList=globalMissedHTMLSymbolTable.getListFromKey(var);
+                    globalMissedHTMLSymbolTable.addListToKey(name,stringList);
 
+                }
             }else if (body instanceof MethodDeclaration) {
                 MethodDeclaration method = (MethodDeclaration) visitMethodDeclaration(bodyCtx.methodDeclaration());
                 String name = method.getIdentifier();
@@ -1889,6 +1911,32 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         }
         if(ctx.STRING_LITERAL() !=null){
             ngFor.setStringLiteral(ctx.STRING_LITERAL().getText());
+
+            String stringLiteral=ngFor.getStringLiteral();
+
+            String regex = "^let\\s+(\\w+)\\s+of\\s+this\\.(\\w+\\$?)$";
+
+//            if (stringLiteral.matches(regex)) {
+                System.out.println("Valid ngFor format!");
+                // remove "let " prefix
+                stringLiteral = stringLiteral.replace("\"let ", "").replace(" | async\"","").trim();
+
+                String[] parts = stringLiteral.split(" of ");
+                String localVar = parts[0].trim();
+                String iterable = parts[1].trim();
+
+                // if you want only the name without "this."
+                if (iterable.startsWith("this.")) {
+                    iterable = iterable.substring(5);
+                }
+            System.out.println("string: "+stringLiteral);
+            System.out.println("string: "+localVar);
+            System.out.println("string: "+iterable);
+                List<String> stringList=globalMissedHTMLSymbolTable.getListFromKey(iterable);
+                globalMissedHTMLSymbolTable.addListToKey(localVar,stringList);
+//            }
+
+
         }
         return ngFor;
     }

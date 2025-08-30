@@ -38,8 +38,6 @@ import { RouterModule } from "@angular/router";
 })
 export class AppComponent {}
 //==========================================
-
-
 import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -58,15 +56,17 @@ interface Product {
 // Product State Service
 @Injectable({ providedIn: 'root' })
 export class ProductState {
-  private products = new BehaviorSubject<Product[]>([]);
-  products$ = this.products.asObservable();
+  // private products = new BehaviorSubject<Product[]>([]);
+  // products$ = this.products.asObservable();
+  products = new BehaviorSubject<Product[]>([]);
+
 
   constructor() {
     this.initProducts();
   }
 
   private initProducts(): void {
-    const product: Product[] = [
+    const initialProducts: Product[] = [
     { id: '1',
       name: 'Product 1 Camera',
       desc: 'Capture moments with this amazing camera.',
@@ -83,7 +83,7 @@ export class ProductState {
       image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
     },
   ];
-    this.products.next(product);
+    this.products.next(initialProducts);
   }
   addProduct(product: any): void {
     const newProduct: Product = {
@@ -104,8 +104,6 @@ export class ProductState {
     this.products.next(updatedProducts);
   }
 }
-
-
 
 // Product List Component
 @Component({
@@ -193,7 +191,7 @@ export class ProductListComponent {
   products$;
 
   constructor(private productState: ProductState,private router: Router ) {
-    this.products$ = this.productState.products$;
+    this.products$ = this.productState.products;
   }
 
   goToDetails(id: string): void {
@@ -219,10 +217,10 @@ export class ProductListComponent {
   imports: [CommonModule, RouterModule],
   template: `
   <div class="product-details" id="product-details-section">
-    <div *ngIf="product; else notFound">
-      <h1>{{ product.name }}</h1>
-      <p>{{ product.desc }}</p>
-      <img [src]="product.image" alt="Product Image" width="300" />
+    <div *ngIf="selectedProduct; else notFound">
+      <h1>{{ selectedProduct.name }}</h1>
+      <p>{{ selectedProduct.desc }}</p>
+      <img [src]="selectedProduct.image" alt="Product Image" width="300" />
     </div>
     <ng-template #notFound>
       <p>Product not found</p>
@@ -244,7 +242,7 @@ export class ProductListComponent {
     }`,
 })
 export class ProductDetailsComponent implements OnInit {
-  product: Product | undefined;
+  selectedProduct: Product | undefined;
 
   constructor(
     private route: ActivatedRoute,
@@ -252,14 +250,11 @@ export class ProductDetailsComponent implements OnInit {
     private router: Router
   ) {}
 
-
-
-
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      const found = this.productState.products$.subscribe(products => {
-        this.product = products.find(p => p.id === id);
+      const found = this.productState.products.subscribe(products => {
+        this.selectedProduct = products.find(p => p.id === id);
       });
     }
   }
@@ -338,7 +333,7 @@ export class AddProductComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.editingId = id;
-        this.productState.products$.subscribe(products => {
+        this.productState.products.subscribe(products => {
           const existingProduct = products.find(p => p.id === id);
           if (existingProduct) {
             this.formProduct = {
@@ -369,6 +364,7 @@ export class AddProductComponent implements OnInit {
     this.router.navigate(['/']);
   }
 }
+
 //=================================
 import { Routes } from '@angular/router';
 import {   ProductDetailsComponent, ProductListComponent } from './app_components';
