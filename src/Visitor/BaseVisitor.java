@@ -69,15 +69,15 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         return symbolTable;
     }
 
-    PropertySymbolTable propertySymbolTable = new PropertySymbolTable();
-    MissingImportST missingImportST = MissingImportST.getInstance();
+    PropertySymbolTable propertySymbolTable = new PropertySymbolTable(); //1
+    MissingImportST missingImportST = MissingImportST.getInstance();//2
     SemanticError semanticError = new SemanticError(symbolTable);
 
     public List<List<String>> htmlBindingsToValidate = new ArrayList<>();
-    private MissedHTMLSymbolTable symbolTable2=new MissedHTMLSymbolTable();
+    private MissedHTMLSymbolTable symbolTable2=new MissedHTMLSymbolTable();//3
     MissedHTMLSymbolTable globalMissedHTMLSymbolTable = new MissedHTMLSymbolTable("global");
 
-    private DuplicateAttributeSymbolTable duplicateAttributeSymbolTable = new DuplicateAttributeSymbolTable();
+    private DuplicateAttributeSymbolTable duplicateAttributeSymbolTable = new DuplicateAttributeSymbolTable();//4
     public DuplicateAttributeSymbolTable getSymbolTable2() {
         return duplicateAttributeSymbolTable;
     }
@@ -275,6 +275,27 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                     globalMissedHTMLSymbolTable.addChild(propName, new MissedHTMLSymbolTable(propName));
                 }
 
+                //#####
+                AssignDataType assignDataType=((ClassPropertyDeclaration) body).getAssignDataType();
+                if (assignDataType!=null){
+
+                    if (assignDataType.getDataTypes()!=null){
+                        DataType dataType=assignDataType.getDataTypes().get(0);
+                        if (dataType!=null){
+                            SingleDataType singleDataType=dataType.getSingleDataTypeList().get(0);
+                            Type type=singleDataType.getType();
+                            if (type!=null){
+                                if (type instanceof ClassType){
+                                         String DataType=type.getType();
+                                         List<String> stringList=globalMissedHTMLSymbolTable.getListFromKey(DataType);
+                                         globalMissedHTMLSymbolTable.addListToKey(name,stringList);
+                                         globalMissedHTMLSymbolTable.printChildren2();
+                                }
+                            }
+                        }
+                    }
+                }
+
             }else if (body instanceof MethodDeclaration) {
                 MethodDeclaration method = (MethodDeclaration) visitMethodDeclaration(bodyCtx.methodDeclaration());
                 String name = method.getIdentifier();
@@ -300,21 +321,25 @@ public class BaseVisitor extends AngularParserBaseVisitor {
 
 
         semanticError.checkScope(symbolTable.currentScope(),ctx.start.getLine());
-        semanticError.checkHtmlBindingErrors(htmlBindingsToValidate, globalMissedHTMLSymbolTable);
-
+//        semanticError.checkHtmlBindingErrors(htmlBindingsToValidate, globalMissedHTMLSymbolTable);
+        semanticError.checkHtmlBindingErrors2(htmlBindingsToValidate, globalMissedHTMLSymbolTable);
         symbolTable.exitScope();
 
 //        System.out.println("htmlBindingsToValidate "+htmlBindingsToValidate);
 
 //        for (List<String> identifiers : htmlBindingsToValidate) {
+//            System.out.println("ident: "+identifiers);
+//            globalMissedHTMLSymbolTable.printMap();
 //            String invalidBinding= globalMissedHTMLSymbolTable.isValidPath2(identifiers);
 //            if (invalidBinding!= " ") {
 ////                SemanticLogger.log(" Invalid HTML binding: " + invalidBinding);
 //                System.out.println("🟥 Invalid HTML binding: " + invalidBinding);
 //            } else {
-//                //System.out.println("✔️ Valid HTML binding: " + String.join(".", identifiers));
+//                System.out.println("✔️ Valid HTML binding: " + String.join(".", identifiers));
+//
 //            }
 //        }
+//        globalMissedHTMLSymbolTable.print("ll ");
         return classDeclaration;
     }
 
@@ -1103,6 +1128,7 @@ public class BaseVisitor extends AngularParserBaseVisitor {
     public InterfaceDeclaration visitInterfaceDeclaration(AngularParser.InterfaceDeclarationContext ctx) {
         InterfaceDeclaration interfaceDeclaration = new InterfaceDeclaration();
         String interfaceName =  null;
+        String interfaceNa =  " ";
         symbolTable.enterScope( ctx.IDENTIFIER().getText());
         symbolTable.currentScope().setType("interface ");
 
@@ -1115,6 +1141,8 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         if (ctx.IDENTIFIER() != null) {
             interfaceDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
             interfaceName= "Interface@ "+ctx.IDENTIFIER().getText();
+            interfaceNa=ctx.IDENTIFIER().getText();
+            globalMissedHTMLSymbolTable.addKey(interfaceNa);
         }
         if (ctx.interfaceBody() != null) {
             for (AngularParser.InterfaceBodyContext bodyContext : ctx.interfaceBody()){
@@ -1133,6 +1161,9 @@ public class BaseVisitor extends AngularParserBaseVisitor {
                 if (bodyCtx instanceof AngularParser.PropertyInterfaceContext propCtx) {
                     attrName = propCtx.IDENTIFIER().getText();
                     Type="Property";
+                    globalMissedHTMLSymbolTable.addChildto2(interfaceNa,attrName);
+
+                    globalMissedHTMLSymbolTable.printChildren2();
                 } else if (bodyCtx instanceof AngularParser.FunctionInterfaceContext funcCtx) {
                     attrName = funcCtx.IDENTIFIER().getText();
                     Type="Method";
@@ -1353,14 +1384,46 @@ public class BaseVisitor extends AngularParserBaseVisitor {
         if(ctx.IDENTIFIER() != null)
         {localVariableDeclaration.setIdentifier(ctx.IDENTIFIER().getText());
             nameLocalVar=ctx.IDENTIFIER().getText();
+            // ####
+            globalMissedHTMLSymbolTable.addChild(nameLocalVar,new MissedHTMLSymbolTable());
         }
         if(ctx.assignDataType() != null)
         {localVariableDeclaration.setAssignDataType(visitAssignDataType(ctx.assignDataType()));
             type=ctx.assignDataType().getText();}
         if(ctx.assigment() != null)
-        {localVariableDeclaration.setAssigment(visitAssigment(ctx.assigment()));
+        {
+            localVariableDeclaration.setAssigment(visitAssigment(ctx.assigment()));
             value=ctx.assigment().getText();
         }
+
+        PropertyValue propertyValue=null;
+
+        if (localVariableDeclaration.getAssigment()!=null){
+            propertyValue=localVariableDeclaration.getAssigment().getPropertyValue();
+            if (propertyValue instanceof LIst){
+                for ( PropertyValue p: ((LIst) propertyValue).getElements() ){
+                    if (p instanceof ObjectValue) {
+                        MissedHTMLSymbolTable propMissedHTMLSymbolTable = buildScopeFromObjectValue((ObjectValue) p);
+                        System.out.println("nameLocalVar"+nameLocalVar);
+                        globalMissedHTMLSymbolTable.addChild(nameLocalVar, propMissedHTMLSymbolTable);
+            //                    globalMissedHTMLSymbolTable.print(" ");
+
+                    }
+                }
+            }
+        }
+
+//        if (value instanceof ObjectValue) {
+//            MissedHTMLSymbolTable propMissedHTMLSymbolTable = buildScopeFromObjectValue((ObjectValue) value);
+//            globalMissedHTMLSymbolTable.addChild(propName, propMissedHTMLSymbolTable);
+////                    globalMissedHTMLSymbolTable.print(" ");
+//
+//        }
+//        if (value instanceof LiteralExpr) {
+//            globalMissedHTMLSymbolTable.addChild(propName, new MissedHTMLSymbolTable(propName));
+//        }
+
+
         symbolTable.define(nameLocalVar, value, type,false);
 
         return localVariableDeclaration;

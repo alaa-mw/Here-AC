@@ -1472,8 +1472,11 @@ public class Generation {
     // ServiceBlock Section
     private void generate(ServiceBlock service) throws IOException {
 //        js_fw.write(currentSpace + "<!-- Service Block -->\n");
+        String s=" ";
+        if (service.getClassDeclaration()!= null){
+         s=convertKebabToCamel2(service.getClassDeclaration().getIdentifier());
 
-        String s=convertKebabToCamel2(service.getClassDeclaration().getIdentifier());
+        }
         componentMap.put("state",new ComponentModel());
         componentMap.get("state").setService(s);
         if (service.getClassDeclaration() != null) {

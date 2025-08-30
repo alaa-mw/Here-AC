@@ -5,6 +5,7 @@ import { Component } from '@angular/core';
   standalone: true,
   template: `
     <div>
+      <h1>{{ message.x.y }}</h1>
       <h1>{{ message }}</h1>
     </div>
   `,

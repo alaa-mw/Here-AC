@@ -5,55 +5,55 @@ options { tokenVocab=AngularLexer;}
 program: statement* EOF;
 
 
-statement
-      : importStatement
-      | routesDeclaration  // new ✅
-      | serviceBlock
-      | interfaceDeclaration
-      | componentBlock
-      | classDeclaration
+statement//
+      : importStatement //
+      | routesDeclaration  //
+      | serviceBlock //
+      | interfaceDeclaration //
+      | componentBlock //
+      | classDeclaration //
       | printStatement
 //      |bootstrapCall
       ;
-componentBlock : componentDeclaration  classDeclaration+ ;
-serviceBlock : serviceDeclaration classDeclaration?;
+componentBlock : componentDeclaration  classDeclaration+ ;//
+serviceBlock : serviceDeclaration classDeclaration?;//
 
 // 1 ========================= Import Statements =========================
-importStatement : IMPORT OPEN_CURLY_BRACKET importItems CLOSE_CURLY_BRACKET FROM STRING_LITERAL SEMICOLON;
-importItems : IDENTIFIER (COMMA IDENTIFIER)*;
+importStatement : IMPORT OPEN_CURLY_BRACKET importItems CLOSE_CURLY_BRACKET FROM STRING_LITERAL SEMICOLON; //
+importItems : IDENTIFIER (COMMA IDENTIFIER)*;//
 
 // 2 ========================= Interface Statements =========================
-interfaceDeclaration : EXPORT? INTERFACE IDENTIFIER OPEN_CURLY_BRACKET interfaceBody* CLOSE_CURLY_BRACKET;
-interfaceBody
+interfaceDeclaration : EXPORT? INTERFACE IDENTIFIER OPEN_CURLY_BRACKET interfaceBody* CLOSE_CURLY_BRACKET;//
+interfaceBody//
     : READONLY? IDENTIFIER QUESTION? DOT_DOT dataType SEMICOLON                                                       #PropertyInterface
     | IDENTIFIER QUESTION? OPEN_BRACKET parameterList? CLOSE_BRACKET DOT_DOT dataType SEMICOLON                       #FunctionInterface
     | READONLY? IDENTIFIER QUESTION? DOT_DOT OPEN_BRACKET parameterList CLOSE_BRACKET ARROW dataType  SEMICOLON       #ArrowFunctionInterface
     ;
 
 // 3 =========================  Service Declaration =========================
-serviceDeclaration: INJECTABLE OPEN_BRACKET serviceArguments CLOSE_BRACKET;
-serviceArguments :  OPEN_CURLY_BRACKET arg(COMMA arg*)* CLOSE_CURLY_BRACKET ;
-arg : PROVIDED_IN DOT_DOT STRING_LITERAL;
+serviceDeclaration: INJECTABLE OPEN_BRACKET serviceArguments CLOSE_BRACKET;//
+serviceArguments :  OPEN_CURLY_BRACKET arg(COMMA arg*)* CLOSE_CURLY_BRACKET ;//
+arg : PROVIDED_IN DOT_DOT STRING_LITERAL;//
 
 
 // 4  ========================= Component Declaration =========================
 componentDeclaration
-    : COMPONENT openComponent componentArguments* closeComponent
+    : COMPONENT openComponent componentArguments* closeComponent //
     ;
-selectorArg
+selectorArg//
     : SELECTOR  DOT_DOT STRING_LITERAL  COMMA
     ;
-standAloneArg
+standAloneArg//
     : STANDALONE DOT_DOT BOOL  COMMA
     ;
-importArg
+importArg //
     : IMPORTS DOT_DOT OPEN_SQUARE_BRACKET (IDENTIFIER COMMA*)* CLOSE_SQUARE_BRACKET COMMA
     ;
-templateArg
+templateArg //
     :TEMPLATE_URL DOT_DOT STRING_LITERAL COMMA                      #templateUrl
     | TEMPLATE DOT_DOT SCOPE_QUOTE htmlDocument SCOPE_QUOTE COMMA   #template
     ;
-styleArg
+styleArg //
    :STYLES_URL DOT_DOT STRING_LITERAL COMMA                                                                              #StyleUrl
    |STYLES_URLS DOT_DOT (OPEN_SQUARE_BRACKET STRING_LITERAL (COMMA STRING_LITERAL*)* CLOSE_SQUARE_BRACKET )COMMA         #StyleUrls
    |STYLES DOT_DOT (
@@ -62,7 +62,7 @@ styleArg
                    ) COMMA                                                                                               #Styles
    ;
 
-componentArguments
+componentArguments  //
           : importArg
           | templateArg
           | styleArg
@@ -70,8 +70,8 @@ componentArguments
           | standAloneArg
           ;
 
-openComponent : OPEN_BRACKET OPEN_CURLY_BRACKET ;
-closeComponent : CLOSE_CURLY_BRACKET CLOSE_BRACKET ;
+openComponent : OPEN_BRACKET OPEN_CURLY_BRACKET ;//
+closeComponent : CLOSE_CURLY_BRACKET CLOSE_BRACKET ;//
 
 // 4.1 ==================== HTML ====================
 htmlDocument
@@ -143,17 +143,17 @@ ruleValue : IDENTIFIER
           ;
 
 //============================ routesDeclaration ========================
-routesDeclaration
+routesDeclaration //
     : EXPORT? declareVarsKeyword IDENTIFIER (DOT_DOT IDENTIFIER)? EQ routeArray SEMICOLON
     ;
-routeArray
+routeArray //
     : OPEN_SQUARE_BRACKET routeObject (COMMA routeObject)* CLOSE_SQUARE_BRACKET
     ;
-routeObject
+routeObject//
     : OPEN_CURLY_BRACKET routeProperty  CLOSE_CURLY_BRACKET
     ;
 
-routeProperty
+routeProperty //
     : PATH DOT_DOT STRING_LITERAL COMMA COMPONENT_KW DOT_DOT IDENTIFIER
     ;
 //============== ✅
@@ -182,38 +182,38 @@ routeProperty
 //    ;
 
 // 5 ========================= Class Declaration =========================
-classDeclaration:  EXPORT? ABSTRACT? CLASS IDENTIFIER classHeritage? classImplement? OPEN_CURLY_BRACKET classBody* CLOSE_CURLY_BRACKET;
-classHeritage: EXTENDS IDENTIFIER ;
-classImplement : IMPLEMENTS IDENTIFIER (COMMA IDENTIFIER)* ;
+classDeclaration:  EXPORT? ABSTRACT? CLASS IDENTIFIER classHeritage? classImplement? OPEN_CURLY_BRACKET classBody* CLOSE_CURLY_BRACKET; //
+classHeritage: EXTENDS IDENTIFIER ; //
+classImplement : IMPLEMENTS IDENTIFIER (COMMA IDENTIFIER)* ; //
 
-classBody
-    : classPropertyDeclaration
-    | methodDeclaration
+classBody //
+    : classPropertyDeclaration //
+    | methodDeclaration //
     | constructorDeclaration
     ;
 
-classPropertyDeclaration
+classPropertyDeclaration //
     : accessModifiers? STATIC? READONLY? IDENTIFIER (DOT_DOT assignDataType)?  assigment? SEMICOLON?
     ;
 
 // 5.1 ------------- MethodsDeclaration
-methodDeclaration
+methodDeclaration //
            : decorator* accessModifiers* ASYNC? STATIC? IDENTIFIER
            OPEN_BRACKET (parameterList)? CLOSE_BRACKET
            (returnType)? assigmentToNull? // not need in js
            OPEN_CURLY_BRACKET (methodBody)* CLOSE_CURLY_BRACKET ;
-decorator  : ATT IDENTIFIER ;
-returnType : DOT_DOT dataType
+decorator  : ATT IDENTIFIER ; //
+returnType : DOT_DOT dataType //
            ;
 
-methodBody
+methodBody //
     : returnStatement
     | commonStatement
     | methodBodyProperty
     | (propertyCall SEMICOLON)
     ;
 
-methodBodyProperty
+methodBodyProperty //
     : localVariableDeclaration SEMICOLON?
     | propertyAssignment SEMICOLON?
     ;
@@ -221,33 +221,34 @@ methodBodyProperty
 
 // ========================== common rules =============================
 
-returnStatement : RETURN expression? SEMICOLON ;
+returnStatement : RETURN expression? SEMICOLON ; //
 
 printStatement : CONSOLE DOT LOG OPEN_BRACKET (expression (COMMA expression)*)? CLOSE_BRACKET SEMICOLON;
 
-parameterList: parameter (COMMA parameter)*
+parameterList: //
+                parameter (COMMA parameter)*
              | IDENTIFIER (COMMA IDENTIFIER)*
              ;
-parameter: IDENTIFIER QUESTION? DOT_DOT KEYOF? dataType;
+parameter: IDENTIFIER QUESTION? DOT_DOT KEYOF? dataType; //
 
 // 5.2 -------------  ConstructorDeclaration
-constructorDeclaration
+constructorDeclaration //
     : CONSTRUCTOR OPEN_BRACKET constructorParams?  CLOSE_BRACKET OPEN_CURLY_BRACKET constructorBody* CLOSE_CURLY_BRACKET
     ;
-constructorParams
+constructorParams //
     : constructorParam (COMMA constructorParam)*
     ;
-constructorParam
+constructorParam //
     : accessModifiers? IDENTIFIER DOT_DOT dataType
     ;
 
 
-constructorBody
+constructorBody //
     : constructorBodyProperty
     | commonStatement
     ;
 
-constructorBodyProperty
+constructorBodyProperty //
     : parameterPropertyAssignment
     | methodBodyProperty  // Inherits all method statement types
 //    | superCall
@@ -257,7 +258,7 @@ constructorBodyProperty
     //    ;
 
 // --- these statement use in many places ( func , constructor, block)
-commonStatement
+commonStatement //
     : printStatement
     | conditionalStatement
     | switchStatement
@@ -268,25 +269,25 @@ commonStatement
 
 //  -------------  propertyDeclarationRules --start
 
-blockProperty
+blockProperty //
     : localVariableDeclaration
     | propertyAssignment
     ;
-parameterPropertyAssignment
+parameterPropertyAssignment //
     : accessModifiers? READONLY? IDENTIFIER (assigment)? SEMICOLON
     ;
 
-localVariableDeclaration
+localVariableDeclaration //
     : (LET | CONST) IDENTIFIER (DOT_DOT assignDataType)? assigment? SEMICOLON
     ;
-propertyAssignment
+propertyAssignment //
     :  propertyCall compoundAssignment?  SEMICOLON
     ;
 
-assignDataType : dataType (OR dataType)*;
-assigment :  EQ propertyValue ;
-assigmentToNull :  OR NULL (EQ NULL)? ;
-compoundAssignment
+assignDataType : dataType (OR dataType)*; //
+assigment :  EQ propertyValue ; //
+assigmentToNull :  OR NULL (EQ NULL)? ; //
+compoundAssignment //
     : (PLUSEQ
     | MINUSEQ
     | STAREQ
@@ -295,14 +296,14 @@ compoundAssignment
     ;
 
 
-propertyValue
+propertyValue //
     :propertyValueObjects                                           #PropertyValueObjectExpr
     |CLOSE_BRACKET propertyValue CLOSE_BRACKET                      #BracketedPropertyValueExpr
     | propertyValue operation propertyValue                         #BinaryOperationPropertyValueExpr
     | propertyValue QUESTION propertyValue DOT_DOT propertyValue    #ShortIfExpr
     ;
 
-propertyValueObjects
+propertyValueObjects //
             : literalValue
             | objectValue
             | list
@@ -317,7 +318,7 @@ propertyValueObjects
             ;
 
 /* Primitive Literals */
-literalValue
+literalValue //
     : STRING_LITERAL                            # LiteralExpr
     | NUMERIC_LITERAL                           # LiteralExpr
     | BIGINT_LITERAL                            # LiteralExpr
@@ -329,7 +330,7 @@ literalValue
     ;
 
 
-objectValue
+objectValue //
     : OPEN_CURLY_BRACKET (objectProperty (COMMA objectProperty)* )? COMMA? CLOSE_CURLY_BRACKET
     | IDENTIFIER
     ;
@@ -337,7 +338,7 @@ objectValue
 //    : IDENTIFIER (DOT_DOT propertyValue)?
 //    ;
 
-objectProperty  // new ✅
+objectProperty  //
     : spreadElement                         #SpreadObjectProperty
     | IDENTIFIER (DOT_DOT propertyValue)?   #NormalObjectProperty
     ;
@@ -346,14 +347,14 @@ objectProperty  // new ✅
 //    ;
 //
 
-list  // new ✅
+list  //
     : OPEN_SQUARE_BRACKET (spreadElement | propertyValue) (COMMA (spreadElement | propertyValue))* COMMA? CLOSE_SQUARE_BRACKET
     ;
 
-spreadElement  // new ✅
+spreadElement  //
     : SPREAD (  propertyCall |IDENTIFIER)  #SpreadElementExpr
     ;
-indexAccessValue
+indexAccessValue //
     : IDENTIFIER OPEN_SQUARE_BRACKET propertyValue CLOSE_SQUARE_BRACKET
     ;
 
@@ -362,7 +363,7 @@ indexAccessValue
 //    : IDENTIFIER ARROW expression                               # ArrowFunctionExpr         // single parameter
 //    | OPEN_BRACKET parameterList CLOSE_BRACKET ARROW expression # ArrowFunctionWithParamsExpr // multiple parameters
 //    ;
-arrowFunction  // new ✅
+arrowFunction  //
     : IDENTIFIER ARROW expression                                     # ArrowFunctionExpr
     | IDENTIFIER ARROW block                                          # ArrowFunctionBlockExpr
     | OPEN_BRACKET parameterList CLOSE_BRACKET ARROW expression       # ArrowFunctionWithParamsExpr
@@ -370,20 +371,20 @@ arrowFunction  // new ✅
     ;
 
 
-preFix
+preFix //
     : ( PP |  MM ) IDENTIFIER
     ;
-postFix
+postFix //
     : IDENTIFIER  ( PP |  MM )
     ;
 
-propertyCall // new ✅
+propertyCall //
     : (THIS | IDENTIFIER) (QUESTION? DOT (IDENTIFIER | indexAccessValue))*       # SimplePropertyCall
     | (THIS | IDENTIFIER) (QUESTION? DOT IDENTIFIER)* (DOT methodCall)+          # PropertyWithMethodCall
     ;
 
 
-methodCall
+methodCall //
     : IDENTIFIER (typeArguments)? OPEN_BRACKET  (expression (COMMA expression)*)? CLOSE_BRACKET (DOT IDENTIFIER)*
     ;
 
@@ -391,15 +392,15 @@ methodCall
 //    : type (typeArguments | listSuffix)*
 //    ;
 // new ✅
-dataType
+dataType //
     : singleDataType (OR singleDataType)*
     ;
 // new ✅
-singleDataType
+singleDataType //
     : type (typeArguments | listSuffix)*
     ;
 
-type
+type //
     : NUMBER        #PrimitiveType
     | STRING        #PrimitiveType
     | BOOLEAN       #PrimitiveType
@@ -411,21 +412,21 @@ type
     | IDENTIFIER    #ClassType
     ;
 
-typeArguments
+typeArguments //
     : LT dataType (COMMA dataType)* GT
     ;
 
-listSuffix
+listSuffix //
     : LIST
     ;
 
-accessModifiers
+accessModifiers //
     : PRIVATE
     | PUBLIC
     | PROTECTED
     ;
 
-newExpression  // new ✅
+newExpression  //
   : NEW IDENTIFIER (typeArguments)? OPEN_BRACKET (expression (COMMA expression)*)? CLOSE_BRACKET
   ;
 

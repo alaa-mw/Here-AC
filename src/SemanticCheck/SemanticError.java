@@ -116,6 +116,44 @@ public class SemanticError {
         }
     }
 
+    public void checkHtmlBindingErrors2(List<List<String>> htmlBindingsToValidate, MissedHTMLSymbolTable globalMissedHTMLSymbolTable) {
+//        System.out.println(htmlBindingsToValidate);
+        List<String> errors = new ArrayList<>();
+
+        for (List<String> binding : htmlBindingsToValidate) {
+            if (binding.isEmpty()) continue;
+
+            MissedHTMLSymbolTable current = globalMissedHTMLSymbolTable;
+            StringBuilder path = new StringBuilder();
+
+            for (int i = 0; i < binding.size(); i++) {
+                String part = binding.get(i);
+                if (i > 0) path.append(".");
+                path.append(part);
+
+                Map<String, List<String>> children2 = current.getChildren2();
+                List<String> availableProps = children2.get(binding.get(0));
+
+                if (i == 0) {
+                    // check root object
+                    if (!children2.containsKey(part)) {
+                        Errors.add("Error: object '" + part + "' not found at path " + path);
+                        break;
+                    }
+                } else {
+                    // check property exists in the list of previous object
+                    List<String> props = children2.get(binding.get(i - 1));
+                    if (props == null || !props.contains(part)) {
+                        Errors.add("Error: property '" + part + "' not found at path " + path);
+                        break;
+                    }
+                }
+            }
+        }
+        System.out.println("errors: "+errors);
+
+    }
+
     public void checkClassBodyAttributes(String message){
         Errors.add(message);
     }

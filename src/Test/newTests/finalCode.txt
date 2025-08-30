@@ -64,7 +64,7 @@ export class ProductState {
   }
 
   private initProducts(): void {
-    const initialProducts: Product[] = [
+    const product: Product[] = [
     {
       id: '1',
       name: 'Product 1 Camera',
@@ -84,7 +84,7 @@ export class ProductState {
       image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
     },
   ];
-    this.productsSubject.next(initialProducts);
+    this.productsSubject.next(product);
   }
 
   addProduct(product: any): void {

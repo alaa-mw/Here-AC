@@ -1,4 +1,2 @@
 Semantic Check :
-Invalid HTML binding: product
-Invalid HTML binding: name
-Invalid HTML binding: desc
+Duplicate property 'count' in class AppComponent at line 21
